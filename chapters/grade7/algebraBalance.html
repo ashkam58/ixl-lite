@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algebra Balance</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles for the app */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* The main "beam" of the balance scale */
+        .balance-beam {
+            width: 90%;
+            height: 20px;
+            background: linear-gradient(to right, #60a5fa, #3b82f6, #60a5fa);
+            border-radius: 10px;
+            position: relative;
+            margin: 0 auto;
+            /* We use a transition for a subtle "balancing" effect, though it stays level */
+            transition: transform 0.3s ease-in-out; 
+        }
+
+        /* The fulcrum (triangle) under the beam */
+        .fulcrum {
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-top: 50px solid #94a3b8; /* slate-400 */
+            margin: 0 auto;
+            position: relative;
+            top: -2px; /* Slight overlap with beam */
+            z-index: -1;
+        }
+
+        /* The pans that hold the items */
+        .pan {
+            /* Positioned absolutely relative to the document body to hang "from" the beam */
+            position: absolute;
+            top: 190px; /* Adjust this to hang just below the beam */
+            width: 40%;
+            min-height: 200px;
+            background-color: #f1f5f9; /* slate-100 */
+            border: 2px solid #cbd5e1; /* slate-300 */
+            border-radius: 0 0 20px 20px; /* Rounded bottom */
+            padding: 1rem;
+            
+            /* Flexbox to arrange items inside */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-content: flex-start;
+            gap: 0.5rem;
+            
+            /* Wires/strings "holding" the pan */
+            box-shadow: -2px -140px 0 -138px #475569, /* Left string */
+                         2px -140px 0 -138px #475569; /* Right string */
+            transition: all 0.3s ease;
+        }
+        
+        #left-pan {
+            left: 5%;
+        }
+        
+        #right-pan {
+            right: 5%;
+        }
+
+        /* Visual block for the unknown 'x' */
+        .x-box {
+            width: 45px;
+            height: 60px;
+            background-color: #3b82f6; /* blue-600 */
+            border: 2px solid #1e40af; /* blue-800 */
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+
+        /* Visual block for the unit '1' */
+        .unit-weight {
+            width: 30px;
+            height: 30px;
+            background-color: #16a34a; /* green-600 */
+            border: 2px solid #14532d; /* green-800 */
+            border-radius: 50%; /* Circles */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+
+        /* Animation for items "poofing" away */
+        .poof {
+            transform: scale(0);
+            opacity: 0;
+        }
+        
+        /* General purpose button style */
+        .btn {
+            @apply px-5 py-2 rounded-lg font-semibold text-white shadow-md transition-all duration-150 ease-in-out;
+        }
+        .btn-primary {
+            @apply bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300;
+        }
+        .btn-secondary {
+            @apply bg-green-600 hover:bg-green-700 disabled:bg-green-300;
+        }
+        .btn-tertiary {
+             @apply bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 text-slate-800 min-h-screen">
+
+    <div class="container mx-auto max-w-5xl p-4 md:p-8">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-bold text-blue-700">Algebra Balance</h1>
+                <p class="text-lg text-slate-600">Grade 7: Solving Two-Step Equations</p>
+            </div>
+            <div class="text-right">
+                <div class="text-sm text-gray-500">Problems Solved</div>
+                <div id="score" class="text-3xl font-bold text-green-600">0</div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+            
+            <!-- Problem Title -->
+            <div class="text-center mb-4">
+                <h2 id="problem-title" class="text-xl md:text-2xl font-semibold text-center">
+                    Solve the equation shown on the scale!
+                </h2>
+                <p id="equation-text" class="text-3xl md:text-4xl font-bold text-center text-indigo-700 mt-2">
+                    2x + 3 = 7
+                </p>
+            </div>
+
+            <!-- Visual Balance Scale Area -->
+            <!-- This container needs a fixed height to contain the absolutely positioned pans -->
+            <div class="relative w-full h-[400px] md:h-[350px] mb-8">
+                <div class="balance-beam absolute top-[150px] left-[5%]"></div>
+                <div class="fulcrum"></div>
+                
+                <!-- Pans -->
+                <div id="left-pan" class="pan">
+                    <!-- Items will be added here by JS -->
+                </div>
+                <div id="right-pan" class="pan">
+                    <!-- Items will be added here by JS -->
+                </div>
+            </div>
+
+            <!-- Interaction Panel -->
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 text-center">Your Actions</h3>
+                
+                <!-- Feedback Message -->
+                <div id="feedback-message" class="text-center h-12 mb-4">
+                    <!-- JS will put messages here, e.g., "Correct!" -->
+                </div>
+
+                <!-- Main Action Buttons -->
+                <div id="action-steps" class="flex flex-col md:flex-row justify-center gap-4">
+                    <button id="step-1-btn" class="btn btn-primary text-lg flex-1">
+                        Step 1: Isolate the 'x' terms
+                    </button>
+                    <button id="step-2-btn" class="btn btn-primary text-lg flex-1" disabled>
+                        Step 2: Solve for 'x'
+                    </button>
+                </div>
+                
+                <!-- Final Answer Section (hidden by default) -->
+                <div id="final-answer-section" class="hidden flex-col md:flex-row justify-center items-center gap-4 mt-4">
+                    <label for="final-answer-input" class="text-2xl font-bold text-green-700">
+                        So, x = 
+                    </label>
+                    <input type="number" id="final-answer-input" class="w-24 text-2xl font-bold p-2 border-4 border-green-300 rounded-lg text-center focus:border-green-500 focus:outline-none">
+                    <button id="check-answer-btn" class="btn btn-secondary text-lg">
+                        Check Answer
+                    </button>
+                </div>
+
+                <!-- Next Problem Button (hidden by default) -->
+                <div id="next-problem-container" class="text-center mt-6 hidden">
+                    <button id="next-problem-btn" class="btn btn-tertiary text-xl px-10 py-3">
+                        Next Problem
+                    </button>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- DOM Element References ---
+            const scoreEl = document.getElementById('score');
+            const equationTextEl = document.getElementById('equation-text');
+            const leftPanEl = document.getElementById('left-pan');
+            const rightPanEl = document.getElementById('right-pan');
+            const step1Btn = document.getElementById('step-1-btn');
+            const step2Btn = document.getElementById('step-2-btn');
+            const finalAnswerSection = document.getElementById('final-answer-section');
+            const finalAnswerInput = document.getElementById('final-answer-input');
+            const checkAnswerBtn = document.getElementById('check-answer-btn');
+            const feedbackMessageEl = document.getElementById('feedback-message');
+            const nextProblemContainer = document.getElementById('next-problem-container');
+            const nextProblemBtn = document.getElementById('next-problem-btn');
+            const actionStepsEl = document.getElementById('action-steps');
+
+            // --- Game State ---
+            let state = {
+                a: 0, // 'x' coefficient (e.g., 2x)
+                b: 0, // constant on left (e.g., + 3)
+                c: 0, // constant on right (e.g., = 7)
+                x: 0, // the solution
+                
+                // These track the *current* visual state
+                currentA: 0,
+                currentB: 0,
+                currentC: 0,
+                
+                problemsSolved: 0
+            };
+
+            // --- Helper Functions ---
+            
+            /**
+             * Returns a random integer between min and max (inclusive)
+             */
+            function randomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            
+            /**
+             * Creates a visual 'x' box element
+             */
+            function createXBox() {
+                const box = document.createElement('div');
+                box.className = 'x-box';
+                box.textContent = 'x';
+                return box;
+            }
+
+            /**
+             * Creates a visual '1' unit weight element
+             */
+            function createUnitWeight() {
+                const weight = document.createElement('div');
+                weight.className = 'unit-weight';
+                weight.textContent = '1';
+                return weight;
+            }
+            
+            /**
+             * Formats the equation string for display
+             * e.g., "2x + 3 = 7"
+             */
+            function formatEquation(a, b, c) {
+                const aStr = (a === 1) ? 'x' : `${a}x`;
+                const bStr = (b === 0) ? '' : ` + ${b}`;
+                return `${aStr}${bStr} = ${c}`;
+            }
+
+            // --- Core Game Logic ---
+
+            /**
+             * Generates a new problem and sets the initial state
+             */
+            function generateProblem() {
+                // Generate a simple two-step equation: ax + b = c
+                state.x = randomInt(2, 6); // Solution will be 2, 3, 4, 5, or 6
+                state.a = randomInt(2, 4); // 2, 3, or 4 'x' blocks
+                state.b = randomInt(1, 8); // 1 to 8 unit weights
+                state.c = (state.a * state.x) + state.b; // Calculate the right side
+                
+                // Set the current visual state to match the starting problem
+                state.currentA = state.a;
+                state.currentB = state.b;
+                state.currentC = state.c;
+                
+                // Reset the UI
+                resetUI();
+                
+                // Update the visuals
+                drawScale();
+                updateEquationText();
+            }
+            
+            /**
+             * Updates the equation text display
+             */
+            function updateEquationText() {
+                 equationTextEl.textContent = formatEquation(state.currentA, state.currentB, state.currentC);
+            }
+            
+            /**
+             * Updates the score display
+             */
+            function updateScore() {
+                scoreEl.textContent = state.problemsSolved;
+            }
+
+            /**
+             * Clears and redraws all items on the balance scale
+             */
+            function drawScale() {
+                // Clear pans
+                leftPanEl.innerHTML = '';
+                rightPanEl.innerHTML = '';
+                
+                // Add 'x' boxes to left pan
+                for(let i = 0; i < state.currentA; i++) {
+                    leftPanEl.appendChild(createXBox());
+                }
+                
+                // Add unit weights to left pan
+                for(let i = 0; i < state.currentB; i++) {
+                    leftPanEl.appendChild(createUnitWeight());
+                }
+                
+                // Add unit weights to right pan
+                for(let i = 0; i < state.currentC; i++) {
+                    rightPanEl.appendChild(createUnitWeight());
+                }
+            }
+
+            /**
+             * Resets the UI for a new problem
+             */
+            function resetUI() {
+                feedbackMessageEl.innerHTML = '';
+                finalAnswerSection.classList.add('hidden');
+                nextProblemContainer.classList.add('hidden');
+                actionStepsEl.classList.remove('hidden');
+                finalAnswerInput.value = '';
+                
+                step1Btn.disabled = false;
+                step2Btn.disabled = true;
+            }
+            
+            /**
+             * Shows a feedback message (e.g., "Correct!")
+             */
+            function showFeedback(message, type = 'info') {
+                let colorClass = 'text-slate-600';
+                if (type === 'success') {
+                    colorClass = 'text-green-600';
+                } else if (type === 'error') {
+                    colorClass = 'text-red-600';
+                }
+                
+                feedbackMessageEl.innerHTML = `<span class="text-xl font-semibold ${colorClass}">${message}</span>`;
+            }
+            
+            /**
+             * Visually "removes" items from a pan by adding a "poof" class
+             * and then calls redraw after a delay
+             */
+            function animateRemoval(panElement, itemClass, count, callback) {
+                const items = Array.from(panElement.querySelectorAll(itemClass));
+                let removedCount = 0;
+                
+                for(let i = items.length - 1; i >= 0 && removedCount < count; i--) {
+                    items[i].classList.add('poof');
+                    removedCount++;
+                }
+                
+                // After animation, redraw the state
+                setTimeout(callback, 300); // 300ms matches transition duration
+            }
+
+            // --- Event Handlers ---
+            
+            /**
+             * Handles Click: "Step 1: Isolate the 'x' terms"
+             * This removes the 'b' constant from both sides.
+             */
+            function handleStep1() {
+                const unitsToRemove = state.currentB;
+                if (unitsToRemove === 0) return; // Already done
+                
+                // Update state *first*
+                state.currentC = state.currentC - state.currentB;
+                state.currentB = 0;
+                
+                // Animate the removal
+                animateRemoval(leftPanEl, '.unit-weight', unitsToRemove, () => {});
+                animateRemoval(rightPanEl, '.unit-weight', unitsToRemove, () => {
+                    // After animation, redraw to the new state
+                    drawScale();
+                    updateEquationText();
+                });
+
+                showFeedback('Great! We removed the constants.', 'info');
+                
+                // Update UI buttons
+                step1Btn.disabled = true;
+                step2Btn.disabled = false;
+            }
+
+            /**
+             * Handles Click: "Step 2: Solve for 'x'"
+             * This divides both sides by 'a'.
+             */
+            function handleStep2() {
+                if (state.currentA === 1) return; // Already done
+
+                // Update state
+                state.currentC = state.currentC / state.currentA;
+                state.currentA = 1;
+
+                // For division, a simple redraw is clearer than an animation
+                drawScale();
+                updateEquationText();
+
+                showFeedback('Awesome! Now, what is 1x equal to?', 'info');
+                
+                // Update UI
+                step2Btn.disabled = true;
+                actionStepsEl.classList.add('hidden');
+                finalAnswerSection.classList.remove('hidden');
+                finalAnswerInput.focus();
+            }
+
+            /**
+             * Handles Click: "Check Answer"
+             */
+            function handleCheckAnswer() {
+                const userAnswer = parseInt(finalAnswerInput.value);
+                
+                if (userAnswer === state.x) {
+                    // Correct!
+                    showFeedback('Correct! You solved it!', 'success');
+                    state.problemsSolved++;
+                    updateScore();
+                    finalAnswerSection.classList.add('hidden');
+                    nextProblemContainer.classList.remove('hidden');
+                } else {
+                    // Incorrect
+                    showFeedback(`Not quite. The answer was ${state.x}. Let's try another!`, 'error');
+                    finalAnswerSection.classList.add('hidden');
+                    nextProblemContainer.classList.remove('hidden');
+                }
+            }
+
+            // --- Initialization ---
+            step1Btn.addEventListener('click', handleStep1);
+            step2Btn.addEventListener('click', handleStep2);
+            checkAnswerBtn.addEventListener('click', handleCheckAnswer);
+            nextProblemBtn.addEventListener('click', generateProblem);
+            
+            // Allow pressing Enter to check answer
+            finalAnswerInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    checkAnswerBtn.click();
+                }
+            });
+
+            // Start the first problem!
+            generateProblem();
+        });
+    </script>
+
+</body>
+</html>
