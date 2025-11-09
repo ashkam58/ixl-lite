@@ -494,3 +494,14 @@
 
 </body>
 </html>
+<script>
+    (function(){
+        const parts = location.pathname.split('/').filter(Boolean);
+        const depth = Math.max(0, parts.length - 1);
+        const prefix = '../'.repeat(depth);
+        const s = document.createElement('script');
+        s.src = prefix + 'assets/global-nav.js';
+        s.defer = true;
+        document.body.appendChild(s);
+    })();
+</script>

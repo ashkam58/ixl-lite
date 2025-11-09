@@ -9,13 +9,13 @@
 </head>
 <body>
   <!-- Floating Background Shapes -->
-  <div class="floating-shapes">
+  <!-- <div class="floating-shapes">
     <div class="floating-shape" style="top: 15%; left: 5%; font-size: 50px;">🦸‍♀️</div>
     <div class="floating-shape" style="top: 25%; right: 10%; font-size: 45px;">🦄</div>
     <div class="floating-shape" style="top: 65%; left: 8%; font-size: 55px;">🎪</div>
     <div class="floating-shape" style="top: 75%; right: 5%; font-size: 40px;">🌟</div>
     <div class="floating-shape" style="top: 45%; left: 80%; font-size: 35px;">🎭</div>
-  </div>
+  </div> -->
 
   <div class="topbar">
     <div class="wrap">
@@ -219,6 +219,17 @@
       say("Ready to multiply? 🚀");
       setTimeout(()=>say("Type the answer & hit Enter! ⌨️"), 1600);
     });
+  </script>
+  <script>
+    (function(){
+      const parts = location.pathname.split('/').filter(Boolean);
+      const depth = Math.max(0, parts.length - 1);
+      const prefix = '../'.repeat(depth);
+      const s = document.createElement('script');
+      s.src = prefix + 'assets/global-nav.js';
+      s.defer = true;
+      document.body.appendChild(s);
+    })();
   </script>
 </body>
 </html>

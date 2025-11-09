@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Python Sandbox — IXL-lite</title>
+  <link rel="stylesheet" href="../../assets/styles.css">
+</head>
+<body>
+  <div style="padding:48px; max-width:900px; margin:0 auto; text-align:center;">
+    <h1 style="font-size:2rem;">🐍 Python Sandbox (Preview)</h1>
+    <p class="muted">A lightweight interactive Python playground will be available here. For now, use the links below.</p>
+    <div style="margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a class="btn primary" href="../../index.html">Back to Home</a>
+      <a class="btn" href="#" onclick="alert('Python sandbox coming soon')">Try Demo</a>
+    </div>
+  </div>
+</body>
+</html>
+<script>
+  (function(){
+    const parts = location.pathname.split('/').filter(Boolean);
+    const depth = Math.max(0, parts.length - 1);
+    const prefix = '../'.repeat(depth);
+    const s = document.createElement('script');
+    s.src = prefix + 'assets/global-nav.js';
+    s.defer = true;
+    document.body.appendChild(s);
+  })();
+</script>

@@ -9,13 +9,13 @@
 </head>
 <body>
   <!-- Floating Background Shapes -->
-  <div class="floating-shapes">
+  <!-- <div class="floating-shapes">
     <div class="floating-shape" style="top: 10%; left: 10%; font-size: 60px;">➕</div>
     <div class="floating-shape" style="top: 20%; right: 15%; font-size: 50px;">🔢</div>
     <div class="floating-shape" style="top: 60%; left: 5%; font-size: 70px;">📊</div>
     <div class="floating-shape" style="top: 70%; right: 10%; font-size: 55px;">🎯</div>
     <div class="floating-shape" style="top: 40%; left: 70%; font-size: 45px;">✨</div>
-  </div>
+  </div> -->
 
   <div class="topbar">
     <div class="wrap">
@@ -86,6 +86,17 @@
         manifestUrl: "../../manifest.json"
       }
     });
+  </script>
+  <script>
+    (function(){
+      const parts = location.pathname.split('/').filter(Boolean);
+      const depth = Math.max(0, parts.length - 1);
+      const prefix = '../'.repeat(depth);
+      const s = document.createElement('script');
+      s.src = prefix + 'assets/global-nav.js';
+      s.defer = true;
+      document.body.appendChild(s);
+    })();
   </script>
 </body>
 </html>

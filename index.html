@@ -30,15 +30,13 @@
         <span class="logo"></span> 
         <span>IXL-lite</span>
       </div>
-      <nav class="row">
-        <a class="btn ghost" href="#">📚 Topics</a>
-        <a class="btn ghost" href="#">🏆 Progress</a>
-        <a class="btn ghost" href="#">ℹ️ About</a>
+      <nav class="subjects" aria-label="Subjects">
+        <button class="subject-btn" data-subject="math">🧮 Math</button>
+        <a class="subject-btn" href="chapters/abacus/Soroban.html">🪄 Abacus</a>
+        <a class="subject-btn" href="chapters/chess/bishopEndgame.html">♟️ Chess</a>
+        <button class="subject-btn" data-subject="python">🐍 Python</button>
       </nav>
-      <div class="search">
-        <input id="q" placeholder="🔍 Search topics…" />
-        <button id="searchBtn">Search</button>
-      </div>
+      <div class="subject-submenu" id="subjectSubmenu" hidden aria-hidden="true"></div>
     </div>
   </div>
 
@@ -58,6 +56,55 @@
   </div>
 
   <script src="engine/router.js"></script>
+  <script>
+    // Subject navigation interactivity (touch-friendly)
+    (function(){
+      const submenu = document.getElementById('subjectSubmenu');
+      function showMath(){
+        submenu.innerHTML = `
+          <div class="submenu-inner">
+            <div class="submenu-title">Math — choose a grade</div>
+            <div class="submenu-actions">
+              <a class="btn primary" href="chapters/grade3/addition.html">Grade 3</a>
+              <a class="btn primary" href="chapters/grade7/integers.html">Grade 7</a>
+            </div>
+            <div class="submenu-note muted">Tap a grade to open its activities.</div>
+          </div>`;
+        submenu.hidden = false; submenu.setAttribute('aria-hidden','false');
+      }
+
+      function showPython(){
+        submenu.innerHTML = `
+          <div class="submenu-inner">
+            <div class="submenu-title">Python — Interactive (coming soon)</div>
+            <div class="submenu-actions">
+              <a class="btn primary" href="chapters/python/index.html">Open Python Sandbox</a>
+            </div>
+            <div class="submenu-note muted">A lightweight Python playground will be available here.</div>
+          </div>`;
+        submenu.hidden = false; submenu.setAttribute('aria-hidden','false');
+      }
+
+      function hideSubmenu(){ submenu.hidden = true; submenu.setAttribute('aria-hidden','true'); }
+
+      document.addEventListener('click', (e)=>{
+        const btn = e.target.closest('.subject-btn');
+        if(!btn) return;
+        const subject = btn.dataset.subject;
+        if(subject === 'math'){ showMath(); }
+        else if(subject === 'python'){ showPython(); }
+        else { hideSubmenu(); }
+      });
+
+      // close submenu when clicking outside or on Escape
+      document.addEventListener('click', (e)=>{
+        if(!e.target.closest('.subject-submenu') && !e.target.closest('.subject-btn')){
+          hideSubmenu();
+        }
+      });
+      document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hideSubmenu(); });
+    })();
+  </script>
   <script>
     function render(list){
       const box = document.getElementById('results');
@@ -117,3 +164,14 @@
   </script>
 </body>
 </html>
+  <script>
+    (function(){
+      const parts = location.pathname.split('/').filter(Boolean);
+      const depth = Math.max(0, parts.length - 1);
+      const prefix = '../'.repeat(depth);
+      const s = document.createElement('script');
+      s.src = prefix + 'assets/global-nav.js';
+      s.defer = true;
+      document.body.appendChild(s);
+    })();
+  </script>
