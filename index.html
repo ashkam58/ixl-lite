@@ -24,21 +24,53 @@
     <div class="edu-emoji" style="top: 40%; left: 30%;">�</div>
   </div>
 
-  <div class="topbar">
-    <div class="wrap">
-      <div class="brand">
-        <span class="logo"></span> 
-        <span>IXL-lite</span>
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="logo" aria-hidden="true"></span>
+      <span>IXL-lite</span>
+    </a>
+
+    <!-- Primary subjects (desktop) -->
+    <nav class="subjects" aria-label="Subjects">
+      <button class="subject-btn" data-subject="math">🧮 Math</button>
+      <a class="subject-btn" href="chapters/abacus/Soroban.html">🪄 Abacus</a>
+      <a class="subject-btn" href="chapters/chess/bishopEndgame.html">♟️ Chess</a>
+      <button class="subject-btn" data-subject="python">🐍 Python</button>
+    </nav>
+
+    <!-- Search (desktop & mobile) -->
+    <form class="site-search" role="search" onsubmit="return false;">
+      <input id="q" type="search" placeholder="Search topics… (e.g., Grade 7 Integers)" autocomplete="off" />
+      <button id="searchBtn" type="button" aria-label="Search">🔎</button>
+    </form>
+
+    <!-- Mobile menu toggle -->
+    <button class="hamburger" aria-label="Open menu" aria-controls="mobileMenu" aria-expanded="false">☰</button>
+  </div>
+
+  <!-- Subject submenu (desktop hover/click) -->
+  <div class="subject-submenu" id="subjectSubmenu" hidden aria-hidden="true"></div>
+
+  <!-- Mobile drawer -->
+  <div id="mobileMenu" class="mobile-drawer" hidden aria-hidden="true">
+    <div class="drawer-inner">
+      <h3>Subjects</h3>
+      <div class="drawer-links">
+        <button class="drawer-btn" data-subject="math">🧮 Math</button>
+        <a class="drawer-btn" href="chapters/abacus/Soroban.html">🪄 Abacus</a>
+        <a class="drawer-btn" href="chapters/chess/bishopEndgame.html">♟️ Chess</a>
+        <button class="drawer-btn" data-subject="python">🐍 Python</button>
       </div>
-      <nav class="subjects" aria-label="Subjects">
-        <button class="subject-btn" data-subject="math">🧮 Math</button>
-        <a class="subject-btn" href="chapters/abacus/Soroban.html">🪄 Abacus</a>
-        <a class="subject-btn" href="chapters/chess/bishopEndgame.html">♟️ Chess</a>
-        <button class="subject-btn" data-subject="python">🐍 Python</button>
-      </nav>
-      <div class="subject-submenu" id="subjectSubmenu" hidden aria-hidden="true"></div>
+      <hr />
+      <form class="drawer-search" role="search" onsubmit="return false;">
+        <input id="q-mobile" type="search" placeholder="Search topics…" autocomplete="off" />
+        <button id="searchBtn-mobile" type="button">Search</button>
+      </form>
     </div>
   </div>
+</div>
+
 
   <div class="hero">
     <div class="hero-content">

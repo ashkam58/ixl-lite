@@ -9,6 +9,54 @@
   min-width: 220px;
   max-width: 90vw;
 }
+
+/* --- NAVBAR --- */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(10,14,26,.8);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.topbar .wrap{max-width:1100px;margin:auto;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#e5e7eb;font-weight:800}
+.logo{width:32px;height:32px;border-radius:10px;background:conic-gradient(#7c3aed,#22d3ee,#f59e0b,#7c3aed);
+  box-shadow:0 0 0 2px rgba(255,255,255,.06) inset}
+.subjects{display:flex;gap:6px;margin-left:12px}
+.subject-btn{appearance:none;border:0;background:transparent;color:#e5e7eb;padding:8px 12px;border-radius:10px;
+  font-weight:700;cursor:pointer}
+.subject-btn:hover{background:rgba(255,255,255,.07)}
+/* Submenu panel */
+.subject-submenu{position:absolute;left:16px;top:58px;min-width:280px;background:#0b1224;border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;box-shadow:0 20px 40px rgba(0,0,0,.35);padding:12px}
+.subject-submenu[hidden]{display:none}
+.subject-submenu .submenu-inner{display:grid;gap:10px}
+.submenu-title{font-size:.95rem;color:#9ca3af;font-weight:700}
+.submenu-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:12px;
+  text-decoration:none;border:1px solid rgba(255,255,255,.12);color:#e5e7eb;font-weight:700}
+.btn.primary{background:linear-gradient(90deg,#7c3aed,#22d3ee);border:0;color:#0b1020}
+/* Search */
+.site-search{margin-left:auto;display:flex;align-items:center;gap:8px}
+.site-search input{width:min(44vw,420px);padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+  background:#0a1224;color:#e5e7eb}
+.site-search button{padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#111827;color:#e5e7eb}
+.site-search input:focus{outline:2px solid #60a5fa;outline-offset:2px}
+/* Mobile */
+.hamburger{display:none;margin-left:6px;border:0;background:transparent;color:#e5e7eb;font-size:20px;padding:6px}
+.mobile-drawer{position:fixed;inset:0 0 0 35%;background:rgba(7,10,18,.98);backdrop-filter:blur(10px);
+  border-left:1px solid rgba(255,255,255,.08);padding:16px}
+.mobile-drawer[hidden]{display:none}
+.drawer-inner{display:grid;gap:12px}
+.drawer-links{display:grid;gap:8px}
+.drawer-btn{display:block;width:100%;text-align:left;padding:12px;border-radius:12px;background:#0a1224;
+  border:1px solid rgba(255,255,255,.08);color:#e5e7eb;font-weight:700}
+.drawer-search{display:flex;gap:8px}
+.drawer-search input{flex:1;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+  background:#0a1224;color:#e5e7eb}
+.drawer-search button{padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#111827;color:#e5e7eb}
+
+@media (max-width: 900px){
+  .subjects{display:none}
+  .site-search input{width:48vw}
+  .hamburger{display:block}
+}
+
 .subject-submenu .submenu-inner { max-width: 680px; }
 .submenu-title {
   font-weight: 800;
