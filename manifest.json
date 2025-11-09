@@ -183,5 +183,11 @@
       "practice"
     ],
     "level": "Easy"
+  },
+  {
+    "slug": "dotTheory/dotTheory",
+    "title": "Dot Theory • Visual Math",
+    "tags": ["dotTheory", "visual", "math", "theory"],
+    "level": "Medium"
   }
 ]
