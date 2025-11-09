@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Two Bishops Mate — Interactive Trainer</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb;
+    --accent:#38bdf8; --accent2:#22c55e; --warn:#f59e0b; --ring:#f472b6;
+    --sq-light:#0f3b2f; --sq-dark:#0b2e27;
+  }
+  html,body{height:100%;}
+  body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,#12223f,transparent),radial-gradient(1200px 600px at 110% 10%,#0e1a33,transparent),var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px}
+  h1{margin:0 0 8px;font-weight:800;letter-spacing:.2px}
+  p.small{color:var(--muted);margin-top:6px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
+
+  .panel{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid #20324f44;border-radius:16px;padding:16px 16px}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+  .btn{padding:8px 12px;border-radius:12px;border:1px solid #234f5c77;background:#0b2b38;color:#e6fbff;cursor:pointer}
+  .btn:hover{filter:brightness(1.15)}
+  .toggle{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;margin-left:6px}
+
+  .status{border:1px solid #234f5c77;background:#0b2333;border-radius:14px;padding:10px 12px;margin-top:10px}
+  .status .row{display:flex;justify-content:space-between;color:var(--muted);font-size:14px}
+  .status .msg{margin-top:6px}
+
+  /* Board */
+  .boardWrap{border:1px solid #1f5b4a66;border-radius:18px;overflow:hidden;box-shadow:0 10px 40px #0006}
+  .board{display:grid;grid-template-columns:repeat(8,1fr)}
+  .sq{position:relative;aspect-ratio:1/1;user-select:none}
+  .light{background:var(--sq-light)}
+  .dark{background:var(--sq-dark)}
+  .coord{position:absolute;font-size:10px;color:#cbd5e1}
+  .coord.rank{top:4px;left:6px}
+  .coord.file{bottom:4px;right:6px}
+
+  .sel{box-shadow:inset 0 0 0 3px var(--accent)}
+  .legal::after{content:"";position:absolute;inset:18%;border:3px solid var(--warn);border-radius:999px}
+  .hint::after{content:"";position:absolute;inset:12%;border:4px solid var(--ring);border-radius:12px}
+
+  .piece{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.55))}
+  .glyph{pointer-events:none}
+
+  .lesson li{margin:.35em 0}
+  .metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px}
+  .metric{border:1px solid #22324f77;background:#0e2036;padding:8px;border-radius:12px;font-size:14px}
+
+  /* Confetti */
+  .confetti{position:fixed;left:0;right:0;top:0;height:140px;pointer-events:none}
+</style>
+</head>
+<body>
+  <canvas id="confetti" class="confetti"></canvas>
+  <div class="wrap">
+    <div class="grid">
+      <section>
+        <h1>Two Bishops Mate — Interactive Trainer</h1>
+        <p class="small">Goal: drive the black king to the edge, then a corner, then deliver mate with opposite‑colored bishops.</p>
+        <div class="controls">
+          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn" id="randBtn">Randomize</button>
+          <button class="btn" id="patternBtn">Show Mate Pattern</button>
+          <label class="toggle"><input type="checkbox" id="autoBlack" checked> Auto Black King</label>
+          <label class="toggle"><input type="checkbox" id="coach" checked> Coach Hints</label>
+        </div>
+        <div class="status" id="status">
+          <div class="row"><span>Status</span><span>Moves: <b id="moveCount">0</b></span></div>
+          <div class="msg" id="msg">Your move. Use your king as the hammer; bishops are the tongs.</div>
+        </div>
+
+        <div class="panel lesson" style="margin-top:12px">
+          <div style="font-weight:700;margin-bottom:6px">How to Force Mate (Algorithm)</div>
+          <ol>
+            <li><b>Edge:</b> Shepherd the king to the rim. Your king leads; bishops fence off squares.</li>
+            <li><b>Shrink:</b> Keep removing flight squares. Avoid stalemate until the last move.</li>
+            <li><b>Corner:</b> Any corner works. Cut the escape diagonal, bring your king close.</li>
+            <li><b>Final net (a1):</b> BK a1; bishops a2 & b2; WK a3. ♗b2# with all flights covered.</li>
+          </ol>
+          <div class="metrics">
+            <div class="metric">BK mobility: <b id="mobility">8</b></div>
+            <div class="metric">BK in check: <b id="incheck">No</b></div>
+            <div class="metric">Checkmate: <b id="ismate">No</b></div>
+            <div class="metric">WK–BK dist: <b id="dist">0</b></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="boardWrap">
+          <div id="board" class="board"></div>
+        </div>
+        <p class="small">Tip: click a white piece then a highlighted square to move. Purple ring = coach hint.</p>
+      </section>
+    </div>
+  </div>
+
+<script>
+;(() => {
+  const FILES = ["a","b","c","d","e","f","g","h"]; // x 0..7
+  const RANKS = [8,7,6,5,4,3,2,1]; // for labels
+  const KDIRS = [ {x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1},{x:1,y:1},{x:1,y:-1},{x:-1,y:1},{x:-1,y:-1} ];
+  const BDIRS = [ {x:1,y:1},{x:1,y:-1},{x:-1,y:1},{x:-1,y:-1} ];
+
+  const boardEl = document.getElementById('board');
+  const msgEl = document.getElementById('msg');
+  const moveCountEl = document.getElementById('moveCount');
+  const autoBlackEl = document.getElementById('autoBlack');
+  const coachEl = document.getElementById('coach');
+  const mobilityEl = document.getElementById('mobility');
+  const incheckEl = document.getElementById('incheck');
+  const ismateEl = document.getElementById('ismate');
+  const distEl = document.getElementById('dist');
+
+  document.getElementById('resetBtn').addEventListener('click', resetDefault);
+  document.getElementById('randBtn').addEventListener('click', randomize);
+  document.getElementById('patternBtn').addEventListener('click', showMatePattern);
+
+  // ===== State =====
+  let WK = {x:4,y:4};
+  let B1 = {x:2,y:2}; // light
+  let B2 = {x:5,y:3}; // dark
+  let BK = {x:6,y:6};
+  let selected = null; // {type,x,y}
+  let legal = [];
+  let moveCount = 0;
+
+  function inBounds(x,y){return x>=0&&x<8&&y>=0&&y<8}
+  function same(a,b){return a.x===b.x && a.y===b.y}
+  function kingAdj(a,b){return Math.max(Math.abs(a.x-b.x), Math.abs(a.y-b.y))===1}
+  function uci(sq){return FILES[sq.x] + (8 - sq.y)}
+
+  function squaresBetweenDiag(a,b){
+    const dx=b.x-a.x, dy=b.y-a.y; if(Math.abs(dx)!==Math.abs(dy)) return [];
+    const sx=dx>0?1:-1, sy=dy>0?1:-1; const n=Math.abs(dx)-1; const res=[];
+    for(let i=1;i<=n;i++) res.push({x:a.x+sx*i,y:a.y+sy*i});
+    return res;
+  }
+
+  function bishopAttacksSquare(b,target,occ){
+    if(Math.abs(target.x-b.x)!==Math.abs(target.y-b.y)) return false;
+    const between=squaresBetweenDiag(b,target);
+    for(const s of between) if(occ.has(s.x+","+s.y)) return false;
+    return true;
+  }
+
+  function blackKingLegalMoves(BK,WK,B1,B2){
+    const occ = new Set([WK.x+","+WK.y,B1.x+","+B1.y,B2.x+","+B2.y,BK.x+","+BK.y]);
+    const out=[];
+    for(const d of KDIRS){
+      const nx=BK.x+d.x, ny=BK.y+d.y; if(!inBounds(nx,ny)) continue;
+      const k=nx+","+ny; if(occ.has(k)) continue;
+      if(kingAdj({x:nx,y:ny},WK)) continue;
+      const occ2=new Set([WK.x+","+WK.y,B1.x+","+B1.y,B2.x+","+B2.y]);
+      // attacked by bishops?
+      if(bishopAttacksSquare(B1,{x:nx,y:ny}, new Set([...occ2].filter(s=>s!==B1.x+","+B1.y)))) continue;
+      if(bishopAttacksSquare(B2,{x:nx,y:ny}, new Set([...occ2].filter(s=>s!==B2.x+","+B2.y)))) continue;
+      out.push({x:nx,y:ny});
+    }
+    return out;
+  }
+
+  function isCheck(BK,WK,B1,B2){
+    const occ=new Set([WK.x+","+WK.y,B1.x+","+B1.y,B2.x+","+B2.y,BK.x+","+BK.y]);
+    // bishops
+    if(bishopAttacksSquare(B1,BK,new Set([...occ].filter(s=>s!==B1.x+","+B1.y)))) return true;
+    if(bishopAttacksSquare(B2,BK,new Set([...occ].filter(s=>s!==B2.x+","+B2.y)))) return true;
+    if(kingAdj(WK,BK)) return true;
+    return false;
+  }
+
+  function isMate(BK,WK,B1,B2){
+    if(!isCheck(BK,WK,B1,B2)) return false;
+    return blackKingLegalMoves(BK,WK,B1,B2).length===0;
+  }
+
+  function bishopMoves(from,WK,B1,B2,BK){
+    const me = same(from,B1)?B1:B2; const other = same(from,B1)?B2:B1;
+    const out=[];
+    for(const d of BDIRS){
+      let x=me.x+d.x, y=me.y+d.y;
+      while(inBounds(x,y)){
+        if(x===BK.x && y===BK.y) break;
+        if((x===other.x && y===other.y) || (x===WK.x && y===WK.y)) break;
+        out.push({x,y}); x+=d.x; y+=d.y;
+      }
+    }
+    return out;
+  }
+
+  function kingMoves(WK,BK,B1,B2){
+    const out=[]; const occ=new Set([WK.x+","+WK.y,B1.x+","+B1.y,B2.x+","+B2.y,BK.x+","+BK.y]);
+    for(const d of KDIRS){
+      const nx=WK.x+d.x, ny=WK.y+d.y; if(!inBounds(nx,ny)) continue;
+      if(occ.has(nx+","+ny)) continue;
+      if(kingAdj({x:nx,y:ny},BK)) continue;
+      out.push({x:nx,y:ny});
+    }
+    return out;
+  }
+
+  function bestCoachHint(WK,B1,B2,BK){
+    if(!coachEl.checked) return null;
+    const options=[];
+    for(const m of kingMoves(WK,BK,B1,B2)) options.push({from:WK,to:m,piece:'WK'});
+    for(const s of [B1,B2]) for(const m of bishopMoves(s,WK,B1,B2,BK)) options.push({from:s,to:m,piece:same(s,B1)?'B1':'B2'});
+    if(!options.length) return null;
+    let best=null, bestScore=1e9;
+    for(const opt of options){
+      let nWK=WK,nB1=B1,nB2=B2; if(opt.piece==='WK') nWK=opt.to; else if(opt.piece==='B1') nB1=opt.to; else nB2=opt.to;
+      const mob=blackKingLegalMoves(BK,nWK,nB1,nB2).length;
+      const corners=[{x:0,y:0},{x:7,y:0},{x:0,y:7},{x:7,y:7}];
+      const distCorner=Math.min(...corners.map(c=>Math.max(Math.abs(BK.x-c.x),Math.abs(BK.y-c.y))));
+      const score=mob*10+distCorner; if(score<bestScore){bestScore=score;best=opt;}
+    }
+    return best;
+  }
+
+  function render(){
+    boardEl.innerHTML='';
+    for(let ry=0; ry<8; ry++){
+      for(let x=0; x<8; x++){
+        const y=7-ry; // invert for display
+        const div=document.createElement('div');
+        div.className='sq ' + (((x+ry)&1)?'dark':'light');
+        div.dataset.x=x; div.dataset.y=y;
+        if(x===0){const c=document.createElement('div');c.className='coord rank';c.textContent=RANKS[ry];div.appendChild(c)}
+        if(ry===7){const c=document.createElement('div');c.className='coord file';c.textContent=FILES[x];div.appendChild(c)}
+
+        // selection / legal / hint
+        if(selected && selected.x===x && selected.y===y) div.classList.add('sel');
+        if(legal.some(s=>s.x===x && s.y===y)) div.classList.add('legal');
+        const hint=bestCoachHint(WK,B1,B2,BK);
+        if(hint && hint.to.x===x && hint.to.y===y) div.classList.add('hint');
+
+        const pieceHere = (WK.x===x && WK.y===y)?'WK' : (B1.x===x && B1.y===y)?'B1' : (B2.x===x && B2.y===y)?'B2' : (BK.x===x && BK.y===y)?'BK' : null;
+        if(pieceHere){
+          const p=document.createElement('div'); p.className='piece';
+          const span=document.createElement('span'); span.className='glyph';
+          span.textContent = pieceHere==='WK'? '♔' : pieceHere==='BK'? '♚' : '♗';
+          p.appendChild(span); div.appendChild(p);
+        }
+
+        div.addEventListener('click', onSquareClick);
+        boardEl.appendChild(div);
+      }
+    }
+
+    // Metrics
+    mobilityEl.textContent = blackKingLegalMoves(BK,WK,B1,B2).length;
+    incheckEl.textContent = isCheck(BK,WK,B1,B2)?'Yes':'No';
+    const mate = isMate(BK,WK,B1,B2); ismateEl.textContent = mate?'Yes':'No';
+    distEl.textContent = Math.max(Math.abs(WK.x-BK.x), Math.abs(WK.y-BK.y));
+    if(mate){
+      msgEl.textContent = `Checkmate in ${moveCount} move${moveCount===1?'':'s'}!`;
+      fireConfetti();
+    }
+  }
+
+  function onSquareClick(e){
+    const x=+e.currentTarget.dataset.x, y=+e.currentTarget.dataset.y;
+    if(isMate(BK,WK,B1,B2)) return;
+
+    // if clicked a legal square, move selected
+    if(selected && legal.some(s=>s.x===x && s.y===y)){
+      if(selected.type==='WK') WK={x,y};
+      if(selected.type==='B1') B1={x,y};
+      if(selected.type==='B2') B2={x,y};
+      selected=null; legal=[]; moveCount++; moveCountEl.textContent=moveCount;
+      msgEl.textContent = `Moved. Black to wiggle...`;
+      render();
+      setTimeout(()=>{ if(!autoBlackEl.checked) return; const mv=chooseBKMove(BK,WK,B1,B2); if(mv){BK=mv; msgEl.textContent=`Black king to ${uci(mv)}. Your move.`;} else {msgEl.textContent='No legal move for Black—if in check, that\'s mate.'} render();}, 80);
+      return;
+    }
+
+    // else: try selecting a piece
+    const here = (WK.x===x&&WK.y===y)?'WK' : (B1.x===x&&B1.y===y)?'B1' : (B2.x===x&&B2.y===y)?'B2' : null;
+    if(here){
+      selected = {type:here,x,y};
+      if(here==='WK') legal = kingMoves(WK,BK,B1,B2);
+      else if(here==='B1') legal = bishopMoves(B1,WK,B1,B2,BK);
+      else legal = bishopMoves(B2,WK,B1,B2,BK);
+    } else { selected=null; legal=[]; }
+    render();
+  }
+
+  function chooseBKMove(BK,WK,B1,B2){
+    const moves = blackKingLegalMoves(BK,WK,B1,B2); if(!moves.length) return null;
+    const corners=[{x:0,y:0},{x:7,y:0},{x:0,y:7},{x:7,y:7}];
+    function score(sq){
+      const toCenter=(3.5-Math.abs(3.5-sq.x))+(3.5-Math.abs(3.5-sq.y));
+      const nearestCorner=Math.min(...corners.map(c=>Math.max(Math.abs(sq.x-c.x),Math.abs(sq.y-c.y))));
+      return toCenter+nearestCorner+Math.random()*0.01;
+    }
+    let best=moves[0], bestS=-1e9; for(const m of moves){ const s=score(m); if(s>bestS){bestS=s; best=m;} }
+    return best;
+  }
+
+  function resetDefault(){ WK={x:4,y:4}; B1={x:2,y:2}; B2={x:5,y:3}; BK={x:6,y:6}; selected=null; legal=[]; moveCount=0; moveCountEl.textContent='0'; msgEl.textContent='New session. Your move.'; render(); }
+
+  function randomize(){
+    function r(){return {x:(Math.random()*8)|0,y:(Math.random()*8)|0}}
+    let wk,b1,b2,bk;
+    while(true){
+      wk=r(); b1=r(); b2=r(); bk=r();
+      if(same(wk,b1)||same(wk,b2)||same(wk,bk)||same(b1,b2)||same(b1,bk)||same(b2,bk)) continue;
+      if(kingAdj(wk,bk)) continue;
+      if(((b1.x+b1.y)&1)===((b2.x+b2.y)&1)) continue; // opposite colors
+      break;
+    }
+    WK=wk; B1=b1; B2=b2; BK=bk; selected=null; legal=[]; moveCount=0; moveCountEl.textContent='0'; msgEl.textContent='Randomized. Drive the king!'; render();
+  }
+
+  function showMatePattern(){
+    // Corner a1 pattern (remember: y=7 is rank 1 on display)
+    BK={x:0,y:7}; WK={x:0,y:5}; B1={x:0,y:6}; B2={x:1,y:6};
+    selected=null; legal=[]; moveCount=0; moveCountEl.textContent='0'; msgEl.textContent='Textbook net: BK a1; bishops a2 & b2; WK a3. Deliver ♗b2#'; render();
+  }
+
+  // ===== Confetti =====
+  const confettiCanvas=document.getElementById('confetti');
+  const cctx=confettiCanvas.getContext('2d');
+  let CW=window.innerWidth, CH=140; confettiCanvas.width=CW; confettiCanvas.height=CH;
+  window.addEventListener('resize',()=>{CW=window.innerWidth; confettiCanvas.width=CW;});
+  function fireConfetti(){
+    let parts=[]; for(let i=0;i<130;i++) parts.push({x:Math.random()*CW,y:-10-Math.random()*60,vx:(Math.random()-0.5)*2,vy:2+Math.random()*2,rot:Math.random()*Math.PI,vr:(Math.random()-0.5)*0.2,sz:4+Math.random()*6,col: `hsl(${(Math.random()*360)|0} 90% 60%)`});
+    let running=true; const t0=performance.now();
+    function step(t){ if(!running) return; cctx.clearRect(0,0,CW,CH);
+      for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.vy*=0.995; cctx.save(); cctx.translate(p.x,p.y); cctx.rotate(p.rot); cctx.fillStyle=p.col; cctx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz); cctx.restore(); }
+      parts=parts.filter(p=>p.y<CH+20); if(t-t0>2000) running=false; else requestAnimationFrame(step);
+    } requestAnimationFrame(step);
+  }
+
+  // First render
+  render();
+})();
+</script>
+</body>
+</html>

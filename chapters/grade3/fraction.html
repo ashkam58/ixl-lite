@@ -1,0 +1,278 @@
+**Planning HTML output**
+
+I need to create a single-file HTML with CSS and JS, following specific formatting rules. The developer wants headings, so I’ll likely use an H3 with "Fraction Fun Single File" as the title. The file should be concise and polished, with animations, a cartoon style, and interactive elements. Accessible buttons and random questions should be included, along with ARIA attributes. I'll aim for a clean, colorful layout using a comic font, and make sure the code is understandable without over-complication.
+### Fraction Fun — single-file HTML (HTML + CSS + JS)
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fraction Fun! (Grade 3)</title>
+  <style>
+    :root{
+      --bg1:#fff1e6; --bg2:#ffe4f0; --card:#fff; --accent:#ff6b6b;
+      --accent2:#ffd93d; --green:#4caf50; --purple:#7b61ff;
+      --shadow: 0 8px 20px rgba(0,0,0,.12);
+      --fun: "Comic Sans MS", "Chalkboard SE", "Segoe UI", sans-serif;
+    }
+
+    html,body{height:100%;margin:0;font-family:var(--fun);background:linear-gradient(160deg,var(--bg1),var(--bg2));color:#333}
+    .wrap{max-width:960px;margin:28px auto;padding:20px;}
+    .card{background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--shadow);display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+    h1{margin:0;font-size:2rem;color:var(--accent);text-shadow:0 2px 0 rgba(255,255,255,.6);display:flex;align-items:center;gap:10px}
+    .subtitle{color:#6b6b6b;margin:6px 0 12px;font-size:1rem}
+
+    /* Left: visual area */
+    .vis {flex:1 1 320px;min-width:280px;display:flex;flex-direction:column;align-items:center;gap:12px}
+    .scene{width:320px;height:320px;background:linear-gradient(180deg,#fff3c4,#ffd7b0);border-radius:50%;position:relative;display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.14) inset}
+    .plate{width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 40% 30%, #fff, #ffeaa7 50%);position:relative;overflow:visible;display:block}
+    .slice{position:absolute;left:50%;top:50%;width:50%;height:50%;transform-origin:0% 100%;}
+    .slice .topping{position:absolute;inset:8% 8% 8% 8%;border-radius:0 100% 0 100%/0 100% 0 100%;background:linear-gradient(90deg,#ff8a65,#ff7043);box-shadow:inset -6px -8px 12px rgba(0,0,0,.08)}
+    .slice.shaded .topping{background:linear-gradient(90deg,#ff6b6b,#ff3b3b);filter:saturate(1.1)}
+    .slice .pep{position:absolute;width:10px;height:10px;background:#ffde03;border-radius:50%;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+    /* random pepperoni positions per slice using nth-child */
+    .slice .pep:nth-child(1){left:32%;top:30%}
+    .slice .pep:nth-child(2){left:18%;top:60%}
+    .slice .pep:nth-child(3){left:60%;top:52%}
+    .slice .pep:nth-child(4){left:50%;top:22%}
+    .slice .pep:nth-child(5){left:70%;top:68%}
+
+    /* controls */
+    .controls {flex:1 1 300px;min-width:260px;padding:6px 12px}
+    .options{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+    .btn{
+      background:linear-gradient(180deg,var(--purple),#5f49d6);
+      color:#fff;border:0;padding:10px 14px;border-radius:12px;font-size:1rem;cursor:pointer;box-shadow:0 6px 12px rgba(123,97,255,.18);
+      transition:transform .14s ease,box-shadow .14s ease,filter .14s;
+    }
+    .btn:active{transform:translateY(2px) scale(.995)}
+    .small{font-size:.9rem;padding:8px 12px;border-radius:10px}
+    .option {background:linear-gradient(180deg,var(--green),#3e993e)}
+    .wrong{background:linear-gradient(180deg,#ff7675,#ff5c5c)}
+    .neutral{background:linear-gradient(180deg,#ffa502,#ff7b00)}
+    .info{margin-top:10px;padding:10px;border-radius:12px;background:linear-gradient(180deg,#fff,#fff7e6);border:1px dashed #ffd59e;color:#6b4a00}
+
+    .feedback{font-weight:700;margin-top:12px;font-size:1.15rem;min-height:44px;display:flex;align-items:center;gap:8px}
+    .score{margin-left:auto;background:#f4f4f9;padding:8px 12px;border-radius:12px;border:1px solid #eee;color:#4b4b63}
+
+    /* playful animations */
+    @keyframes bounce {0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    .sparkle{animation:bounce 2s infinite ease-in-out}
+    .slice {transition:transform .35s cubic-bezier(.2,.9,.3,1),opacity .35s}
+    .slice.shaded{transform:scale(1.02)}
+    .plate:after{content:"";position:absolute;inset:-8px;border-radius:50%;box-shadow:0 8px 30px rgba(255,150,80,.08)}
+
+    /* footer */
+    .controls .row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+    .hint{font-size:.95rem;color:#555}
+    .small-muted{font-size:.85rem;color:#777;margin-top:8px}
+    /* responsive */
+    @media (max-width:720px){.card{padding:14px}.scene{width:260px;height:260px}.plate{width:220px;height:220px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="application" aria-labelledby="titleCard">
+      <div style="flex:1 1 100%;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h1 id="titleCard">🍕 Fraction Fun</h1>
+          <div class="subtitle">See the shaded slices, pick the fraction. Bright, animated and kid-friendly!</div>
+        </div>
+        <div class="score" id="score">Score: 0 / 0</div>
+      </div>
+
+      <div class="vis" aria-hidden="false">
+        <div class="scene" aria-hidden="true">
+          <div id="plate" class="plate" title="Cartoon pizza showing shaded slices"></div>
+        </div>
+        <div class="small-muted">Tip: Look carefully at how many of the slices are shaded</div>
+      </div>
+
+      <div class="controls" aria-live="polite">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button id="nextBtn" class="btn small neutral sparkle" title="New question">New Challenge</button>
+          <div class="hint">Level: <strong id="levelText">Easy</strong></div>
+        </div>
+
+        <div style="margin-top:12px;font-weight:700">Which fraction is shaded?</div>
+        <div class="options" id="options" role="list"></div>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+
+        <div class="row">
+          <button id="showAnswer" class="btn small">Show Answer</button>
+          <button id="playAgain" class="btn small" style="background:linear-gradient(180deg,#4dd0e1,#26c6da)">Play Same Level</button>
+          <div style="flex:1"></div>
+        </div>
+
+        <div class="info" id="explain" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Fraction Fun single-file app
+    const plate = document.getElementById('plate');
+    const optionsBox = document.getElementById('options');
+    const feedback = document.getElementById('feedback');
+    const nextBtn = document.getElementById('nextBtn');
+    const scoreEl = document.getElementById('score');
+    const showAnswerBtn = document.getElementById('showAnswer');
+    const explainBox = document.getElementById('explain');
+    const playAgain = document.getElementById('playAgain');
+    const levelText = document.getElementById('levelText');
+
+    let state = {score:0,total:0, current:null, level:'easy'};
+
+    // Levels: different denominators and options
+    const levels = {
+      easy: {dens:[2,4], options:[{"label":"1/2"},{"label":"1/4"},{"label":"3/4"},{"label":"1/3"}]},
+      mid:  {dens:[2,3,4], options:[{"label":"1/2"},{"label":"1/3"},{"label":"1/4"},{"label":"2/3"},{"label":"3/4"}]},
+      hard: {dens:[2,3,4,6], options:[{"label":"1/2"},{"label":"1/3"},{"label":"1/4"},{"label":"2/3"},{"label":"3/4"},{"label":"1/6"},{"label":"5/6"}]}
+    };
+
+    function randFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function buildPizza(den, shadedCount){
+      plate.innerHTML = ''; // clear
+      const total = den;
+      for(let i=0;i<total;i++){
+        const slice = document.createElement('div');
+        slice.className = 'slice';
+        const angle = (360/total) * i;
+        slice.style.transform = `rotate(${angle}deg) translateX(-50%)`;
+        // inner topping area (visual pizza surface)
+        const topping = document.createElement('div');
+        topping.className = 'topping';
+        // add some pepperonis (5 per slice max but vary)
+        for(let p=0;p<3;p++){
+          const pep = document.createElement('div');
+          pep.className = 'pep';
+          topping.appendChild(pep);
+        }
+        slice.appendChild(topping);
+        // shaded if index < shadedCount
+        if(i < shadedCount) slice.classList.add('shaded');
+        // slight staggered animation delay for fun
+        slice.style.transitionDelay = (i*30)+'ms';
+        plate.appendChild(slice);
+      }
+      // shuffle which slices are shaded visually by rotating entire plate a bit
+      plate.style.transform = `rotate(${Math.floor(Math.random()*20-10)}deg)`;
+    }
+
+    function fractionToLabel(n,d){ return `${n}/${d}`; }
+
+    function generateQuestion(){
+      explainBox.style.display = 'none';
+      feedback.textContent = '';
+      const lvl = state.level;
+      levelText.textContent = lvl.charAt(0).toUpperCase()+lvl.slice(1);
+      const dens = levels[lvl].dens;
+      const den = randFrom(dens);
+      // choose a numerator 1..den-1 (so it's a proper fraction)
+      const num = Math.max(1, Math.min(den-1, Math.ceil(Math.random()*(den-1))));
+      const label = fractionToLabel(num,den);
+      state.current = {num,den,label};
+      buildPizza(den,num);
+
+      // build options
+      const pool = levels[lvl].options.map(o=>o.label);
+      // ensure correct answer is included
+      if(!pool.includes(label)) pool[0]=label;
+      // shuffle and slice to 4-5 choices depending on level
+      const shuffled = pool.sort(()=>Math.random()-0.5).slice(0, Math.min(5,pool.length));
+      // guarantee presence of correct answer
+      if(!shuffled.includes(label)){
+        shuffled[Math.floor(Math.random()*shuffled.length)] = label;
+      }
+
+      optionsBox.innerHTML = '';
+      shuffled.forEach(opt=>{
+        const btn = document.createElement('button');
+        btn.className = 'btn option small';
+        btn.textContent = opt;
+        btn.setAttribute('role','button');
+        btn.onclick = ()=>checkAnswer(opt, btn);
+        optionsBox.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(choice, btnElement){
+      state.total++;
+      const corr = (choice === state.current.label);
+      if(corr){ state.score++; feedback.textContent = '🎉 Correct! Nice spotting.'; feedback.style.color = 'green'; btnElement.style.boxShadow = '0 8px 18px rgba(0,200,120,.18)'; }
+      else { feedback.textContent = `😅 Not quite. Correct answer: ${state.current.label}`; feedback.style.color = '#b00020'; btnElement.style.boxShadow = '0 8px 18px rgba(255,80,80,.18)'; }
+      updateScore();
+      // show explain box with simple visual reasoning
+      explainBox.style.display = 'block';
+      explainBox.innerHTML = `<strong>Explanation</strong>: The pizza was cut into <strong>${state.current.den}</strong> equal slices and <strong>${state.current.num}</strong> of them were shaded, so the fraction shaded is <strong>${state.current.label}</strong>.`;
+      // small celebration for correct
+      if(corr) confettiMini();
+      // disable option buttons until new question
+      Array.from(optionsBox.children).forEach(b=>b.disabled=true);
+    }
+
+    function updateScore(){ scoreEl.textContent = `Score: ${state.score} / ${state.total}`; }
+
+    function confettiMini(){
+      // small temporary visual: make plate wiggle and piece pop
+      plate.animate([{transform:'rotate(0)'},{transform:'rotate(-6deg)'},{transform:'rotate(6deg)'},{transform:'rotate(0)'}],{duration:600,iterations:1,easing:'ease-out'});
+    }
+
+    // Controls
+    nextBtn.addEventListener('click', ()=>generateQuestion());
+    showAnswerBtn.addEventListener('click', ()=>{
+      feedback.textContent = `Answer: ${state.current ? state.current.label : ''}`;
+      feedback.style.color = '#333';
+      explainBox.style.display = 'block';
+      explainBox.innerHTML = `<strong>Explanation</strong>: ${state.current ? `${state.current.num} of ${state.current.den} slices shaded → ${state.current.label}` : ''}`;
+      Array.from(optionsBox.children).forEach(b=>b.disabled=true);
+    });
+    playAgain.addEventListener('click', ()=>{
+      // reset score and keep level
+      state.score = 0; state.total = 0; updateScore();
+      generateQuestion();
+    });
+
+    // keyboard accessibility: number keys 1..5 choose option
+    document.addEventListener('keydown', (e)=>{
+      const k = e.key;
+      if(['1','2','3','4','5'].includes(k)){
+        const idx = Number(k)-1;
+        const btn = optionsBox.children[idx];
+        if(btn) btn.click();
+      }
+      if(k === 'n' || k === 'N') nextBtn.click();
+      if(k === 'l' || k === 'L'){ // cycle level
+        const order = ['easy','mid','hard'];
+        const cur = order.indexOf(state.level);
+        state.level = order[(cur+1)%order.length];
+        generateQuestion();
+      }
+    });
+
+    // initial setup with small UI to select level using long press on next button (or cycle with L)
+    nextBtn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); cycleLevel(); });
+    function cycleLevel(){
+      const order = ['easy','mid','hard'];
+      const cur = order.indexOf(state.level);
+      state.level = order[(cur+1)%order.length];
+      feedback.textContent = `Level set to ${state.level}`;
+      feedback.style.color = '#333';
+      generateQuestion();
+    }
+
+    // Start
+    function init(){
+      state.level = 'easy';
+      updateScore();
+      generateQuestion();
+    }
+    init();
+  </script>
+</body>
+</html>
+```

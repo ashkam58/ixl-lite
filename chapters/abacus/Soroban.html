@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soroban Kids • Interactive Abacus</title>
+  <style>
+    :root{
+      --bg: #f7f7ff;
+      --ink: #222;
+      --brand: #7c3aed; /* purple */
+      --brand-2:#06b6d4; /* cyan */
+      --accent:#f59e0b;  /* amber */
+      --good:#10b981;    /* green */
+      --bad:#ef4444;     /* red */
+      --beam:#2e2e3a;
+      --rod:#553c9a22;
+      --bead:#ffffff;
+      --shadow: 0 6px 20px rgba(0,0,0,.15);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:linear-gradient(135deg,#fdf2f8 0%, #ecfeff 50%, #eef2ff 100%);
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+    }
+    .topbar{
+      position:sticky; top:0; z-index:20; backdrop-filter:saturate(1.4) blur(6px);
+      background:rgba(255,255,255,.75); box-shadow:0 2px 10px rgba(0,0,0,.07);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; gap:12px}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px}
+    .logo{width:36px; height:36px; border-radius:12px; background:conic-gradient(from 90deg, var(--brand), var(--brand-2), var(--accent), var(--brand)); box-shadow:var(--shadow)}
+    .tag{padding:6px 10px; border-radius:999px; background:#fff; box-shadow:var(--shadow); font-size:12px}
+
+    .container{max-width:1100px; margin:18px auto; padding:0 16px; display:grid; gap:16px}
+    .card{background:#fff; box-shadow:var(--shadow); border-radius:18px; padding:16px}
+    .title{font-size:22px; font-weight:900; display:flex; align-items:center; gap:8px}
+
+    .controls{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+    .btn{appearance:none; border:0; background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer; box-shadow:var(--shadow); transition:transform .05s ease}
+    .btn:active{transform:translateY(1px)}
+    .btn.ghost{background:#fff; color:var(--brand); border:2px solid var(--brand);}
+
+    .pill{display:inline-flex; align-items:center; gap:8px; background:#fff; border:2px solid #eee; border-radius:999px; padding:8px 12px}
+    .pill input[type="range"]{accent-color:var(--brand)}
+    .stat{display:flex; align-items:center; gap:8px; background:#fff; border-radius:12px; padding:8px 12px; box-shadow:var(--shadow)}
+
+    /* Soroban Stage */
+    .stage{position:relative; overflow:hidden; padding:22px; border-radius:18px; background:linear-gradient(180deg,#1f2937,#0b1220);}
+    .beam{position:relative; height:14px; background:linear-gradient(180deg,#3a3a4a,#1e1e28); border-radius:10px; margin:26px 0 18px 0; box-shadow:0 8px 20px rgba(0,0,0,.45) inset}
+
+    .rods{display:grid; grid-auto-flow:column; grid-auto-columns:1fr; gap:12px; align-items:stretch; min-height:340px}
+    .rod{position:relative; background:linear-gradient(180deg, #c7d2fe33, #a7f3d033); border-radius:16px; display:flex; flex-direction:column; justify-content:space-between; padding:10px}
+
+    .heaven, .earth{display:flex; flex-direction:column; align-items:center; gap:10px}
+    .spacer{height:6px}
+
+    .bead{
+      width:64px; height:26px; border-radius:20px; background:radial-gradient(circle at 30% 30%, #ffffff, #e8e8ff);
+      box-shadow: 0 6px 12px rgba(0,0,0,.25), inset 0 -3px 6px rgba(0,0,0,.15);
+      border:2px solid rgba(0,0,0,.08);
+      cursor:pointer; user-select:none; touch-action:manipulation;
+      display:flex; align-items:center; justify-content:center; font-weight:800; color:#374151;
+      transition: transform .18s ease, filter .18s ease;
+    }
+    .bead[data-kind="heaven"]{background:radial-gradient(circle at 30% 30%, #ffe, #ffd6a5);}
+    .bead[data-active="true"]{transform:translateY(0)}
+
+    /* Positions near the beam when active */
+    .heaven .bead{transform:translateY(-62px)}
+    .heaven .bead[data-active="true"]{transform:translateY(0)}
+
+    .earth .bead{transform:translateY(0)}
+    .earth .bead[data-active="true"]{transform:translateY(-64px)}
+
+    .place{position:absolute; bottom:8px; left:8px; font-weight:800; font-size:12px; color:#9ca3af}
+    .value{position:absolute; top:8px; right:8px; font-weight:900; font-size:14px; color:#a7f3d0}
+
+    .readout{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
+    .readout .big{font-size:32px; font-weight:900}
+    .hint{font-size:14px; color:#374151; opacity:.8}
+
+    /* Confetti */
+    .confetti{position:fixed; inset:0; pointer-events:none}
+    .confetti i{position:absolute; width:10px; height:10px; border-radius:2px; background:var(--accent); animation:fall 1200ms linear forwards}
+    @keyframes fall{to{transform:translateY(100vh) rotate(720deg); opacity:0}}
+
+    /* Tutorial bubbles */
+    .bubble{background:#fff; border:2px dashed var(--brand); padding:10px 12px; border-radius:14px; box-shadow:var(--shadow);}
+
+    @media (max-width:900px){
+      .bead{width:52px}
+      .rods{min-height:300px}
+    }
+    @media (max-width:700px){
+      .bead{width:44px; height:24px}
+      .rods{gap:8px; min-height:260px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="logo"></span> Soroban Kids</div>
+      <span class="tag">Intro & Counting Class</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <section class="card">
+      <div class="title">🎏 Welcome!</div>
+      <p class="hint">This is a friendly <strong>Soroban</strong> (Japanese abacus). Each column is a place value (ones, tens, hundreds…). Tap beads to move them toward the middle bar (the <em>beam</em>). The top bead is worth 5; each bottom bead is worth 1. Let’s count!</p>
+      <div class="controls" style="margin-top:10px">
+        <div class="pill">
+          <label for="rodsRange"><strong>Rods:</strong></label>
+          <input id="rodsRange" type="range" min="3" max="9" value="7" />
+          <span id="rodsLabel">7</span>
+        </div>
+        <button class="btn" id="resetBtn">Reset</button>
+        <button class="btn ghost" id="speakBtn">🔊 Speak</button>
+        <div class="stat">Target: <strong id="target">—</strong>
+          <button class="btn" id="newTargetBtn" style="margin-left:8px">New</button>
+          <button class="btn" id="checkBtn">Check</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card stage">
+      <div class="beam" aria-hidden="true"></div>
+      <div id="rods" class="rods"></div>
+    </section>
+
+    <section class="card readout">
+      <div class="big" id="total">0</div>
+      <div class="bubble">Tip: On each rod, <strong>tap the top bead</strong> to toggle 5. <strong>Tap a bottom bead</strong> to move that bead and all closer ones toward the beam.</div>
+    </section>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    // --- Soroban logic
+    const rodsEl = document.getElementById('rods');
+    const totalEl = document.getElementById('total');
+    const rodsRange = document.getElementById('rodsRange');
+    const rodsLabel = document.getElementById('rodsLabel');
+    const resetBtn = document.getElementById('resetBtn');
+    const speakBtn = document.getElementById('speakBtn');
+    const targetEl = document.getElementById('target');
+    const newTargetBtn = document.getElementById('newTargetBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const confettiEl = document.getElementById('confetti');
+
+    let state = { rods: 7, data: [] };
+
+    function makeRod(placeIndex){
+      // place value label (rightmost = ones)
+      const placeValue = 10 ** placeIndex;
+      const rod = document.createElement('div');
+      rod.className = 'rod';
+
+      // value indicator
+      const valueBadge = document.createElement('div');
+      valueBadge.className = 'value';
+      valueBadge.textContent = '0';
+      rod.appendChild(valueBadge);
+
+      // Heaven (5s) — single bead
+      const heaven = document.createElement('div');
+      heaven.className = 'heaven';
+      const hBead = document.createElement('div');
+      hBead.className = 'bead';
+      hBead.dataset.kind = 'heaven';
+      hBead.textContent = '5';
+      hBead.dataset.active = 'false';
+      heaven.appendChild(hBead);
+
+      // Spacer for touch room
+      const spacerTop = document.createElement('div');
+      spacerTop.className = 'spacer';
+
+      // Earth (1s) — four beads
+      const earth = document.createElement('div');
+      earth.className = 'earth';
+      const eBeads = [];
+      for(let i=0;i<4;i++){
+        const b = document.createElement('div');
+        b.className = 'bead';
+        b.dataset.kind = 'earth';
+        b.textContent = '1';
+        b.dataset.active = 'false';
+        eBeads.push(b); earth.appendChild(b);
+      }
+
+      // Place label
+      const place = document.createElement('div');
+      place.className = 'place';
+      place.textContent = placeIndex===0 ? 'Ones' : placeIndex===1 ? 'Tens' : placeIndex===2 ? 'Hundreds' : `${'0'.repeat(placeIndex)}s`;
+
+      rod.appendChild(heaven);
+      rod.appendChild(spacerTop);
+      rod.appendChild(earth);
+      rod.appendChild(place);
+
+      // Interactions
+      hBead.addEventListener('click', ()=>{
+        // toggle top bead
+        const active = hBead.dataset.active === 'true';
+        hBead.dataset.active = (!active).toString();
+        updateRodSum();
+      });
+
+      earth.addEventListener('click', (e)=>{
+        if(!(e.target && e.target.classList.contains('bead'))) return;
+        // When tapping a bottom bead, activate that bead and all above it (closer to beam)
+        const idx = eBeads.indexOf(e.target);
+        eBeads.forEach((b, i)=>{
+          b.dataset.active = (i <= idx).toString();
+        });
+        updateRodSum();
+      });
+
+      function calcRod(){
+        const five = hBead.dataset.active === 'true' ? 5 : 0;
+        const ones = eBeads.filter(b=>b.dataset.active==='true').length;
+        const digit = five + ones; // 0..9
+        valueBadge.textContent = digit.toString();
+        return digit * placeValue;
+      }
+
+      function updateRodSum(){
+        renderTotal();
+      }
+
+      return { el: rod, calc: calcRod, reset(){ hBead.dataset.active = 'false'; eBeads.forEach(b=>b.dataset.active='false'); valueBadge.textContent='0'; } };
+    }
+
+    function build(){
+      rodsEl.innerHTML = '';
+      state.data = [];
+      const n = state.rods;
+      // Highest place on the left, ones on the right
+      for(let i=n-1;i>=0;i--){
+        const rod = makeRod(i);
+        state.data.push(rod);
+        rodsEl.appendChild(rod.el);
+      }
+      renderTotal();
+    }
+
+    function renderTotal(){
+      const sum = state.data.reduce((acc,r)=>acc + r.calc(), 0);
+      totalEl.textContent = sum.toLocaleString();
+    }
+
+    function reset(){ state.data.forEach(r=>r.reset()); renderTotal(); }
+
+    // Random target for practice (within current place range)
+    function newTarget(){
+      const max = 10 ** state.rods - 1;
+      const n = Math.floor(Math.random() * Math.min(max, 9999999));
+      targetEl.textContent = n.toLocaleString();
+    }
+
+    function celebrate(){
+      // simple emoji confetti
+      for(let i=0;i<80;i++){
+        const p = document.createElement('i');
+        const hues = ['#f59e0b','#fb7185','#34d399','#60a5fa','#a78bfa','#f472b6','#22d3ee'];
+        p.style.left = Math.random()*100+'vw';
+        p.style.top = '-20px';
+        p.style.background = hues[(Math.random()*hues.length)|0];
+        p.style.transform = `translateY(0) rotate(${Math.random()*360}deg)`;
+        p.style.animationDuration = (800 + Math.random()*800)+'ms';
+        confettiEl.appendChild(p);
+        setTimeout(()=>p.remove(), 1600);
+      }
+    }
+
+    // UI wiring
+    rodsRange.addEventListener('input', ()=>{
+      state.rods = +rodsRange.value;
+      rodsLabel.textContent = state.rods;
+      build();
+    });
+
+    resetBtn.addEventListener('click', reset);
+    newTargetBtn.addEventListener('click', newTarget);
+
+    checkBtn.addEventListener('click', ()=>{
+      const current = Number(totalEl.textContent.replace(/\D/g,'')) || 0;
+      const tgt = Number((targetEl.textContent||'').replace(/\D/g,'')) || NaN;
+      if(Number.isNaN(tgt)){
+        pulse(targetEl);
+        return;
+      }
+      if(current===tgt){
+        celebrate(); pulse(totalEl, 'good');
+      }else{
+        pulse(totalEl, 'bad');
+      }
+    });
+
+    speakBtn.addEventListener('click', ()=>{
+      const n = Number(totalEl.textContent.replace(/\D/g,'')) || 0;
+      if('speechSynthesis' in window){
+        const u = new SpeechSynthesisUtterance(n.toString());
+        u.rate = .95; u.pitch = 1.05; u.lang = 'en-US';
+        window.speechSynthesis.speak(u);
+      } else alert('Speech not supported on this device');
+    });
+
+    function pulse(el, mood){
+      el.style.transition = 'transform 150ms ease, color 200ms ease';
+      el.style.transform = 'scale(1.06)';
+      if(mood==='good') el.style.color = 'var(--good)';
+      if(mood==='bad') el.style.color = 'var(--bad)';
+      setTimeout(()=>{ el.style.transform='scale(1)'; el.style.color='inherit'; }, 220);
+    }
+
+    // Initial
+    build();
+    newTarget();
+  </script>
+</body>
+</html>

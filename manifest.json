@@ -68,6 +68,21 @@
     "level": "Medium"
   },
   {
+    "slug": "grade3/fractions_like_denom",
+    "title": "🍕 Grade 3 \u2022 Fraction Like Denominators",
+    "tags": [
+      "grade3",
+      "fractions",
+      "pizza",
+      "visual",
+      "interactive",
+      "shaded-parts",
+      "cartoon",
+      "animation"
+    ],
+    "level": "Easy"
+  },
+  {
     "slug": "grade7/integers",
     "title": "🎯 Grade 7 \u2022 Integer Counter Lab",
     "tags": [
@@ -125,5 +140,48 @@
       "explore-practice"
     ],
     "level": "Medium"
+  },
+  {
+    "slug": "grade3/tableWorksheet",
+    "title": "🧮 Grade 3 • Multiplication Table Worksheet",
+    "tags": [
+      "grade3",
+      "multiplication",
+      "tables",
+      "worksheet",
+      "interactive",
+      "cartoon",
+      "practice"
+    ],
+    "level": "Medium"
+  }
+  ,
+  {
+    "slug": "chess/bishopEndgame",
+    "title": "♟️ Chess • Two Bishops Mate Trainer",
+    "tags": [
+      "chess",
+      "endgame",
+      "bishops",
+      "training",
+      "interactive",
+      "puzzle"
+    ],
+    "level": "Medium"
+  }
+  ,
+  {
+    "slug": "abacus/Soroban",
+    "title": "🧮 Soroban Kids • Interactive Abacus",
+    "tags": [
+      "abacus",
+      "soroban",
+      "counting",
+      "place-value",
+      "interactive",
+      "visual",
+      "practice"
+    ],
+    "level": "Easy"
   }
 ]
