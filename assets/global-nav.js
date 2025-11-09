@@ -23,12 +23,15 @@
     const nav = document.createElement('div'); nav.className = 'global-nav';
     const style = document.createElement('style');
     style.textContent = `
-      .global-nav{position:fixed; right:18px; bottom:18px; display:flex; gap:10px; z-index:9999; align-items:center}
-      .global-nav a, .global-nav button{display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px; font-weight:700; text-decoration:none; color:#0f172a; background:linear-gradient(135deg,#a78bfa,#06b6d4); box-shadow:0 8px 22px rgba(2,6,23,0.12); border:0}
-      .global-nav a.ghost, .global-nav button.ghost{background:rgba(255,255,255,0.95); color:var(--text); border:1px solid rgba(2,6,23,0.06)}
+      .global-nav{position:fixed; right:18px; bottom:18px; display:flex; gap:14px; z-index:9999; align-items:center;}
+      .global-nav a, .global-nav button{display:inline-flex; align-items:center; gap:10px; padding:18px 22px; border-radius:16px; font-weight:700; text-decoration:none; color:#0f172a; background:linear-gradient(135deg,#a78bfa,#06b6d4); box-shadow:0 8px 22px rgba(2,6,23,0.12); border:0; font-size:1.15em; min-width:64px; min-height:48px; justify-content:center;}
+      .global-nav a.ghost, .global-nav button.ghost{background:rgba(255,255,255,0.97); color:var(--text); border:1px solid rgba(2,6,23,0.06)}
       .global-nav a.home{background:linear-gradient(135deg,#06b6d4,#8b5cf6); color:white}
-      .global-nav a:active, .global-nav button:active{transform:translateY(1px)}
-      @media (max-width:720px){ .global-nav{left:12px; right:12px; bottom:12px; justify-content:center} }
+      .global-nav a:active, .global-nav button:active{transform:translateY(2px)}
+      @media (max-width:720px){
+        .global-nav{left:0; right:0; bottom:0; justify-content:center; width:100vw; gap:10px; padding:8px 0; border-radius:0; box-shadow:0 -2px 16px rgba(2,6,23,0.10); background:rgba(255,255,255,0.98);}
+        .global-nav a, .global-nav button{padding:16px 0; font-size:1.1em; min-width:0; width:32vw; max-width:120px; min-height:44px; border-radius:14px;}
+      }
     `;
     nav.appendChild(style);
 

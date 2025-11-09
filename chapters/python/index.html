@@ -1,20 +1,339 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Python Sandbox — IXL-lite</title>
-  <link rel="stylesheet" href="../../assets/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sparky's Python Variable Playground!</title>
+    <!-- Load Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font for a clean, friendly look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles for the cartoon theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0f2fe; /* Light sky blue */
+        }
+        
+        h1, h2, h3 {
+            font-weight: 900; /* Extra bold for titles */
+        }
+
+        /* Styles for the dynamically created variable "boxes" */
+        .var-box {
+            transition: all 0.3s ease;
+            transform: scale(0.9);
+            opacity: 0;
+            animation: pop-in 0.4s ease forwards;
+        }
+
+        /* Animation for boxes appearing */
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1.0); opacity: 1; }
+        }
+
+        /* Color coding for data types */
+        .var-box-string {
+            background-color: #fdf2f8; /* Pink */
+            border-color: #ec4899;
+            color: #be185d;
+        }
+        .var-box-string .var-value {
+            color: #ec4899;
+        }
+
+        .var-box-number {
+            background-color: #eef2ff; /* Indigo */
+            border-color: #6366f1;
+            color: #4338ca;
+        }
+        .var-box-number .var-value {
+            color: #6366f1;
+        }
+
+        .var-box-boolean {
+            background-color: #f0fdf4; /* Green */
+            border-color: #22c55e;
+            color: #15803d;
+        }
+        .var-box-boolean .var-value {
+            color: #22c55e;
+        }
+
+        /* Message popup styles */
+        .message-popup {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(-20px);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .message-popup.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
 </head>
-<body>
-  <div style="padding:48px; max-width:900px; margin:0 auto; text-align:center;">
-    <h1 style="font-size:2rem;">🐍 Python Sandbox (Preview)</h1>
-    <p class="muted">A lightweight interactive Python playground will be available here. For now, use the links below.</p>
-    <div style="margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <a class="btn primary" href="../../index.html">Back to Home</a>
-      <a class="btn" href="#" onclick="alert('Python sandbox coming soon')">Try Demo</a>
-    </div>
-  </div>
+<body class="min-h-screen p-4 md:p-8">
+    <main class="max-w-6xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+        
+        <!-- Header Section -->
+        <header class="p-6 md:p-10 bg-gradient-to-r from-cyan-400 to-blue-500 text-white text-center rounded-t-2xl">
+            <h1 class="text-3xl md:text-5xl font-extrabold">Sparky's Python Variable Playground!</h1>
+            <p class="mt-2 text-lg md:text-xl">Learn the most important part of programming in a fun way!</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 p-6 md:p-8">
+
+            <!-- Left Column: Introduction & Workshop -->
+            <section class="flex flex-col gap-6">
+                
+                <!-- Sparky's Welcome -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+                    <h2 class="text-2xl font-bold text-blue-600 mb-3">Howdy, programmer-to-be! I'm Sparky! 🤖</h2>
+                    <p class="text-gray-700 leading-relaxed">
+                        Welcome to programming! It's just a way to give computers instructions, like a recipe.
+                        <br><br>
+                        The most important "ingredient" is a <strong class="text-blue-600">variable</strong>. Think of them like <strong class="text-pink-500">magic, labeled treasure chests</strong> where you store information (like a name, a number, or a score).
+                        <br><br>
+                        Let's make some!
+                    </p>
+                </div>
+
+                <!-- The Variable Workshop -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 relative">
+                    <!-- Message popup area -->
+                    <div id="message-area" class="message-popup absolute -top-14 left-1/2 -translate-x-1/2 w-full max-w-sm">
+                        <!-- Messages will be injected here by JS -->
+                    </div>
+
+                    <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">The Variable Workshop</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Variable Name Input -->
+                        <div>
+                            <label for="var-name" class="block text-sm font-medium text-gray-700 mb-1">1. Variable Name (Python-style: `my_name`)</label>
+                            <input type="text" id="var-name" placeholder="e.g., player_score" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <!-- Variable Value Input -->
+                        <div>
+                            <label for="var-value" class="block text-sm font-medium text-gray-700 mb-1">2. Variable Value (What to store)</label>
+                            <input type="text" id="var-value" placeholder="e.g., 100, Hello, or true" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Action Button -->
+                        <button id="create-btn" class="w-full bg-yellow-400 text-yellow-900 font-bold py-3 px-4 rounded-lg shadow-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2 transition-transform transform hover:scale-105">
+                            ✨ Store It in a Magic Box!
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sparky's Rule Book -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+                    <h2 class="text-2xl font-bold text-blue-600 mb-3">Sparky's Python Rulebook 📜</h2>
+                    <p class="mb-4 text-gray-700">In Python (and most languages), variable names have rules:</p>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>They must start with a letter (a-z) or an underscore (_).</li>
+                        <li>They <strong class="text-red-500">CANNOT</strong> start with a number.</li>
+                        <li>They can only contain letters, numbers, and underscores. No `!` or `?`!</li>
+                        <li>Python loves <strong class="text-green-600">`snake_case`</strong> (all lowercase, with underscores to separate words). That's what we'll practice!</li>
+                    </ul>
+                </div>
+
+            </section>
+
+            <!-- Right Column: Visualization & Explanation -->
+            <section class="flex flex-col gap-6">
+
+                <!-- Your Magic Storage Boxes -->
+                <div class="bg-blue-50 p-6 rounded-xl shadow-inner border border-blue-200 min-h-[300px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-blue-800">Your Magic Storage Boxes</h2>
+                        <button id="clear-btn" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">Clear All</button>
+                    </div>
+                    
+                    <div id="storage-area" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Variable boxes will be added here by JS -->
+                        <p id="empty-message" class="text-gray-500 col-span-full text-center mt-12">Your storage is empty! Try creating a variable in the workshop.</p>
+                    </div>
+                </div>
+
+                <!-- Sparky's Secret Notes (Explanation of Types) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Sparky's Secret Notes</h2>
+                    <p class="text-gray-700 mb-4">
+                        Did you see the boxes change color? That's because Python (and our app!) understands different <strong class="text-purple-600">Data Types</strong>!
+                    </p>
+                    <div class="space-y-3">
+                        <div class="p-3 rounded-lg var-box-string border-2">
+                            <strong class="font-bold">String (str):</strong> This is just text! You put it in quotes.
+                            <br><code>player_name = "Sparky"</code>
+                        </div>
+                        <div class="p-3 rounded-lg var-box-number border-2">
+                            <strong class="font-bold">Number (int / float):</strong> Any number. No quotes needed!
+                            <br><code>player_score = 100</code> (an integer) or <code>speed = 1.5</code> (a float).
+                        </div>
+                        <div class="p-3 rounded-lg var-box-boolean border-2">
+                            <strong class="font-bold">Boolean (bool):</strong> Just `True` or `False`. Super useful for questions.
+                            <br><code>is_ready = True</code>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-gray-700 italic">
+                        This is the core of programming! You store data in variables, then you write instructions to change them. You're already doing it!
+                    </p>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="p-4 text-center bg-gray-100 text-gray-600 rounded-b-2xl border-t border-gray-200">
+            Keep practicing! You're on your way to becoming a coding superstar! 🌟
+        </footer>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all the important elements from the page
+            const varNameInput = document.getElementById('var-name');
+            const varValueInput = document.getElementById('var-value');
+            const createBtn = document.getElementById('create-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const storageArea = document.getElementById('storage-area');
+            const emptyMessage = document.getElementById('empty-message');
+            const messageArea = document.getElementById('message-area');
+
+            let messageTimer; // To make messages disappear
+
+            // --- Show a message to the user ---
+            function showMessage(message, type = 'success') {
+                // Clear any existing message timer
+                if (messageTimer) {
+                    clearTimeout(messageTimer);
+                }
+
+                // Set color based on type
+                const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+                
+                // Create the message element
+                messageArea.innerHTML = `
+                    <div class="${bgColor} text-white text-sm font-medium text-center py-2 px-4 rounded-lg shadow-lg">
+                        ${message}
+                    </div>
+                `;
+                
+                // Show the message
+                messageArea.classList.add('show');
+
+                // Set a timer to hide the message after 3 seconds
+                messageTimer = setTimeout(() => {
+                    messageArea.classList.remove('show');
+                }, 3000);
+            }
+
+            // --- Validate Python variable name ---
+            function isValidPythonVar(name) {
+                // Regex: starts with a-z or _, then contains a-z, 0-9, or _
+                const pythonVarRegex = /^[a-z_][a-z0-9_]*$/;
+                return pythonVarRegex.test(name);
+            }
+
+            // --- Handle creating the variable ---
+            function createVariable() {
+                const name = varNameInput.value.trim();
+                const value = varValueInput.value.trim();
+
+                // 1. Validation Checks
+                if (!name || !value) {
+                    showMessage("Whoopsie! Both fields need a value!", 'error');
+                    return;
+                }
+
+                if (!isValidPythonVar(name)) {
+                    showMessage("Uh oh! That's not a valid Python name. Use `snake_case` (e.g., `my_score`)", 'error');
+                    return;
+                }
+
+                // 2. Determine Data Type and Format Value
+                let formattedValue;
+                let dataType = 'string'; // Default to string
+
+                const numVal = parseFloat(value);
+                
+                // Check if it's a number. This check is specific to avoid " " becoming 0.
+                if (!isNaN(numVal) && value.length > 0 && String(numVal) === value) {
+                    dataType = 'number';
+                    formattedValue = numVal; // Store as a number
+                } 
+                // Check if it's a boolean
+                else if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
+                    dataType = 'boolean';
+                    formattedValue = value.toLowerCase(); // Store as 'true' or 'false'
+                } 
+                // Otherwise, it's a string
+                else {
+                    dataType = 'string';
+                    formattedValue = `"${value}"`; // Add quotes for display
+                }
+
+                // 3. Create the visual "box"
+                const varBox = document.createElement('div');
+                varBox.className = `var-box p-4 rounded-lg border-2 shadow-md var-box-${dataType} font-mono`;
+                
+                varBox.innerHTML = `
+                    <code class="break-words">
+                        <span class="font-bold">${name}</span> = <span class="var-value font-bold">${formattedValue}</span>
+                    </code>
+                `;
+
+                // 4. Add the box to the storage area
+                storageArea.appendChild(varBox);
+                
+                // Hide the "empty" message if it's visible
+                if (emptyMessage) {
+                    emptyMessage.style.display = 'none';
+                }
+
+                // 5. Clear inputs and show success
+                varNameInput.value = '';
+                varValueInput.value = '';
+                varNameInput.focus(); // Move cursor back to the first input
+                showMessage('Awesome! You created a variable!', 'success');
+            }
+
+            // --- Handle clearing the storage ---
+            function clearStorage() {
+                storageArea.innerHTML = ''; // Clear all boxes
+                // Show the empty message again
+                if (emptyMessage) {
+                    emptyMessage.style.display = 'block';
+                }
+            }
+
+            // --- Event Listeners ---
+            createBtn.addEventListener('click', createVariable);
+            clearBtn.addEventListener('click', clearStorage);
+
+            // Allow pressing Enter to create variable
+            varValueInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    createVariable();
+                }
+            });
+            varNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    // Move to next field if Enter is pressed on name
+                    varValueInput.focus();
+                }
+            });
+
+        });
+    </script>
 </body>
 </html>
 <script>
