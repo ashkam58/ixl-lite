@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grade 3 • Multiplication with Cartoons</title>
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Floating Background Shapes -->
+  <div class="floating-shapes">
+    <div class="floating-shape" style="top: 15%; left: 5%; font-size: 50px;">🦸‍♀️</div>
+    <div class="floating-shape" style="top: 25%; right: 10%; font-size: 45px;">🦄</div>
+    <div class="floating-shape" style="top: 65%; left: 8%; font-size: 55px;">🎪</div>
+    <div class="floating-shape" style="top: 75%; right: 5%; font-size: 40px;">🌟</div>
+    <div class="floating-shape" style="top: 45%; left: 80%; font-size: 35px;">🎭</div>
+  </div>
+
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="logo"></span> AIS Practice</div>
+      <a class="btn ghost" href="../../index.html">🏠 Home</a>
+      <div class="row small muted" style="margin-left:auto">
+        <span>Topic:</span><strong id="topic-title" style="color: var(--text-light);">✖️ Grade 3 • Multiplication with Cartoons</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="container shell">
+    <main>
+      <section class="card prompt" id="prompt"></section>
+      <section class="card workspace">
+        <input id="answer" type="text" placeholder="Type your answer…" />
+        <div class="actions">
+          <button id="checkBtn" class="btn primary">✨ Check</button>
+          <button id="hintBtn" class="btn">💡 Hint</button>
+          <button id="skipBtn" class="btn">⏭️ Skip</button>
+          <button id="nextBtn" class="btn">➡️ Next</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+      </section>
+      <nav class="nav-rail">
+        <button id="prevTopic" class="btn">← Prev Topic</button>
+        <button id="nextTopic" class="btn">Next Topic →</button>
+      </nav>
+    </main>
+    <aside>
+      <section class="card hud">
+        <div class="tile">🏆 Score<br><strong id="score">0</strong></div>
+        <div class="tile">🎯 Attempts<br><strong id="attempts">0</strong></div>
+        <div class="tile">📈 Mastery<br><strong id="mastery">0%</strong></div>
+      </section>
+      <section class="card">
+        <div>🔥 Streak: <strong id="streakVal">0</strong></div>
+        <p class="small muted">Tip: Press Enter to submit faster.</p>
+      </section>
+      <section class="card">
+        <h4 style="margin-top:0">🎯 Multiplication Tips</h4>
+        <ul class="small" style="margin:0;padding-left:16px">
+          <li>🎪 Think of groups: 3 × 4 = 3 groups of 4</li>
+          <li>➕ Use repeated addition: 3 × 4 = 4 + 4 + 4</li>
+          <li>🔢 Practice skip counting: 2, 4, 6, 8...</li>
+          <li>👁️ Visualize the story problems!</li>
+        </ul>
+      </section>
+<script src="../../engine/ui.js"></script>
+<script src="../../engine/core.js"></script>
+<script>
+  // --- Keyboard sugar ---
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ document.getElementById('checkBtn').click(); } });
+
+  // --- Topic loader (unchanged) ---
+  const TOPIC_ID = "multiplication";
+    window.IxlLite.loadTopic({
+      topicId: TOPIC_ID,
+      dataUrl: "../../data/multiplication.json",
+      titleEl: document.getElementById("topic-title"),
+      promptEl: document.getElementById("prompt"),
+      answerEl: document.getElementById("answer"),
+      feedbackEl: document.getElementById("feedback"),
+      scoreEl: document.getElementById("score"),
+      attemptsEl: document.getElementById("attempts"),
+      masteryEl: document.getElementById("mastery"),
+      streakEl: document.getElementById("streakVal"),
+      buttons: {
+        check: document.getElementById("checkBtn"),
+        next: document.getElementById("nextBtn"),
+        skip: document.getElementById("skipBtn"),
+        hint: document.getElementById("hintBtn")
+      },
+      nav: {
+        prevBtn: document.getElementById("prevTopic"),
+        nextBtn: document.getElementById("nextTopic"),
+        manifestUrl: "../../manifest.json"
+      }
+    });
+
+    // --- Confetti (tiny canvas version, no libs) ---
+    const c = document.getElementById('confettiCanvas');
+    const ctx = c.getContext('2d');
+    let particles = [];
+    function resize(){ c.width = innerWidth; c.height = innerHeight }
+    addEventListener('resize', resize); resize();
+
+    function shootConfetti(bursts=160){
+      particles.length = 0;
+      for(let i=0;i<bursts;i++){
+        particles.push({
+          x: c.width/2, y: c.height*0.25,
+          vx: (Math.random()*6-3), vy: (Math.random()*-6-2),
+          g: 0.12 + Math.random()*0.08,
+          w: 4+Math.random()*4, h: 8+Math.random()*8,
+          a: Math.random()*Math.PI, va:(Math.random()-.5)*0.2,
+          hue: Math.floor(200+ Math.random()*140)
+        });
+      }
+      animateConfetti();
+    }
+    function animateConfetti(){
+      ctx.clearRect(0,0,c.width,c.height);
+      particles.forEach(p=>{
+        p.x += p.vx; p.y += p.vy; p.vy += p.g; p.a += p.va;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
+        ctx.fillStyle = `hsl(${p.hue} 90% 60%)`;
+        ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+        ctx.restore();
+      });
+      particles = particles.filter(p=> p.y < c.height+20);
+      if(particles.length) requestAnimationFrame(animateConfetti);
+    }
+
+    // --- Mascot talk + SFX (WebAudio beep, no files) ---
+    const mascot = document.getElementById('mascot');
+    const bubble = document.getElementById('mascotBubble');
+    const linesGood = [
+      "Boom! Tables tamed! 🐯",
+      "Math muscles flexed! 💪",
+      "Chef’s kiss × 3! 👨‍🍳😙",
+      "You multiplied the fun! 🎉"
+    ];
+    const linesTry = [
+      "Close! Count the groups 👀",
+      "Try skip-counting again! 🔢",
+      "No stress—math is practice 🌈",
+      "Tiny tweak and you’ve got it! 🧩"
+    ];
+    function say(text){
+      bubble.textContent = text;
+      mascot.classList.add('show');
+      clearTimeout(say._t);
+      say._t = setTimeout(()=> mascot.classList.remove('show'), 1600);
+    }
+    function beep(good=true){
+      const actx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type='sine';
+      o.frequency.value = good ? 880 : 220;
+      o.connect(g); g.connect(actx.destination);
+      g.gain.setValueAtTime(0.0001, actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.2, actx.currentTime+.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+.22);
+      o.start(); o.stop(actx.currentTime+.24);
+    }
+
+    // --- Reactive flair when feedback changes (no engine mods needed) ---
+    const feedbackEl = document.getElementById('feedback');
+    const scoreEl = document.getElementById('score');
+    const masteryEl = document.getElementById('mastery');
+    const streakEl = document.getElementById('streakVal');
+    const progressBar = document.getElementById('progressBar');
+    const streakBar = document.getElementById('streakBar');
+
+    const obs = new MutationObserver(()=>{
+      const txt = feedbackEl.textContent.trim().toLowerCase();
+      feedbackEl.classList.remove('good','oops');
+      if(txt.includes('correct')){ // adjust keyword if your engine differs
+        feedbackEl.classList.add('good');
+        shootConfetti();
+        say(linesGood[Math.floor(Math.random()*linesGood.length)]);
+        beep(true);
+        pulse(streakEl); pulse(masteryEl);
+      }else if(txt && (txt.includes('try') || txt.includes('incorrect') || txt.includes('wrong'))){
+        feedbackEl.classList.add('oops');
+        say(linesTry[Math.floor(Math.random()*linesTry.length)]);
+        beep(false);
+      }
+      // progress bars (safe parse)
+      const masteryPct = parseInt((masteryEl.textContent||'0').replace('%',''),10) || 0;
+      progressBar.style.width = Math.min(100, masteryPct) + '%';
+      const streakVal = parseInt(streakEl.textContent||'0',10) || 0;
+      streakBar.style.width = Math.min(100, streakVal*10) + '%';
+    });
+    obs.observe(feedbackEl,{childList:true,subtree:true,characterData:true});
+
+    function pulse(el){ el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
+
+    // --- Dynamic tip rotator to keep it lively ---
+    const tipPool = [
+      "3 × 7 = 7 + 7 + 7 (three sevens!)",
+      "Array trick: 3 × 4 = 3 rows of 4 dots.",
+      "Commutative magic: 3 × 8 = 8 × 3.",
+      "Zero rule: 0 × anything = 0.",
+      "Ten rule: 10 × n just add a zero."
+    ];
+    setInterval(()=>{
+      const tips = document.getElementById('tips');
+      const i = Math.floor(Math.random()*tipPool.length);
+      const li = document.createElement('li');
+      li.textContent = tipPool[i];
+      li.className='small';
+      tips.appendChild(li);
+      if(tips.children.length>6) tips.removeChild(tips.firstElementChild);
+    }, 4000);
+
+    // --- Friendly placeholders when page loads ---
+    window.addEventListener('load', ()=>{
+      say("Ready to multiply? 🚀");
+      setTimeout(()=>say("Type the answer & hit Enter! ⌨️"), 1600);
+    });
+  </script>
+</body>
+</html>

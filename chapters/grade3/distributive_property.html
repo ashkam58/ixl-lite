@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧮 Distributive Property - Array of Dots</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 2px;
+            transition: all 0.2s ease;
+        }
+        
+        .dot.active {
+            background-color: #4f46e5;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dot.inactive {
+            background-color: #c7d2fe;
+            opacity: 0.6;
+        }
+        
+        .split-line {
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            border-left: 2px dashed #ec4899;
+            pointer-events: none;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce-in {
+            animation: bounceIn 0.5s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 via-sky-50 to-pink-50 text-slate-800">
+    
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-4">
+            <span class="text-3xl">🧮</span>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-800">
+                Distributive Property — Array of Dots
+            </h1>
+        </div>
+        <p class="text-slate-600 mb-6">
+            Built for Grade 3 (IXL style) — practice splitting a rectangle of dots to rewrite
+            a×b as a×p + a×q where b = p + q.
+        </p>
+
+        <!-- Main Content Grid -->
+        <div class="grid md:grid-cols-2 gap-6 items-start">
+            
+            <!-- Left Panel - Dot Grid -->
+            <div class="rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-pink-50 border border-slate-200 shadow-sm p-4 md:p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">New problem</span>
+                        <span class="text-sm text-slate-500">Rows × Columns</span>
+                    </div>
+                    <button id="shuffleBtn" class="px-3 py-1.5 rounded-xl bg-indigo-600 text-white shadow hover:bg-indigo-700 transition-colors">
+                        Shuffle ↻
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3 mb-2">
+                    <label class="text-sm text-slate-600">Rows</label>
+                    <input id="rowsInput" type="number" min="2" max="9" 
+                           class="border rounded-lg px-2 py-1 text-center w-14 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                    <label class="text-sm text-slate-600">Columns</label>
+                    <input id="colsInput" type="number" min="4" max="12" 
+                           class="border rounded-lg px-2 py-1 text-center w-14 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                </div>
+
+                <!-- Legend -->
+                <div class="flex items-center justify-center gap-4 mb-4 text-xs text-slate-600">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span>
+                        left part
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-indigo-200 inline-block"></span>
+                        right part
+                    </div>
+                </div>
+
+                <!-- Dot Grid Container -->
+                <div class="flex justify-center">
+                    <div id="dotGrid" class="inline-block p-3 rounded-2xl bg-white shadow-inner border border-slate-200 relative">
+                        <!-- Dots will be generated here -->
+                    </div>
+                </div>
+
+                <div class="mt-4 flex justify-center">
+                    <button id="suggestSplitBtn" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors">
+                        Suggest a fair split
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel - Math Input -->
+            <div class="rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-pink-50 border border-slate-200 shadow-sm p-4 md:p-6">
+                <div class="mb-3 text-sm text-slate-600">Fill the blanks and check.</div>
+
+                <!-- Equation 1: a×b = a×p + a×q -->
+                <div class="text-lg md:text-xl font-semibold flex items-center flex-wrap gap-2 bg-white p-3 rounded-2xl border border-slate-200 mb-3">
+                    <span id="eq1Rows">4</span>
+                    <span>×</span>
+                    <span id="eq1Cols">7</span>
+                    <span>=</span>
+                    <span id="eq2Rows">4</span>
+                    <span>×</span>
+                    <input id="c1Input" type="number" min="1" placeholder="p" 
+                           class="border rounded-lg px-2 py-1 text-center w-14 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                    <span>+</span>
+                    <span id="eq3Rows">4</span>
+                    <span>×</span>
+                    <input id="c2Input" type="number" min="1" placeholder="q" 
+                           class="border rounded-lg px-2 py-1 text-center w-14 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                </div>
+
+                <!-- Equation 2: total = rows*c1 + rows*c2 -->
+                <div class="text-lg md:text-xl font-semibold flex items-center flex-wrap gap-2 bg-white p-3 rounded-2xl border border-slate-200 mb-3">
+                    <span id="totalDisplay">28</span>
+                    <span>=</span>
+                    <span id="leftProduct">0</span>
+                    <span>+</span>
+                    <span id="rightProduct">0</span>
+                </div>
+
+                <!-- Final product input -->
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-sm">Write the product:</span>
+                    <input id="prodInput" type="number" placeholder="?" 
+                           class="border rounded-lg px-2 py-1 text-center w-20 focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
+                    <span class="text-sm">(it should match the total dots)</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3 mb-4">
+                    <button id="checkBtn" class="px-4 py-2 rounded-xl bg-emerald-600 text-white shadow hover:bg-emerald-700 transition-colors">
+                        Check
+                    </button>
+                    <button id="hintBtn" class="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors">
+                        Hint 💡
+                    </button>
+                    <button id="clearBtn" class="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors">
+                        Clear
+                    </button>
+                </div>
+
+                <!-- Message/Hint Display -->
+                <div id="messageBox" class="hidden text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-3 leading-6 mb-4">
+                    <!-- Messages appear here -->
+                </div>
+
+                <!-- Status Badges -->
+                <div class="text-sm text-slate-600 flex flex-wrap gap-2 items-center">
+                    <span id="splitBadge" class="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                        Split must add to columns
+                    </span>
+                    <span id="productBadge" class="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                        Product check calculations
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Info Cards -->
+        <div class="mt-6 grid md:grid-cols-2 gap-6">
+            <div class="rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-pink-50 border border-slate-200 shadow-sm p-4 md:p-6">
+                <h3 class="font-bold mb-2">Teacher Notes</h3>
+                <ul class="list-disc list-inside text-sm text-slate-700 space-y-1">
+                    <li>Keep rows fixed as the repeated group. Only split the columns.</li>
+                    <li>Ask: "How many dots on the left? How many on the right? Do they add up to the whole?"</li>
+                    <li>Encourage mental math: rows×c1 then rows×c2, then add.</li>
+                    <li>For students: connect with area model language and skip counting.</li>
+                </ul>
+            </div>
+            <div class="rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-pink-50 border border-slate-200 shadow-sm p-4 md:p-6">
+                <h3 class="font-bold mb-2">Quick Practice Prompts</h3>
+                <div class="text-sm text-slate-700 space-y-1">
+                    <div>3×8 → 3×_____ + 3×_____ (product = ____)</div>
+                    <div>5×6 → 5×_____ + 5×_____ (product = ____)</div>
+                    <div>4×9 → 4×_____ + 4×_____ (sum should be 9)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-xs text-slate-500 text-center mt-6">
+            Distributive property: <strong>a×(b+c) = a×b + a×c</strong>. Arrays make it visible.
+        </div>
+    </div>
+
+    <script>
+        class DistributiveDotsApp {
+            constructor() {
+                this.rows = this.randInt(2, 9);
+                this.cols = this.randInt(4, 12);
+                this.attempts = 0;
+                
+                this.initElements();
+                this.initEventListeners();
+                this.updateDisplay();
+                this.renderDotGrid();
+            }
+
+            randInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            initElements() {
+                // Input elements
+                this.rowsInput = document.getElementById('rowsInput');
+                this.colsInput = document.getElementById('colsInput');
+                this.c1Input = document.getElementById('c1Input');
+                this.c2Input = document.getElementById('c2Input');
+                this.prodInput = document.getElementById('prodInput');
+                
+                // Display elements
+                this.dotGrid = document.getElementById('dotGrid');
+                this.messageBox = document.getElementById('messageBox');
+                this.splitBadge = document.getElementById('splitBadge');
+                this.productBadge = document.getElementById('productBadge');
+                
+                // Equation displays
+                this.eq1Rows = document.getElementById('eq1Rows');
+                this.eq1Cols = document.getElementById('eq1Cols');
+                this.eq2Rows = document.getElementById('eq2Rows');
+                this.eq3Rows = document.getElementById('eq3Rows');
+                this.totalDisplay = document.getElementById('totalDisplay');
+                this.leftProduct = document.getElementById('leftProduct');
+                this.rightProduct = document.getElementById('rightProduct');
+                
+                // Buttons
+                this.shuffleBtn = document.getElementById('shuffleBtn');
+                this.checkBtn = document.getElementById('checkBtn');
+                this.hintBtn = document.getElementById('hintBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.suggestSplitBtn = document.getElementById('suggestSplitBtn');
+            }
+
+            initEventListeners() {
+                this.shuffleBtn.addEventListener('click', () => this.shuffle());
+                this.checkBtn.addEventListener('click', () => this.checkAnswer());
+                this.hintBtn.addEventListener('click', () => this.giveHint());
+                this.clearBtn.addEventListener('click', () => this.clearInputs());
+                this.suggestSplitBtn.addEventListener('click', () => this.suggestSplit());
+                
+                this.rowsInput.addEventListener('input', () => this.updateFromInputs());
+                this.colsInput.addEventListener('input', () => this.updateFromInputs());
+                this.c1Input.addEventListener('input', () => this.updateCalculations());
+                this.c2Input.addEventListener('input', () => this.updateCalculations());
+                this.prodInput.addEventListener('input', () => this.updateCalculations());
+            }
+
+            updateFromInputs() {
+                const newRows = parseInt(this.rowsInput.value) || this.rows;
+                const newCols = parseInt(this.colsInput.value) || this.cols;
+                
+                if (newRows >= 2 && newRows <= 9) this.rows = newRows;
+                if (newCols >= 4 && newCols <= 12) this.cols = newCols;
+                
+                this.updateDisplay();
+                this.renderDotGrid();
+            }
+
+            updateDisplay() {
+                this.rowsInput.value = this.rows;
+                this.colsInput.value = this.cols;
+                
+                const total = this.rows * this.cols;
+                this.eq1Rows.textContent = this.rows;
+                this.eq1Cols.textContent = this.cols;
+                this.eq2Rows.textContent = this.rows;
+                this.eq3Rows.textContent = this.rows;
+                this.totalDisplay.textContent = total;
+            }
+
+            updateCalculations() {
+                const c1 = parseInt(this.c1Input.value) || 0;
+                const c2 = parseInt(this.c2Input.value) || 0;
+                
+                this.leftProduct.textContent = this.rows * c1;
+                this.rightProduct.textContent = this.rows * c2;
+                
+                this.renderDotGrid();
+                this.updateBadges();
+            }
+
+            renderDotGrid() {
+                const c1 = parseInt(this.c1Input.value) || 0;
+                const splitAt = Math.min(Math.max(c1, 0), this.cols);
+                
+                this.dotGrid.innerHTML = '';
+                this.dotGrid.style.display = 'grid';
+                this.dotGrid.style.gridTemplateColumns = `repeat(${this.cols}, minmax(0, 1fr))`;
+                this.dotGrid.style.position = 'relative';
+                
+                // Create dots
+                for (let r = 0; r < this.rows; r++) {
+                    for (let c = 0; c < this.cols; c++) {
+                        const dot = document.createElement('div');
+                        dot.className = `dot ${c < splitAt ? 'active' : 'inactive'}`;
+                        this.dotGrid.appendChild(dot);
+                    }
+                }
+                
+                // Add split line if needed
+                if (splitAt > 0 && splitAt < this.cols) {
+                    const splitLine = document.createElement('div');
+                    splitLine.className = 'split-line';
+                    splitLine.style.left = `calc(${(splitAt / this.cols) * 100}% - 1px)`;
+                    this.dotGrid.appendChild(splitLine);
+                }
+            }
+
+            updateBadges() {
+                const c1 = parseInt(this.c1Input.value) || 0;
+                const c2 = parseInt(this.c2Input.value) || 0;
+                const prod = parseInt(this.prodInput.value) || 0;
+                const total = this.rows * this.cols;
+                
+                const splitValid = c1 + c2 === this.cols && c1 >= 1 && c2 >= 1;
+                const productValid = this.rows * c1 + this.rows * c2 === total && prod === total;
+                
+                // Update split badge
+                if (splitValid) {
+                    this.splitBadge.className = 'px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700';
+                    this.splitBadge.textContent = 'Split valid';
+                } else {
+                    this.splitBadge.className = 'px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800';
+                    this.splitBadge.textContent = 'Split must add to columns';
+                }
+                
+                // Update product badge
+                if (productValid) {
+                    this.productBadge.className = 'px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700';
+                    this.productBadge.textContent = 'Product correct';
+                } else {
+                    this.productBadge.className = 'px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800';
+                    this.productBadge.textContent = 'Product check calculations';
+                }
+                
+                return { splitValid, productValid };
+            }
+
+            showMessage(text) {
+                this.messageBox.textContent = text;
+                this.messageBox.classList.remove('hidden');
+                this.messageBox.classList.add('fade-in');
+            }
+
+            hideMessage() {
+                this.messageBox.classList.add('hidden');
+                this.messageBox.classList.remove('fade-in');
+            }
+
+            shootConfetti(particleCount = 120) {
+                confetti({
+                    particleCount,
+                    spread: 70,
+                    origin: { y: 0.35 },
+                    scalar: 0.9,
+                });
+            }
+
+            checkAnswer() {
+                const { splitValid, productValid } = this.updateBadges();
+                const fullyCorrect = splitValid && productValid;
+                
+                if (fullyCorrect) {
+                    this.showMessage("Correct! You split the columns and multiplied like a pro. 🎉");
+                    this.shootConfetti(180);
+                    
+                    // Add bounce animation to the grid
+                    this.dotGrid.classList.add('bounce-in');
+                    setTimeout(() => {
+                        this.dotGrid.classList.remove('bounce-in');
+                    }, 500);
+                } else {
+                    this.showMessage("Not yet. Check your split adds to columns and your product matches the total.");
+                }
+            }
+
+            giveHint() {
+                this.attempts++;
+                const c1 = parseInt(this.c1Input.value) || 0;
+                const c2 = parseInt(this.c2Input.value) || 0;
+                const prod = parseInt(this.prodInput.value) || 0;
+                const total = this.rows * this.cols;
+                
+                if (!c1 && !c2) {
+                    const suggestion = Math.floor(this.cols / 2);
+                    this.showMessage(`Try splitting ${this.cols} into two friendly parts that add up to ${this.cols}. Example: ${suggestion} + ${this.cols - suggestion}.`);
+                    return;
+                }
+                
+                if (c1 + c2 !== this.cols) {
+                    this.showMessage("Your two numbers must add to the total number of columns.");
+                    return;
+                }
+                
+                if (prod !== total) {
+                    this.showMessage("Multiply, then add: (rows×left) + (rows×right) should match the whole array.");
+                    return;
+                }
+                
+                this.showMessage("Look at the dots: left group and right group together make the full rectangle.");
+            }
+
+            suggestSplit() {
+                const left = Math.max(1, Math.floor(this.cols / 2));
+                this.c1Input.value = left;
+                this.c2Input.value = this.cols - left;
+                this.updateCalculations();
+            }
+
+            clearInputs() {
+                this.c1Input.value = '';
+                this.c2Input.value = '';
+                this.prodInput.value = '';
+                this.hideMessage();
+                this.updateCalculations();
+            }
+
+            shuffle() {
+                this.rows = this.randInt(2, 9);
+                this.cols = this.randInt(4, 12);
+                this.attempts = 0;
+                this.clearInputs();
+                this.updateDisplay();
+                this.renderDotGrid();
+            }
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new DistributiveDotsApp();
+        });
+    </script>
+</body>
+</html>

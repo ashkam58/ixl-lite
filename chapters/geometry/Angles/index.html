@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Geometry Lab • Angles (Grade 9)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🧭 Geometry Lab: Angles</div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="vocab" class="active">1. Vocabulary</button>
+      <button data-tab="measure">2. Measure</button>
+      <button data-tab="classify">3–4. Classify & Find Measures</button>
+      <button data-tab="solve">5. Solve for x</button>
+      <button data-tab="bisect">6–7. Angle Bisectors</button>
+      <button data-tab="congruent">8. Copy/Congruent Angle</button>
+      <button data-tab="proofs">9. Proofs</button>
+      <button data-tab="drills">Mixed Drills</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 1. Vocabulary -->
+    <section id="vocab" class="tab active">
+      <h2>Angle Vocabulary</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Definitions</h3>
+          <ul class="defs">
+            <li><strong>Angle</strong>: Figure formed by two rays with a common endpoint (the vertex).</li>
+            <li><strong>Adjacent angles</strong>: Share a vertex and a side, interiors do not overlap.</li>
+            <li><strong>Vertical angles</strong>: Non-adjacent angles formed by two intersecting lines; they are congruent.</li>
+            <li><strong>Complementary</strong>: Two angles whose measures add to 90°.</li>
+            <li><strong>Supplementary</strong>: Two angles whose measures add to 180°.</li>
+            <li><strong>Congruent angles</strong>: Angles with equal measure.</li>
+            <li><strong>Angle bisector</strong>: A ray that splits an angle into two congruent angles.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Spot the Term</h3>
+          <canvas id="vocabCanvas" width="420" height="300"></canvas>
+          <div class="row">
+            <label><input type="radio" name="vocabPick" value="adjacent" checked/> Adjacent</label>
+            <label><input type="radio" name="vocabPick" value="vertical"/> Vertical</label>
+            <label><input type="radio" name="vocabPick" value="bisector"/> Bisector</label>
+          </div>
+          <button id="checkVocab">Check</button>
+          <div class="feedback" id="vocabFB"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Measure -->
+    <section id="measure" class="tab">
+      <h2>Measure Angles (Drag the rays)</h2>
+      <div class="grid two">
+        <div class="card">
+          <canvas id="measureCanvas" width="420" height="320"></canvas>
+          <div class="row">
+            <label>Snap to 5° <input type="checkbox" id="snap5" checked></label>
+            <button id="resetMeasure">Reset</button>
+          </div>
+          <div class="feedback"><span id="measureReadout">m∠AOB = —°</span></div>
+        </div>
+        <div class="card">
+          <h3>Toolbox</h3>
+          <ul>
+            <li><strong>Drag</strong> the endpoints to change the rays.</li>
+            <li>Use the <strong>protractor</strong> overlay to estimate measure.</li>
+            <li>Try to make <em>acute</em> (&lt;90°), <em>right</em> (=90°), <em>obtuse</em> (90°–180°), and <em>straight</em> (180°) angles.</li>
+          </ul>
+          <label><input type="checkbox" id="showProtractor" checked/> Show protractor</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3–4. Classify & Find Measures -->
+    <section id="classify" class="tab">
+      <h2>Classify & Find Measures</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Complement / Supplement</h3>
+          <div class="row">
+            <label>Angle (°): <input type="number" id="csAngle" value="35" min="0" max="180"></label>
+          </div>
+          <div class="row">
+            <button id="calcComp">Complement</button>
+            <button id="calcSupp">Supplement</button>
+          </div>
+          <div class="feedback" id="csFB"></div>
+        </div>
+        <div class="card">
+          <h3>Relationship Classifier</h3>
+          <canvas id="classCanvas" width="420" height="320"></canvas>
+          <div class="row">
+            <label><input type="radio" name="rel" value="adjacent" checked/> Adjacent</label>
+            <label><input type="radio" name="rel" value="vertical"/> Vertical</label>
+            <label><input type="radio" name="rel" value="linear"/> Linear Pair (supplementary)</label>
+          </div>
+          <button id="checkClass">Check</button>
+          <div class="feedback" id="classFB"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Solve for x -->
+    <section id="solve" class="tab">
+      <h2>Angle Diagrams: Solve for the variable</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Problem</h3>
+          <canvas id="solveCanvas" width="420" height="320"></canvas>
+          <div class="row">
+            <input id="solveInput" type="number" placeholder="x = ?" />
+            <button id="checkSolve">Check</button>
+            <button id="newSolve">New</button>
+          </div>
+          <div id="solveFB" class="feedback"></div>
+        </div>
+        <div class="card">
+          <h3>Facts you may need</h3>
+          <ul class="defs small">
+            <li>Vertical angles are congruent.</li>
+            <li>Linear pair sums to 180°.</li>
+            <li>Angle addition postulate: m∠AOB + m∠BOC = m∠AOC.</li>
+            <li>Complementary angles sum to 90°.</li>
+            <li>Supplementary angles sum to 180°.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6–7. Angle Bisectors -->
+    <section id="bisect" class="tab">
+      <h2>Angle Bisectors</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Interactive Construction (compass & straightedge)</h3>
+          <canvas id="bisectCanvas" width="420" height="320"></canvas>
+          <div class="row">
+            <button id="bisectStep">Next Step</button>
+            <button id="bisectReset">Reset</button>
+          </div>
+          <ol id="bisectSteps" class="small">
+            <li>Place compass at the vertex; draw an arc cutting both rays.</li>
+            <li>Without changing radius, draw arcs from the two intersection points.</li>
+            <li>Draw a ray from vertex through the arcs' intersection point.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>Check Your Bisector</h3>
+          <p>After construction, the two new angles should be congruent.</p>
+          <div class="feedback" id="bisectFB"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Construct a Congruent Angle -->
+    <section id="congruent" class="tab">
+      <h2>Construct a Congruent Angle</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Copy the angle</h3>
+          <canvas id="copyCanvas" width="420" height="320"></canvas>
+          <div class="row">
+            <button id="copyStep">Next Step</button>
+            <button id="copyReset">Reset</button>
+          </div>
+          <ol class="small">
+            <li>Draw a ray for the new angle.</li>
+            <li>Arc from original vertex; transfer the same arc to new vertex.</li>
+            <li>Set compass to distance between arc–ray intersection; mark same on the new arc.</li>
+            <li>Draw second ray through the marked point.</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>Are they congruent?</h3>
+          <div class="feedback" id="copyFB"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Proofs -->
+    <section id="proofs" class="tab">
+      <h2>Proofs involving angles</h2>
+      <div class="card">
+        <p><strong>Goal:</strong> Given two intersecting lines, prove vertical angles are congruent.</p>
+        <div class="proof">
+          <div class="row"><span>1.</span> Given: Lines l and m intersect at P.</div>
+          <div class="row"><span>2.</span> To Prove: ∠1 ≅ ∠3</div>
+          <div class="row"><span>3.</span> ∠1 and ∠2 form a linear pair. Reason:
+            <select class="reason">
+              <option value="">— choose —</option>
+              <option>Linear Pair Postulate</option>
+              <option>Vertical Angles Theorem</option>
+              <option>Angle Addition Postulate</option>
+            </select>
+          </div>
+          <div class="row"><span>4.</span> m∠1 + m∠2 = 180°. Reason:
+            <select class="reason">
+              <option value="">— choose —</option>
+              <option>Definition of Linear Pair</option>
+              <option>Supplement Theorem</option>
+            </select>
+          </div>
+          <div class="row"><span>5.</span> ∠2 and ∠3 form a linear pair. Reason:
+            <select class="reason">
+              <option value="">— choose —</option>
+              <option>Linear Pair Postulate</option>
+              <option>Vertical Angles Theorem</option>
+            </select>
+          </div>
+          <div class="row"><span>6.</span> m∠2 + m∠3 = 180°. Reason:
+            <select class="reason">
+              <option value="">— choose —</option>
+              <option>Definition of Linear Pair</option>
+              <option>Supplement Theorem</option>
+            </select>
+          </div>
+          <div class="row"><span>7.</span> Therefore m∠1 = m∠3. Reason:
+            <select class="reason">
+              <option value="">— choose —</option>
+              <option>Transitive/Subtraction Property</option>
+              <option>Definition of Angle Bisector</option>
+            </select>
+          </div>
+          <div class="row"><span>8.</span> So ∠1 ≅ ∠3. Reason:
+            <select class="reason">
+              <option value="">— choose —</option>
+              <option>Definition of Congruent Angles</option>
+              <option>Corresponding Angles Postulate</option>
+            </select>
+          </div>
+          <button id="checkProof">Check Proof</button>
+          <div id="proofFB" class="feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mixed Drills -->
+    <section id="drills" class="tab">
+      <h2>Mixed Drills</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Rapid Fire</h3>
+          <p id="drillQ">Press NEW to start.</p>
+          <input id="drillA" placeholder="Your answer" />
+          <button id="drillCheck">Check</button>
+          <button id="drillNew">New</button>
+          <div id="drillFB" class="feedback"></div>
+        </div>
+        <div class="card">
+          <h3>What’s inside</h3>
+          <ul class="small">
+            <li>Angle type (acute/obtuse/right/straight)</li>
+            <li>Complement/supplement</li>
+            <li>Solve for x with vertical/linear pair</li>
+            <li>Vocabulary identification</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Built for Grade 9 mastery • Practice daily, draw often, prove clearly.
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

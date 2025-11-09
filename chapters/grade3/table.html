@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Toon Practice</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Funky shadow for the cartoon effect */
+        .cartoon-shadow {
+            box-shadow: 0.5rem 0.5rem 0 #1e3a8a; /* A dark blue shadow */
+        }
+        /* Simple bounce animation for feedback */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+        .feedback-anim {
+            animation: bounce 0.8s;
+        }
+    </style>
+</head>
+<body class="bg-blue-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-4xl mx-auto">
+        <!-- Main Title -->
+        <h1 class="text-4xl md:text-6xl font-extrabold text-center text-blue-800 mb-2" style="text-shadow: 2px 2px 0 white, 4px 4px 0 #60a5fa;">
+            Math Toons!
+        </h1>
+        <p class="text-center text-blue-600 text-lg mb-6">Multiplication Practice (up to 12)</p>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-2xl border-4 border-blue-800 p-6 md:p-8 cartoon-shadow">
+
+            <!-- Mode & Score Container -->
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                <!-- Mode Tabs -->
+                <div class="flex border-2 border-blue-600 rounded-lg overflow-hidden">
+                    <button id="btn-mode-practice" class="flex-1 p-3 text-lg font-bold text-white bg-blue-600 transition-all" onclick="selectMode('practice')">
+                        Practice Facts
+                    </button>
+                    <button id="btn-mode-truefalse" class="flex-1 p-3 text-lg font-bold text-blue-600 bg-white transition-all" onclick="selectMode('trueFalse')">
+                        True or False
+                    </button>
+                </div>
+
+                <!-- Score Display -->
+                <div id="score-display" class="text-xl font-bold text-right text-blue-700 bg-blue-100 rounded-lg p-3">
+                    Score: 0 / 0
+                </div>
+            </div>
+
+            <!-- Problem Area -->
+            <div class="bg-yellow-100 border-4 border-yellow-400 rounded-xl p-8 mb-6">
+                <div id="problem-display" class="text-center text-5xl md:text-7xl font-extrabold text-yellow-900 tracking-tighter" style="min-height: 80px;">
+                    7 x 8 = ?
+                </div>
+            </div>
+
+            <!-- Answer Area -->
+            <div id="answer-area" class="mb-6">
+                <!-- Mode 1: Practice Input -->
+                <div id="practice-input-area" class="flex flex-col sm:flex-row gap-4">
+                    <input type="number" id="answer-input" class="flex-grow text-3xl p-4 border-4 border-gray-300 rounded-lg text-center font-bold focus:border-blue-500 focus:ring-2 focus:ring-blue-300 outline-none" placeholder="Type answer">
+                    <button id="check-btn" class="bg-blue-600 text-white text-2xl font-bold py-4 px-8 rounded-lg shadow-md hover:bg-blue-700 active:bg-blue-800 transition-all transform hover:scale-105">
+                        Check
+                    </button>
+                </div>
+
+                <!-- Mode 2: True/False Buttons -->
+                <div id="truefalse-input-area" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button class="bg-green-500 text-white text-3xl font-bold py-6 rounded-lg shadow-md hover:bg-green-600 active:bg-green-700 transition-all transform hover:scale-105" onclick="checkTrueFalse(true)">
+                        👍 True
+                    </button>
+                    <button class="bg-red-500 text-white text-3xl font-bold py-6 rounded-lg shadow-md hover:bg-red-600 active:bg-red-700 transition-all transform hover:scale-105" onclick="checkTrueFalse(false)">
+                        👎 False
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="feedback-display" class="text-center text-3xl font-bold h-10 mb-6">
+                <!-- Feedback appears here -->
+            </div>
+
+            <!-- Visualization Area -->
+            <div class="bg-gray-100 rounded-lg p-4 border-2 border-gray-300">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Visualization</h3>
+                <div id="visualization-box" class="flex flex-wrap gap-1 justify-center min-h-[50px] max-h-64 overflow-y-auto p-2 bg-white rounded">
+                    <!-- Visualization items appear here -->
+                </div>
+            </div>
+
+        </div> <!-- End Main Card -->
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const problemDisplay = document.getElementById('problem-display');
+        const answerInput = document.getElementById('answer-input');
+        const checkBtn = document.getElementById('check-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const feedbackDisplay = document.getElementById('feedback-display');
+        const visualizationBox = document.getElementById('visualization-box');
+        
+        const practiceInputArea = document.getElementById('practice-input-area');
+        const trueFalseInputArea = document.getElementById('truefalse-input-area');
+        const btnModePractice = document.getElementById('btn-mode-practice');
+        const btnModeTrueFalse = document.getElementById('btn-mode-truefalse');
+
+        // --- Game State ---
+        let currentMode = 'practice'; // 'practice' or 'trueFalse'
+        let num1 = 0;
+        let num2 = 0;
+        let correctAnswer = 0;
+        let displayedAnswer = 0; // For true/false mode
+        let score = 0;
+        let totalQuestions = 0;
+        let isWaitingForNext = false; // To prevent multiple clicks in practice mode
+
+        // --- Functions ---
+
+        /**
+         * Initializes the game
+         */
+        function init() {
+            selectMode('practice');
+            
+            // Event listener for the "Check" button
+            checkBtn.addEventListener('click', () => {
+                if (isWaitingForNext) {
+                    generatePracticeProblem();
+                    isWaitingForNext = false;
+                } else {
+                    checkPracticeAnswer();
+                }
+            });
+
+            // Event listener for "Enter" key in the input box
+            answerInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    if (isWaitingForNext) {
+                        generatePracticeProblem();
+                        isWaitingForNext = false;
+                    } else {
+                        checkPracticeAnswer();
+                    }
+                }
+            });
+        }
+
+        /**
+         * Switches the game mode and generates a new problem.
+         */
+        function selectMode(mode) {
+            currentMode = mode;
+            score = 0;
+            totalQuestions = 0;
+            updateScore();
+            clearFeedback();
+            isWaitingForNext = false;
+
+            if (mode === 'practice') {
+                // Show practice UI
+                practiceInputArea.classList.remove('hidden');
+                trueFalseInputArea.classList.add('hidden');
+                // Update tab styles
+                btnModePractice.classList.add('bg-blue-600', 'text-white');
+                btnModePractice.classList.remove('bg-white', 'text-blue-600');
+                btnModeTrueFalse.classList.add('bg-white', 'text-blue-600');
+                btnModeTrueFalse.classList.remove('bg-blue-600', 'text-white');
+                // Generate problem
+                generatePracticeProblem();
+            } else { // 'trueFalse'
+                // Show true/false UI
+                practiceInputArea.classList.add('hidden');
+                trueFalseInputArea.classList.remove('hidden');
+                // Update tab styles
+                btnModeTrueFalse.classList.add('bg-blue-600', 'text-white');
+                btnModeTrueFalse.classList.remove('bg-white', 'text-blue-600');
+                btnModePractice.classList.add('bg-white', 'text-blue-600');
+                btnModePractice.classList.remove('bg-blue-600', 'text-white');
+                // Generate problem
+                generateTrueFalseProblem();
+            }
+        }
+
+        /**
+         * Generates a random integer between 1 and 12 (inclusive).
+         */
+        function getRandomNum() {
+            return Math.floor(Math.random() * 12) + 1;
+        }
+
+        /**
+         * Generates a new problem for "Practice" mode.
+         */
+        function generatePracticeProblem() {
+            num1 = getRandomNum();
+            num2 = getRandomNum();
+            correctAnswer = num1 * num2;
+            
+            problemDisplay.textContent = `${num1} x ${num2} = ?`;
+            answerInput.value = '';
+            answerInput.disabled = false;
+            answerInput.focus();
+            checkBtn.textContent = 'Check';
+            clearFeedback();
+            updateVisualization(num1, num2);
+        }
+
+        /**
+         * Generates a new problem for "True or False" mode.
+         */
+        function generateTrueFalseProblem() {
+            num1 = getRandomNum();
+            num2 = getRandomNum();
+            correctAnswer = num1 * num2;
+
+            // 50/50 chance to show the correct or incorrect answer
+            if (Math.random() > 0.5) {
+                displayedAnswer = correctAnswer;
+            } else {
+                // Generate a "wrong" answer
+                let offset = Math.random() > 0.5 ? getRandomNum() : -getRandomNum();
+                displayedAnswer = correctAnswer + offset;
+                // Ensure the wrong answer isn't accidentally correct or negative
+                if (displayedAnswer === correctAnswer || displayedAnswer < 0) {
+                    displayedAnswer = correctAnswer + 5; // Just pick a different number
+                }
+            }
+
+            problemDisplay.textContent = `${num1} x ${num2} = ${displayedAnswer}`;
+            clearFeedback();
+            updateVisualization(num1, num2);
+        }
+
+        /**
+         * Checks the user's input in "Practice" mode.
+         */
+        function checkPracticeAnswer() {
+            const userAnswer = parseInt(answerInput.value);
+            totalQuestions++;
+            
+            if (userAnswer === correctAnswer) {
+                score++;
+                showFeedback(true, `Correct! ${num1} x ${num2} = ${correctAnswer}`);
+                isWaitingForNext = true;
+                checkBtn.textContent = 'Next →';
+                checkBtn.focus();
+                answerInput.disabled = true;
+            } else {
+                showFeedback(false, `Not quite. Try again!`);
+            }
+            updateScore();
+        }
+
+        /**
+         * Checks the user's choice in "True or False" mode.
+         */
+        function checkTrueFalse(userChoice) {
+            const isEquationCorrect = (displayedAnswer === correctAnswer);
+            totalQuestions++;
+
+            if (userChoice === isEquationCorrect) {
+                score++;
+                showFeedback(true, `Correct! ${num1} x ${num2} = ${correctAnswer}`);
+            } else {
+                showFeedback(false, `Wrong! ${num1} x ${num2} = ${correctAnswer}`);
+            }
+            updateScore();
+
+            // Disable buttons and load next question after a delay
+            trueFalseInputArea.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            setTimeout(() => {
+                generateTrueFalseProblem();
+                trueFalseInputArea.querySelectorAll('button').forEach(btn => btn.disabled = false);
+            }, 1500); // 1.5 second delay
+        }
+
+        /**
+         * Updates the score display.
+         */
+        function updateScore() {
+            scoreDisplay.textContent = `Score: ${score} / ${totalQuestions}`;
+        }
+
+        /**
+         * Shows feedback to the user (Correct/Incorrect).
+         */
+        function showFeedback(isCorrect, message) {
+            feedbackDisplay.textContent = message;
+            feedbackDisplay.classList.remove('feedback-anim', 'text-green-600', 'text-red-600');
+            
+            if (isCorrect) {
+                feedbackDisplay.classList.add('text-green-600');
+            } else {
+                feedbackDisplay.classList.add('text-red-600');
+            }
+            // Trigger reflow to restart animation
+            void feedbackDisplay.offsetWidth;
+            feedbackDisplay.classList.add('feedback-anim');
+        }
+
+        /**
+         * Clears the feedback message.
+         */
+        function clearFeedback() {
+            feedbackDisplay.textContent = '';
+            feedbackDisplay.classList.remove('feedback-anim', 'text-green-600', 'text-red-600');
+        }
+
+        /**
+         * Updates the visualization box with an array of items.
+         */
+        function updateVisualization(rows, cols) {
+            visualizationBox.innerHTML = ''; // Clear previous items
+            
+            // To keep things tidy, let's use the smaller number for rows
+            const actualRows = Math.min(rows, cols);
+            const actualCols = Math.max(rows, cols);
+
+            // Create a container for the rows to manage layout
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'flex flex-col items-center gap-1';
+
+            for (let i = 0; i < actualRows; i++) {
+                const rowEl = document.createElement('div');
+                rowEl.className = 'flex gap-1 justify-center'; // A row of items
+                
+                for (let j = 0; j < actualCols; j++) {
+                    const itemEl = document.createElement('div');
+                    // Using text instead of spans for better performance on large numbers
+                    itemEl.textContent = '⭐'; // Star emoji
+                    itemEl.className = 'text-lg leading-none'; // Adjust size
+                    rowEl.appendChild(itemEl);
+                }
+                gridContainer.appendChild(rowEl);
+            }
+            visualizationBox.appendChild(gridContainer);
+        }
+
+        // --- Start the game ---
+        init();
+    </script>
+
+</body>
+</html>

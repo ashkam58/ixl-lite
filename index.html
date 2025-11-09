@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AIS Practice • Topics Catalog</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Floating Background Shapes -->
+  <div class="floating-shapes">
+    <div class="floating-shape" style="top: 10%; left: 10%; font-size: 60px;">🎯</div>
+    <div class="floating-shape" style="top: 20%; right: 15%; font-size: 50px;">🌟</div>
+    <div class="floating-shape" style="top: 60%; left: 5%; font-size: 70px;">🎨</div>
+    <div class="floating-shape" style="top: 70%; right: 10%; font-size: 55px;">🚀</div>
+    <div class="floating-shape" style="top: 40%; left: 50%; font-size: 45px;">⭐</div>
+    <div class="floating-shape" style="top: 80%; left: 30%; font-size: 65px;">🎪</div>
+    <div class="floating-shape" style="top: 15%; left: 70%; font-size: 40px;">🎈</div>
+  </div>
+
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="logo"></span> AIS Practice</div>
+      <nav class="row">
+        <a class="btn ghost" href="#">📚 Topics</a>
+        <a class="btn ghost" href="#">🏆 Badges</a>
+        <a class="btn ghost" href="#">ℹ️ About</a>
+      </nav>
+      <div class="search">
+        <input id="q" placeholder="🔍 Search topics…" />
+        <button id="searchBtn">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="results" class="grid"></div>
+  </div>
+
+  <div class="footer small">✨ AIS Practice — Built with simple HTML files per topic. Add images/logos as needed. ✨</div>
+
+  <script src="engine/router.js"></script>
+  <script>
+    function render(list){
+      const box = document.getElementById('results');
+      box.innerHTML = list.map(item => `
+        <article class="card">
+          <div class="badge">${item.level}</div>
+          <h3>${getTopicEmoji(item.slug)} ${item.title}</h3>
+          <p class="muted">Slug: ${item.slug}</p>
+          <a class="btn primary" href="chapters/${item.slug}.html">🚀 Start practice</a>
+        </article>
+      `).join('');
+    }
+    
+    function getTopicEmoji(slug) {
+      if (slug.includes('addition')) return '➕';
+      if (slug.includes('multiplication')) return '✖️';
+      if (slug.includes('fractions')) return '🍰';
+      return '📝';
+    }
+    async function main(){
+      const tick = () => new Promise(r => setTimeout(r, 20));
+      while(!window.Manifest){ await tick(); }
+      render(window.Manifest);
+      const q = document.getElementById('q');
+      const btn = document.getElementById('searchBtn');
+      function doSearch(){
+        const term = q.value.toLowerCase().trim();
+        const list = window.Manifest.filter(m => 
+          m.title.toLowerCase().includes(term) ||
+          m.slug.toLowerCase().includes(term) ||
+          (m.tags||[]).join(',').toLowerCase().includes(term)
+        );
+        render(list.length ? list : window.Manifest);
+      }
+      btn.onclick = doSearch;
+      q.onkeydown = (e)=>{ if(e.key==='Enter') doSearch(); };
+    }
+    main();
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+[
+  {
+    "prompt": "Add: 27 + 18",
+    "answer": "45",
+    "hint": "Add tens then ones.",
+    "explainWrong": "20+10=30, 7+8=15 \u21d2 30+15=45."
+  },
+  {
+    "prompt": "Add: 305 + 90",
+    "answer": "395",
+    "hint": "Add hundreds, tens, ones.",
+    "explainWrong": "300 + 90 = 390; +5 = 395."
+  },
+  {
+    "prompt": "Find the sum: 456 + 120",
+    "answer": "576",
+    "hint": "Add 100 then 20.",
+    "explainWrong": "456 + 100 = 556, +20 = 576."
+  }
+]

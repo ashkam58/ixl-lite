@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grade 3 • Fractions (Like Denominators)</title>
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Floating Background Shapes -->
+  <div class="floating-shapes">
+    <div class="floating-shape" style="top: 15%; left: 8%; font-size: 55px;">🍰</div>
+    <div class="floating-shape" style="top: 25%; right: 12%; font-size: 50px;">🥧</div>
+    <div class="floating-shape" style="top: 65%; left: 6%; font-size: 60px;">🍕</div>
+    <div class="floating-shape" style="top: 75%; right: 8%; font-size: 45px;">🧮</div>
+    <div class="floating-shape" style="top: 45%; left: 75%; font-size: 40px;">📊</div>
+  </div>
+
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="logo"></span> AIS Practice</div>
+      <a class="btn ghost" href="../../index.html">🏠 Home</a>
+      <div class="row small muted" style="margin-left:auto">
+        <span>Topic:</span><strong id="topic-title" style="color: var(--text-light);">🍰 Grade 3 • Fractions (Like Denominators)</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="container shell">
+    <main>
+      <section class="card prompt" id="prompt"></section>
+      <section class="card workspace">
+        <input id="answer" type="text" placeholder="Type your answer…" />
+        <div class="actions">
+          <button id="checkBtn" class="btn primary">✨ Check</button>
+          <button id="hintBtn" class="btn">💡 Hint</button>
+          <button id="skipBtn" class="btn">⏭️ Skip</button>
+          <button id="nextBtn" class="btn">➡️ Next</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+      </section>
+      <nav class="nav-rail">
+        <button id="prevTopic" class="btn">← Prev Topic</button>
+        <button id="nextTopic" class="btn">Next Topic →</button>
+      </nav>
+    </main>
+    <aside>
+      <section class="card hud">
+        <div class="tile">🏆 Score<br><strong id="score">0</strong></div>
+        <div class="tile">🎯 Attempts<br><strong id="attempts">0</strong></div>
+        <div class="tile">📈 Mastery<br><strong id="mastery">0%</strong></div>
+      </section>
+      <section class="card">
+        <div>🔥 Streak: <strong id="streakVal">0</strong></div>
+        <p class="small muted">Tip: Press Enter to submit faster.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script src="../../engine/ui.js"></script>
+  <script src="../../engine/core.js"></script>
+  <script>
+    document.addEventListener('keydown', (e)=>{{ if(e.key==='Enter'){{ document.getElementById('checkBtn').click(); }} }});
+    const TOPIC_ID = "fractions_like_denom";
+    window.IxlLite.loadTopic({
+      topicId: TOPIC_ID,
+      dataUrl: "../../data/fractions_like_denom.json",
+      titleEl: document.getElementById("topic-title"),
+      promptEl: document.getElementById("prompt"),
+      answerEl: document.getElementById("answer"),
+      feedbackEl: document.getElementById("feedback"),
+      scoreEl: document.getElementById("score"),
+      attemptsEl: document.getElementById("attempts"),
+      masteryEl: document.getElementById("mastery"),
+      streakEl: document.getElementById("streakVal"),
+      buttons: {
+        check: document.getElementById("checkBtn"),
+        next: document.getElementById("nextBtn"),
+        skip: document.getElementById("skipBtn"),
+        hint: document.getElementById("hintBtn")
+      },
+      nav: {
+        prevBtn: document.getElementById("prevTopic"),
+        nextBtn: document.getElementById("nextTopic"),
+        manifestUrl: "../../manifest.json"
+      }
+    });
+  </script>
+</body>
+</html>

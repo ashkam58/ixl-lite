@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parts of a Circle - Geometry Fun!</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        /* Apply custom fonts */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Removed overflow: hidden to allow scrolling when needed */
+        }
+        
+        .font-luckiest {
+            font-family: 'Luckiest Guy', cursive;
+        }
+
+        /* Custom button styles for a "cartoon" feel */
+        .btn-cartoon {
+            @apply px-4 py-3 font-bold text-white text-lg rounded-xl shadow-lg transition-all duration-150;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+            border-bottom: 5px solid;
+        }
+
+        .btn-cartoon:hover {
+            @apply transform -translate-y-0.5 shadow-xl;
+        }
+        
+        .btn-cartoon:active {
+            @apply transform translate-y-0.5 shadow-md;
+            border-bottom-width: 2px;
+        }
+
+        /* Color-specific button styles */
+        .btn-blue { @apply bg-blue-500 border-blue-700; }
+        .btn-blue:hover { @apply bg-blue-400; }
+
+        .btn-green { @apply bg-green-500 border-green-700; }
+        .btn-green:hover { @apply bg-green-400; }
+        
+        .btn-red { @apply bg-red-500 border-red-700; }
+        .btn-red:hover { @apply bg-red-400; }
+        
+        .btn-yellow { @apply bg-yellow-500 border-yellow-700 text-gray-800; }
+        .btn-yellow:hover { @apply bg-yellow-400; }
+        
+        .btn-purple { @apply bg-purple-500 border-purple-700; }
+        .btn-purple:hover { @apply bg-purple-400; }
+        
+        .btn-orange { @apply bg-orange-500 border-orange-700; }
+        .btn-orange:hover { @apply bg-orange-400; }
+        
+        .btn-pink { @apply bg-pink-500 border-pink-700; }
+        .btn-pink:hover { @apply bg-pink-400; }
+
+        /* Active tool button style */
+        .btn-tool.active {
+            @apply ring-4 ring-yellow-300 ring-offset-2 transform -translate-y-0.5;
+            border-bottom-width: 2px;
+        }
+        
+        /* Tab button styles */
+        .tab-btn {
+            @apply px-6 py-3 text-2xl font-luckiest text-white rounded-t-lg transition-all duration-200;
+            background-color: #93c5fd; /* bg-blue-300 */
+        }
+        
+        .tab-btn.active {
+            @apply bg-white text-blue-600 transform scale-105;
+            z-index: 10;
+        }
+        
+        /* Canvas styling */
+        canvas {
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+        
+        /* Feedback text styles */
+        #feedback-text.correct {
+            @apply text-green-500;
+            animation: bounce-in 0.5s;
+        }
+        
+        #feedback-text.incorrect {
+            @apply text-red-500;
+            animation: shake 0.5s;
+        }
+        
+        /* Ensure content is accessible on small screens */
+        @media (max-height: 600px) {
+            body {
+                overflow-y: auto;
+            }
+            .min-h-screen {
+                min-height: auto;
+            }
+        }
+        
+        /* Animations */
+        @keyframes bounce-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        
+    </style>
+</head>
+<body class="bg-blue-200 min-h-screen p-4 md:p-8 flex items-center justify-center">
+
+    <div class="w-full max-w-6xl mx-auto">
+        <!-- Header -->
+        <h1 class="text-5xl md:text-7xl font-luckiest text-white text-center mb-4" style="text-shadow: 3px 3px 0 rgba(0,0,0,0.2);">
+            Parts of a Circle
+        </h1>
+
+        <!-- Tabs -->
+        <div class="flex justify-center mb-0 -space-x-2">
+            <button id="tab-explore" class="tab-btn active">Explore</button>
+            <button id="tab-practice" class="tab-btn">Practice</button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="bg-white rounded-b-2xl rounded-tr-2xl shadow-2xl p-6 md:p-8 w-full">
+            
+            <!-- Explore Section -->
+            <div id="explore-section">
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <!-- Controls -->
+                    <div class="w-full lg:w-1/3 flex flex-col gap-3">
+                        <h2 class="text-3xl font-luckiest text-gray-700 mb-2">Click to Explore!</h2>
+                        <button id="tool-center" class="btn-cartoon btn-tool btn-blue">Center</button>
+                        <button id="tool-radius" class="btn-cartoon btn-tool btn-green">Radius</button>
+                        <button id="tool-diameter" class="btn-cartoon btn-tool btn-red">Diameter</button>
+                        <button id="tool-chord" class="btn-cartoon btn-tool btn-yellow">Chord</button>
+                        <button id="tool-secant" class="btn-cartoon btn-tool btn-purple">Secant</button>
+                        <button id="tool-tangent" class="btn-cartoon btn-tool btn-orange">Tangent</button>
+                        <button id="tool-clear" class="btn-cartoon btn-pink mt-4">Clear</button>
+                    </div>
+                    
+                    <!-- Canvas & Description -->
+                    <div class="w-full lg:w-2/3">
+                        <canvas id="exploreCanvas" width="600" height="400" class="w-full h-auto"></canvas>
+                        <div id="explore-description" class="bg-gray-100 rounded-lg p-4 mt-4 min-h-[100px] text-lg text-gray-700 font-semibold">
+                            Select a part to learn about it.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Practice Section (Hidden by default) -->
+            <div id="practice-section" class="hidden">
+                <div class="flex flex-col items-center gap-4">
+                    <!-- Question Text -->
+                    <h2 id="question-text" class="text-3xl font-luckiest text-gray-700 text-center">What part of the circle is this?</h2>
+                    
+                    <!-- Practice Canvas -->
+                    <canvas id="practiceCanvas" width="400" height="300" class="w-full max-w-md h-auto"></canvas>
+                    
+                    <!-- Options -->
+                    <div id="options-container" class="grid grid-cols-2 gap-4 w-full max-w-lg">
+                        <!-- Options will be dynamically inserted here -->
+                    </div>
+                    
+                    <!-- Feedback -->
+                    <div id="feedback-container" class="mt-4 text-center">
+                        <p id="feedback-text" class="text-3xl font-luckiest h-10"></p>
+                        <button id="next-question-btn" class="btn-cartoon btn-blue hidden mt-2">Next Question</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            // --- GLOBAL ELEMENTS ---
+            const tabExplore = document.getElementById('tab-explore');
+            const tabPractice = document.getElementById('tab-practice');
+            const exploreSection = document.getElementById('explore-section');
+            const practiceSection = document.getElementById('practice-section');
+
+            // --- EXPLORE SECTION ---
+            const exploreCanvas = document.getElementById('exploreCanvas');
+            const exploreCtx = exploreCanvas.getContext('2d');
+            const descriptionBox = document.getElementById('explore-description');
+            const toolButtons = document.querySelectorAll('.btn-tool');
+            const clearButton = document.getElementById('tool-clear');
+            
+            // --- PRACTICE SECTION ---
+            const practiceCanvas = document.getElementById('practiceCanvas');
+            const practiceCtx = practiceCanvas.getContext('2d');
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackText = document.getElementById('feedback-text');
+            const nextQuestionBtn = document.getElementById('next-question-btn');
+
+            // --- STATE VARIABLES ---
+            let activeTool = 'none';
+            let exploreCircle = { x: exploreCanvas.width / 2, y: exploreCanvas.height / 2, r: 150 };
+            let dragPoints = {
+                p1: { x: exploreCircle.x + exploreCircle.r, y: exploreCircle.y },
+                p2: { x: exploreCircle.x - exploreCircle.r, y: exploreCircle.y }
+            };
+            let draggingPoint = null;
+            let currentQuestionIndex = 0;
+
+            // --- DESCRIPTIONS ---
+            const descriptions = {
+                none: 'Select a part to learn about it.',
+                center: '<strong>Center:</strong> The point in the exact middle of the circle. All points on the circle are the same distance from the center.',
+                radius: '<strong>Radius:</strong> A line segment from the center to any point on the circle. Try dragging the blue point!',
+                diameter: '<strong>Diameter:</strong> A line segment that passes through the center and has both endpoints on the circle. It\'s twice the radius! Try dragging the blue point.',
+                chord: '<strong>Chord:</strong> A line segment whose endpoints are both on the circle. A diameter is the longest possible chord! Try dragging the two blue points.',
+                secant: '<strong>Secant:</strong> A line that intersects the circle at two distinct points. It\'s like a chord that goes on forever! Try dragging the blue points.',
+                tangent: '<strong>Tangent:</strong> A line that touches the circle at exactly one point, called the point of tangency. Try dragging the blue point to move it around the circle.'
+            };
+
+            // --- PRACTICE QUESTIONS ---
+            const practiceQuestions = [
+                { type: 'radius', answer: 'Radius', options: ['Radius', 'Diameter', 'Chord', 'Tangent'] },
+                { type: 'diameter', answer: 'Diameter', options: ['Secant', 'Radius', 'Diameter', 'Chord'] },
+                { type: 'chord', answer: 'Chord', options: ['Tangent', 'Chord', 'Radius', 'Secant'] },
+                { type: 'tangent', answer: 'Tangent', options: ['Diameter', 'Secant', 'Chord', 'Tangent'] },
+                { type: 'secant', answer: 'Secant', options: ['Radius', 'Tangent', 'Secant', 'Diameter'] },
+                { type: 'center', answer: 'Center', options: ['Chord', 'Center', 'Point of Tangency', 'Radius'] },
+            ];
+            
+            // --- TAB SWITCHING LOGIC ---
+            tabExplore.addEventListener('click', () => {
+                exploreSection.classList.remove('hidden');
+                practiceSection.classList.add('hidden');
+                tabExplore.classList.add('active');
+                tabPractice.classList.remove('active');
+                drawExploreCanvas(); // Redraw canvas on tab switch
+            });
+
+            tabPractice.addEventListener('click', () => {
+                exploreSection.classList.add('hidden');
+                practiceSection.classList.remove('hidden');
+                tabExplore.classList.remove('active');
+                tabPractice.classList.add('active');
+                loadPracticeQuestion(); // Load first question
+            });
+
+            // --- EXPLORE CANVAS DRAWING ---
+            
+            // Utility to draw a point
+            function drawPoint(ctx, x, y, color = 'blue') {
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // Main drawing function
+            function drawExploreCanvas() {
+                exploreCtx.clearRect(0, 0, exploreCanvas.width, exploreCanvas.height);
+                
+                // Draw main circle
+                exploreCtx.beginPath();
+                exploreCtx.strokeStyle = '#3b82f6'; // blue-500
+                exploreCtx.lineWidth = 4;
+                exploreCtx.arc(exploreCircle.x, exploreCircle.y, exploreCircle.r, 0, 2 * Math.PI);
+                exploreCtx.stroke();
+                
+                // Draw active tool
+                switch (activeTool) {
+                    case 'center':
+                        drawPoint(exploreCtx, exploreCircle.x, exploreCircle.y, 'red');
+                        break;
+                    case 'radius':
+                        exploreCtx.beginPath();
+                        exploreCtx.strokeStyle = '#22c55e'; // green-500
+                        exploreCtx.lineWidth = 4;
+                        exploreCtx.moveTo(exploreCircle.x, exploreCircle.y);
+                        exploreCtx.lineTo(dragPoints.p1.x, dragPoints.p1.y);
+                        exploreCtx.stroke();
+                        drawPoint(exploreCtx, exploreCircle.x, exploreCircle.y, 'red');
+                        drawPoint(exploreCtx, dragPoints.p1.x, dragPoints.p1.y);
+                        break;
+                    case 'diameter':
+                        exploreCtx.beginPath();
+                        exploreCtx.strokeStyle = '#ef4444'; // red-500
+                        exploreCtx.lineWidth = 4;
+                        exploreCtx.moveTo(dragPoints.p1.x, dragPoints.p1.y);
+                        exploreCtx.lineTo(dragPoints.p2.x, dragPoints.p2.y);
+                        exploreCtx.stroke();
+                        drawPoint(exploreCtx, exploreCircle.x, exploreCircle.y, 'red');
+                        drawPoint(exploreCtx, dragPoints.p1.x, dragPoints.p1.y);
+                        drawPoint(exploreCtx, dragPoints.p2.x, dragPoints.p2.y, 'lightblue');
+                        break;
+                    case 'chord':
+                        exploreCtx.beginPath();
+                        exploreCtx.strokeStyle = '#eab308'; // yellow-500
+                        exploreCtx.lineWidth = 4;
+                        exploreCtx.moveTo(dragPoints.p1.x, dragPoints.p1.y);
+                        exploreCtx.lineTo(dragPoints.p2.x, dragPoints.p2.y);
+                        exploreCtx.stroke();
+                        drawPoint(exploreCtx, dragPoints.p1.x, dragPoints.p1.y);
+                        drawPoint(exploreCtx, dragPoints.p2.x, dragPoints.p2.y);
+                        break;
+                    case 'secant':
+                        drawSecant();
+                        drawPoint(exploreCtx, dragPoints.p1.x, dragPoints.p1.y);
+                        drawPoint(exploreCtx, dragPoints.p2.x, dragPoints.p2.y);
+                        break;
+                    case 'tangent':
+                        drawTangent();
+                        drawPoint(exploreCtx, dragPoints.p1.x, dragPoints.p1.y);
+                        break;
+                }
+            }
+            
+            function drawSecant() {
+                const { p1, p2 } = dragPoints;
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                
+                // Extend the line
+                const t1 = -1000;
+                const t2 = 1000;
+                
+                const x1 = p1.x + t1 * dx;
+                const y1 = p1.y + t1 * dy;
+                const x2 = p1.x + t2 * dx;
+                const y2 = p1.y + t2 * dy;
+
+                exploreCtx.beginPath();
+                exploreCtx.strokeStyle = '#a855f7'; // purple-500
+                exploreCtx.lineWidth = 4;
+                exploreCtx.moveTo(x1, y1);
+                exploreCtx.lineTo(x2, y2);
+                exploreCtx.stroke();
+            }
+
+            function drawTangent() {
+                const { p1, x, y } = { p1: dragPoints.p1, ...exploreCircle };
+                // Calculate tangent line slope (perpendicular to radius)
+                const dx = p1.x - x;
+                const dy = p1.y - y;
+                
+                const length = 200;
+                let x1, y1, x2, y2;
+                
+                if (Math.abs(dx) < 1e-6) { // Vertical radius, horizontal tangent
+                    x1 = p1.x - length;
+                    y1 = p1.y;
+                    x2 = p1.x + length;
+                    y2 = p1.y;
+                } else if (Math.abs(dy) < 1e-6) { // Horizontal radius, vertical tangent
+                    x1 = p1.x;
+                    y1 = p1.y - length;
+                    x2 = p1.x;
+                    y2 = p1.y + length;
+                } else {
+                    // Normal case: tangent is perpendicular to radius
+                    // Tangent direction vector is (-dy, dx) normalized
+                    const tangentLength = Math.sqrt(dx * dx + dy * dy);
+                    const unitTangentX = -dy / tangentLength;
+                    const unitTangentY = dx / tangentLength;
+                    
+                    x1 = p1.x - length * unitTangentX;
+                    y1 = p1.y - length * unitTangentY;
+                    x2 = p1.x + length * unitTangentX;
+                    y2 = p1.y + length * unitTangentY;
+                }
+
+                exploreCtx.beginPath();
+                exploreCtx.strokeStyle = '#f97316'; // orange-500
+                exploreCtx.lineWidth = 4;
+                exploreCtx.moveTo(x1, y1);
+                exploreCtx.lineTo(x2, y2);
+                exploreCtx.stroke();
+            }
+
+            // --- EXPLORE CANVAS INTERACTIVITY ---
+
+            function getMousePos(canvas, evt) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                return {
+                    x: (evt.clientX - rect.left) * scaleX,
+                    y: (evt.clientY - rect.top) * scaleY,
+                };
+            }
+            
+            function getPointOnCircle(x, y) {
+                const { x: cx, y: cy, r } = exploreCircle;
+                const angle = Math.atan2(y - cy, x - cx);
+                return {
+                    x: cx + r * Math.cos(angle),
+                    y: cy + r * Math.sin(angle)
+                };
+            }
+
+            function isNearPoint(point, mouseX, mouseY) {
+                const dx = point.x - mouseX;
+                const dy = point.y - mouseY;
+                return (dx * dx + dy * dy) < 100; // 10px radius for grabbing
+            }
+
+            exploreCanvas.addEventListener('mousedown', (e) => {
+                const pos = getMousePos(exploreCanvas, e);
+                
+                if (isNearPoint(dragPoints.p1, pos.x, pos.y)) {
+                    draggingPoint = 'p1';
+                } else if (['chord', 'secant'].includes(activeTool) && isNearPoint(dragPoints.p2, pos.x, pos.y)) {
+                    draggingPoint = 'p2';
+                } else {
+                    draggingPoint = null;
+                }
+            });
+
+            exploreCanvas.addEventListener('mousemove', (e) => {
+                if (!draggingPoint) return;
+                
+                const pos = getMousePos(exploreCanvas, e);
+                const newPointOnCircle = getPointOnCircle(pos.x, pos.y);
+                
+                dragPoints[draggingPoint] = newPointOnCircle;
+                
+                // For diameter, make p2 opposite
+                if (activeTool === 'diameter') {
+                    dragPoints.p2 = {
+                        x: exploreCircle.x - (newPointOnCircle.x - exploreCircle.x),
+                        y: exploreCircle.y - (newPointOnCircle.y - exploreCircle.y)
+                    };
+                }
+                
+                drawExploreCanvas();
+            });
+
+            exploreCanvas.addEventListener('mouseup', () => {
+                draggingPoint = null;
+            });
+            
+            // Tool button listeners
+            toolButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    toolButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeTool = btn.id.replace('tool-', '');
+                    descriptionBox.innerHTML = descriptions[activeTool];
+                    
+                    // Reset points to default positions
+                    dragPoints.p1 = { x: exploreCircle.x + exploreCircle.r, y: exploreCircle.y };
+                    dragPoints.p2 = { x: exploreCircle.x - exploreCircle.r, y: exploreCircle.y };
+                    if (activeTool === 'chord' || activeTool === 'secant') {
+                        dragPoints.p2 = { x: exploreCircle.x, y: exploreCircle.y + exploreCircle.r };
+                    }
+
+                    drawExploreCanvas();
+                });
+            });
+
+            clearButton.addEventListener('click', () => {
+                activeTool = 'none';
+                toolButtons.forEach(b => b.classList.remove('active'));
+                descriptionBox.innerHTML = descriptions.none;
+                drawExploreCanvas();
+            });
+
+
+            // --- PRACTICE SECTION LOGIC ---
+            const practiceCircleDef = { x: practiceCanvas.width / 2, y: 130, r: 100 };
+
+            function drawPracticeDiagram(type) {
+                const { x, y, r } = practiceCircleDef;
+                practiceCtx.clearRect(0, 0, practiceCanvas.width, practiceCanvas.height);
+                
+                // Draw base circle
+                practiceCtx.beginPath();
+                practiceCtx.strokeStyle = '#9ca3af'; // gray-400
+                practiceCtx.lineWidth = 3;
+                practiceCtx.arc(x, y, r, 0, 2 * Math.PI);
+                practiceCtx.stroke();
+                
+                // Draw part
+                practiceCtx.strokeStyle = '#3b82f6'; // blue-500
+                practiceCtx.fillStyle = '#3b82f6';
+                practiceCtx.lineWidth = 4;
+
+                switch (type) {
+                    case 'center':
+                        practiceCtx.beginPath();
+                        practiceCtx.arc(x, y, 6, 0, 2 * Math.PI);
+                        practiceCtx.fill();
+                        break;
+                    case 'radius':
+                        practiceCtx.beginPath();
+                        practiceCtx.moveTo(x, y);
+                        practiceCtx.lineTo(x + r * Math.cos(-Math.PI / 4), y + r * Math.sin(-Math.PI / 4));
+                        practiceCtx.stroke();
+                        break;
+                    case 'diameter':
+                        practiceCtx.beginPath();
+                        practiceCtx.moveTo(x - r, y);
+                        practiceCtx.lineTo(x + r, y);
+                        practiceCtx.stroke();
+                        break;
+                    case 'chord':
+                        practiceCtx.beginPath();
+                        practiceCtx.moveTo(x - r * 0.8, y - r * 0.6);
+                        practiceCtx.lineTo(x + r * 0.8, y - r * 0.3);
+                        practiceCtx.stroke();
+                        break;
+                    case 'secant':
+                        practiceCtx.beginPath();
+                        practiceCtx.moveTo(x - r * 1.5, y - r * 0.5);
+                        practiceCtx.lineTo(x + r * 1.5, y + r * 0.5);
+                        practiceCtx.stroke();
+                        break;
+                    case 'tangent':
+                        practiceCtx.beginPath();
+                        practiceCtx.moveTo(x - r * 0.8, y + r);
+                        practiceCtx.lineTo(x + r * 0.8, y + r);
+                        practiceCtx.stroke();
+                        // Draw a small point to show point of tangency
+                        practiceCtx.beginPath();
+                        practiceCtx.arc(x, y + r, 4, 0, 2 * Math.PI);
+                        practiceCtx.fill();
+                        break;
+                }
+            }
+            
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            function loadPracticeQuestion() {
+                if (currentQuestionIndex >= practiceQuestions.length) {
+                    // End of quiz
+                    questionText.textContent = "Great job! You've completed the quiz!";
+                    optionsContainer.innerHTML = '';
+                    practiceCanvas.classList.add('hidden');
+                    feedbackText.textContent = 'Restarting soon...';
+                    setTimeout(() => {
+                        currentQuestionIndex = 0;
+                        shuffleArray(practiceQuestions);
+                        loadPracticeQuestion();
+                    }, 3000);
+                    return;
+                }
+
+                const q = practiceQuestions[currentQuestionIndex];
+                practiceCanvas.classList.remove('hidden');
+                questionText.textContent = 'What part of the circle is this?';
+                drawPracticeDiagram(q.type);
+                
+                optionsContainer.innerHTML = '';
+                feedbackText.textContent = '';
+                feedbackText.className = 'text-3xl font-luckiest h-10';
+                nextQuestionBtn.classList.add('hidden');
+                
+                const shuffledOptions = shuffleArray([...q.options]);
+                
+                shuffledOptions.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.textContent = option;
+                    btn.className = 'btn-cartoon btn-blue';
+                    btn.onclick = () => checkAnswer(option, q.answer);
+                    optionsContainer.appendChild(btn);
+                });
+            }
+
+            function checkAnswer(selected, correct) {
+                // Disable all option buttons
+                optionsContainer.querySelectorAll('button').forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === correct) {
+                        btn.classList.remove('btn-blue');
+                        btn.classList.add('btn-green'); // Highlight correct
+                    } else if (btn.textContent === selected) {
+                        btn.classList.remove('btn-blue');
+                        btn.classList.add('btn-red'); // Highlight wrong
+                    }
+                });
+
+                if (selected === correct) {
+                    feedbackText.textContent = 'Correct!';
+                    feedbackText.classList.add('correct');
+                } else {
+                    feedbackText.textContent = 'Not quite!';
+                    feedbackText.classList.add('incorrect');
+                }
+                
+                nextQuestionBtn.classList.remove('hidden');
+            }
+            
+            nextQuestionBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                loadPracticeQuestion();
+            });
+
+            // --- INITIALIZATION ---
+            function init() {
+                drawExploreCanvas();
+                shuffleArray(practiceQuestions);
+                // Don't load practice question until tab is clicked
+                // loadPracticeQuestion();
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>

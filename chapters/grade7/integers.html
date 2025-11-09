@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎯 Integer Counter Lab</title>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background particles */
+    .bg-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 50%;
+      animation: float 6s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+      50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+    }
+
+    .game-container {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header h1 {
+      font-size: 3.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #FFD700, #FF6B6B, #4ECDC4, #45B7D1);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 3s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .stats-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: rgba(255,255,255,0.9);
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      color: white;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .main-workspace {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      gap: 20px;
+      min-height: 70vh;
+    }
+
+    .counter-palette {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 25px;
+      padding: 25px;
+      border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .palette-title {
+      color: white;
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .counter-section {
+      margin-bottom: 25px;
+    }
+
+    .counter-label {
+      color: rgba(255,255,255,0.9);
+      font-weight: bold;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .counter {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 5px;
+      cursor: grab;
+      transition: all 0.3s ease;
+      border: 3px solid rgba(255,255,255,0.3);
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .counter:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .counter:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+
+    .positive-counter {
+      background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+      border-color: #FF4757;
+    }
+
+    .negative-counter {
+      background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+      border-color: #0ABDC6;
+    }
+
+    .counter::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: bold;
+      font-size: 1.5rem;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .positive-counter::before {
+      content: '+';
+    }
+
+    .negative-counter::before {
+      content: '−';
+    }
+
+    .workspace-area {
+      background: rgba(255,255,255,0.95);
+      border-radius: 25px;
+      padding: 30px;
+      border: 3px dashed #ddd;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .workspace-area.drag-over {
+      border-color: #4CAF50;
+      background: rgba(76,175,80,0.1);
+      transform: scale(1.02);
+    }
+
+    .workspace-title {
+      text-align: center;
+      font-size: 1.6rem;
+      color: #333;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .result-display {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 15px;
+      font-size: 2.5rem;
+      font-weight: bold;
+      min-width: 120px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .operation-display {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      font-family: 'Courier New', monospace;
+    }
+
+    .counter-workspace {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+      gap: 10px;
+      margin-top: 80px;
+      padding: 20px;
+      border: 2px dashed rgba(0,0,0,0.1);
+      border-radius: 15px;
+      background: rgba(240,240,240,0.5);
+    }
+
+    .zero-pair {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      background: rgba(255,255,0,0.2);
+      border: 2px solid #FFD700;
+      border-radius: 25px;
+      animation: zeroGlow 2s infinite;
+    }
+
+    @keyframes zeroGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+      50% { box-shadow: 0 0 20px rgba(255,215,0,0.8); }
+    }
+
+    .zero-pair::after {
+      content: '= 0';
+      color: #B8860B;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+
+    .challenge-panel {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 25px;
+      padding: 25px;
+      border: 2px solid rgba(255,255,255,0.2);
+      color: white;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .challenge-title {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .challenge-problem {
+      background: rgba(255,255,255,0.2);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .challenge-equation {
+      font-family: 'Courier New', monospace;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #FFD700;
+      margin: 10px 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 15px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+
+    .btn-check {
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: white;
+    }
+
+    .btn-clear {
+      background: linear-gradient(135deg, #FF6B6B, #ff5252);
+      color: white;
+    }
+
+    .btn-hint {
+      background: linear-gradient(135deg, #FFC107, #ffb300);
+      color: white;
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, #2196F3, #1976D2);
+      color: white;
+    }
+
+    .btn-auto-pair {
+      background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+      color: white;
+    }
+
+    .feedback-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .feedback-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .feedback-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+    .feedback-overlay.show .feedback-content {
+      transform: scale(1);
+    }
+
+    .feedback-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+
+    .feedback-message {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .hint-panel {
+      background: rgba(255,235,59,0.2);
+      border: 2px solid #FFC107;
+      border-radius: 15px;
+      padding: 15px;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .hint-panel.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #45a049);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+
+    @media (max-width: 1100px) {
+      .main-workspace {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .header h1 {
+        font-size: 2.5rem;
+      }
+      
+      .stats-dashboard {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stats-dashboard {
+        grid-template-columns: 1fr;
+      }
+      
+      .result-display {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: 20px;
+      }
+      
+      .operation-display {
+        position: relative;
+        top: auto;
+        left: auto;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Animated Background -->
+  <div class="bg-particles" id="bgParticles"></div>
+
+  <div class="game-container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🎯 Integer Counter Lab</h1>
+      <div class="subtitle">Master integers with zero pairs and counters!</div>
+      <div class="subtitle">Grade 7 • Addition & Subtraction</div>
+    </header>
+
+    <!-- Stats Dashboard -->
+    <div class="stats-dashboard">
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-label">Score</div>
+        <div class="stat-value" id="score">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-label">Streak</div>
+        <div class="stat-value" id="streak">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-label">Zero Pairs</div>
+        <div class="stat-value" id="zeroPairs">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-label">Level</div>
+        <div class="stat-value" id="level">1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-label">Time</div>
+        <div class="stat-value" id="timer">--</div>
+      </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="main-workspace">
+      <!-- Counter Palette -->
+      <div class="counter-palette">
+        <div class="palette-title">🎨 Counter Palette</div>
+        
+        <div class="counter-section">
+          <div class="counter-label">
+            ➕ Positive Counters
+          </div>
+          <div class="counter positive-counter" data-value="1"></div>
+          <div class="counter positive-counter" data-value="1"></div>
+          <div class="counter positive-counter" data-value="1"></div>
+          <div class="counter positive-counter" data-value="1"></div>
+          <div class="counter positive-counter" data-value="1"></div>
+          <div class="counter positive-counter" data-value="1"></div>
+          <div class="counter positive-counter" data-value="1"></div>
+          <div class="counter positive-counter" data-value="1"></div>
+        </div>
+
+        <div class="counter-section">
+          <div class="counter-label">
+            ➖ Negative Counters
+          </div>
+          <div class="counter negative-counter" data-value="-1"></div>
+          <div class="counter negative-counter" data-value="-1"></div>
+          <div class="counter negative-counter" data-value="-1"></div>
+          <div class="counter negative-counter" data-value="-1"></div>
+          <div class="counter negative-counter" data-value="-1"></div>
+          <div class="counter negative-counter" data-value="-1"></div>
+          <div class="counter negative-counter" data-value="-1"></div>
+          <div class="counter negative-counter" data-value="-1"></div>
+        </div>
+
+        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+          <div style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 10px;">
+            💡 <strong>Zero Pair Rule:</strong>
+          </div>
+          <div style="color: rgba(255,255,255,0.8); font-size: 0.8rem; line-height: 1.4;">
+            One positive + one negative = zero pair (cancels out!)
+          </div>
+        </div>
+      </div>
+
+      <!-- Workspace Area -->
+      <div class="workspace-area" id="workspace">
+        <div class="workspace-title">Drop counters here to solve problems!</div>
+        <div class="operation-display" id="operationDisplay">Drag counters to start</div>
+        <div class="result-display" id="resultDisplay">0</div>
+        
+        <div class="counter-workspace" id="counterWorkspace">
+          <div style="color: #666; font-style: italic; font-size: 1.1rem;">
+            Workspace is empty - drag some counters here!
+          </div>
+        </div>
+      </div>
+
+      <!-- Challenge Panel -->
+      <div class="challenge-panel">
+        <div class="challenge-title">🎯 Current Challenge</div>
+        
+        <div class="challenge-problem" id="challengeProblem">
+          <div>Solve this problem using counters:</div>
+          <div class="challenge-equation" id="challengeEquation">5 + (-3) = ?</div>
+          <div style="font-size: 0.9rem; margin-top: 10px; color: rgba(255,255,255,0.8);">
+            Use positive and negative counters, then find zero pairs!
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-check" id="checkBtn">
+            ✅ Check Answer
+          </button>
+          <button class="btn btn-auto-pair" id="autoPairBtn">
+            ⚡ Auto-Find Zero Pairs
+          </button>
+          <button class="btn btn-hint" id="hintBtn">
+            💡 Show Hint
+          </button>
+          <button class="btn btn-clear" id="clearBtn">
+            🗑️ Clear Workspace
+          </button>
+          <button class="btn btn-next" id="nextBtn" style="display:none;">
+            ➡️ Next Problem
+          </button>
+        </div>
+
+        <div class="hint-panel" id="hintPanel">
+          <div style="font-weight: bold; margin-bottom: 8px;">💡 Hint:</div>
+          <div id="hintText"></div>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback Overlay -->
+  <div class="feedback-overlay" id="feedbackOverlay">
+    <div class="feedback-content">
+      <div class="feedback-icon" id="feedbackIcon">🎉</div>
+      <div class="feedback-message" id="feedbackMessage">Great job!</div>
+      <button class="btn btn-next" onclick="closeFeedback()">Continue</button>
+    </div>
+  </div>
+
+  <script src="../../engine/utils.js"></script>
+  <script>
+    class IntegerCounterLab {
+      constructor() {
+        this.currentResult = 0;
+        this.targetAnswer = 0;
+        this.score = 0;
+        this.streak = 0;
+        this.level = 1;
+        this.zeroPairsFound = 0;
+        this.counterIdCounter = 0;
+        
+        this.problems = [
+          { equation: "5 + (-3)", answer: 2, hint: "Place 5 positive and 3 negative counters. Find zero pairs!" },
+          { equation: "(-4) + 7", answer: 3, hint: "Place 4 negative and 7 positive counters. Look for pairs!" },
+          { equation: "8 - 5", answer: 3, hint: "Think: 8 + (-5). Use positive and negative counters." },
+          { equation: "(-6) + (-2)", answer: -8, hint: "Both numbers are negative - no zero pairs possible!" },
+          { equation: "9 - (-4)", answer: 13, hint: "Subtracting negative is like adding positive!" },
+          { equation: "(-7) - (-3)", answer: -4, hint: "This becomes (-7) + 3. Find the zero pairs!" },
+          { equation: "15 + (-8)", answer: 7, hint: "Place 15 positive and 8 negative. Make zero pairs!" },
+          { equation: "(-12) + 5", answer: -7, hint: "12 negative and 5 positive. Pair them up!" }
+        ];
+        
+        this.currentProblem = 0;
+        this.placedCounters = [];
+        
+        this.init();
+      }
+
+      init() {
+        this.createBackgroundParticles();
+        this.setupDragAndDrop();
+        this.setupEventListeners();
+        this.loadProblem();
+        this.updateDisplay();
+        this.startTimer();
+      }
+
+      createBackgroundParticles() {
+        const container = document.getElementById('bgParticles');
+        for (let i = 0; i < 50; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'particle';
+          particle.style.left = Math.random() * 100 + '%';
+          particle.style.top = Math.random() * 100 + '%';
+          particle.style.animationDelay = Math.random() * 6 + 's';
+          container.appendChild(particle);
+        }
+      }
+
+      setupDragAndDrop() {
+        // Make all palette counters draggable
+        document.querySelectorAll('.counter-palette .counter').forEach(counter => {
+          LearningUtils.dragDrop.makeDraggable(counter, 
+            (element) => {
+              element.style.opacity = '0.7';
+            },
+            (element) => {
+              element.style.opacity = '1';
+            }
+          );
+
+          counter.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', counter.dataset.value);
+            e.dataTransfer.setData('counter-type', counter.classList.contains('positive-counter') ? 'positive' : 'negative');
+          });
+        });
+
+        // Make workspace droppable
+        const workspace = document.getElementById('counterWorkspace');
+        LearningUtils.dragDrop.makeDropZone(workspace,
+          (dropZone, e) => {
+            const value = parseInt(e.dataTransfer.getData('text/plain'));
+            const type = e.dataTransfer.getData('counter-type');
+            this.dropCounter(value, type);
+          },
+          (dropZone) => {
+            document.getElementById('workspace').classList.add('drag-over');
+          }
+        );
+
+        workspace.addEventListener('dragleave', () => {
+          document.getElementById('workspace').classList.remove('drag-over');
+        });
+
+        workspace.addEventListener('drop', () => {
+          document.getElementById('workspace').classList.remove('drag-over');
+        });
+      }
+
+      dropCounter(value, type) {
+        const workspace = document.getElementById('counterWorkspace');
+        
+        // Remove empty message if present
+        if (workspace.children.length === 1 && workspace.children[0].tagName !== 'DIV' || 
+            workspace.textContent.includes('empty')) {
+          workspace.innerHTML = '';
+        }
+
+        // Create new counter in workspace
+        const counter = document.createElement('div');
+        counter.className = `counter ${type}-counter placed-counter`;
+        counter.dataset.value = value;
+        counter.dataset.id = ++this.counterIdCounter;
+        
+        // Add click to remove functionality
+        counter.addEventListener('click', () => this.removeCounter(counter));
+        
+        workspace.appendChild(counter);
+        this.placedCounters.push({ id: this.counterIdCounter, value: value, element: counter });
+        
+        this.calculateResult();
+        this.findZeroPairs();
+        LearningUtils.audio.click();
+      }
+
+      removeCounter(counterElement) {
+        const id = parseInt(counterElement.dataset.id);
+        this.placedCounters = this.placedCounters.filter(c => c.id !== id);
+        counterElement.remove();
+        
+        this.calculateResult();
+        this.findZeroPairs();
+        
+        // Add empty message if no counters left
+        const workspace = document.getElementById('counterWorkspace');
+        if (workspace.children.length === 0) {
+          workspace.innerHTML = '<div style="color: #666; font-style: italic; font-size: 1.1rem;">Workspace is empty - drag some counters here!</div>';
+        }
+        
+        LearningUtils.audio.click();
+      }
+
+      calculateResult() {
+        this.currentResult = this.placedCounters.reduce((sum, counter) => sum + counter.value, 0);
+        document.getElementById('resultDisplay').textContent = this.currentResult;
+        
+        // Update operation display
+        const positives = this.placedCounters.filter(c => c.value > 0).length;
+        const negatives = this.placedCounters.filter(c => c.value < 0).length;
+        
+        if (positives === 0 && negatives === 0) {
+          document.getElementById('operationDisplay').textContent = 'Drag counters to start';
+        } else {
+          let display = '';
+          if (positives > 0) display += `+${positives}`;
+          if (negatives > 0) display += ` ${negatives}`;
+          if (display) display += ` = ${this.currentResult}`;
+          document.getElementById('operationDisplay').textContent = display || 'No counters';
+        }
+      }
+
+      findZeroPairs() {
+        const workspace = document.getElementById('counterWorkspace');
+        
+        // Remove existing zero pair highlighting
+        document.querySelectorAll('.zero-pair').forEach(pair => {
+          const counters = pair.querySelectorAll('.counter');
+          counters.forEach(counter => {
+            workspace.appendChild(counter);
+          });
+          pair.remove();
+        });
+
+        // Find new zero pairs
+        const positiveCounters = this.placedCounters.filter(c => c.value > 0);
+        const negativeCounters = this.placedCounters.filter(c => c.value < 0);
+        
+        const pairs = Math.min(positiveCounters.length, negativeCounters.length);
+        
+        for (let i = 0; i < pairs; i++) {
+          const pairContainer = document.createElement('div');
+          pairContainer.className = 'zero-pair';
+          
+          pairContainer.appendChild(positiveCounters[i].element);
+          pairContainer.appendChild(negativeCounters[i].element);
+          
+          workspace.appendChild(pairContainer);
+        }
+
+        // Update zero pairs count
+        this.zeroPairsFound = pairs;
+        document.getElementById('zeroPairs').textContent = this.zeroPairsFound;
+      }
+
+      autoFindZeroPairs() {
+        this.findZeroPairs();
+        LearningUtils.effects.toast('Zero pairs highlighted!', 'info');
+        LearningUtils.audio.beep(600, 200);
+      }
+
+      checkAnswer() {
+        const problem = this.problems[this.currentProblem];
+        
+        if (this.currentResult === problem.answer) {
+          this.score += 10 * this.level;
+          this.streak++;
+          
+          this.showFeedback('🎉', 'Excellent! You got it right!', 'success');
+          LearningUtils.effects.confetti();
+          LearningUtils.audio.success();
+          
+          document.getElementById('nextBtn').style.display = 'block';
+        } else {
+          this.streak = 0;
+          
+          this.showFeedback('😅', `Not quite! You got ${this.currentResult}, but the answer is ${problem.answer}`, 'error');
+          LearningUtils.audio.error();
+        }
+        
+        this.updateDisplay();
+      }
+
+      showHint() {
+        const problem = this.problems[this.currentProblem];
+        document.getElementById('hintText').textContent = problem.hint;
+        document.getElementById('hintPanel').classList.add('show');
+        
+        setTimeout(() => {
+          document.getElementById('hintPanel').classList.remove('show');
+        }, 5000);
+      }
+
+      clearWorkspace() {
+        this.placedCounters = [];
+        const workspace = document.getElementById('counterWorkspace');
+        workspace.innerHTML = '<div style="color: #666; font-style: italic; font-size: 1.1rem;">Workspace is empty - drag some counters here!</div>';
+        
+        this.currentResult = 0;
+        this.calculateResult();
+        this.findZeroPairs();
+        
+        LearningUtils.audio.click();
+      }
+
+      nextProblem() {
+        this.currentProblem = (this.currentProblem + 1) % this.problems.length;
+        if (this.currentProblem === 0) {
+          this.level++;
+        }
+        
+        this.clearWorkspace();
+        this.loadProblem();
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('hintPanel').classList.remove('show');
+      }
+
+      loadProblem() {
+        const problem = this.problems[this.currentProblem];
+        document.getElementById('challengeEquation').textContent = `${problem.equation} = ?`;
+        this.targetAnswer = problem.answer;
+        
+        // Update progress bar
+        const progress = ((this.currentProblem + 1) / this.problems.length) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+      }
+
+      showFeedback(icon, message, type) {
+        document.getElementById('feedbackIcon').textContent = icon;
+        document.getElementById('feedbackMessage').textContent = message;
+        document.getElementById('feedbackOverlay').classList.add('show');
+      }
+
+      setupEventListeners() {
+        document.getElementById('checkBtn').addEventListener('click', () => this.checkAnswer());
+        document.getElementById('autoPairBtn').addEventListener('click', () => this.autoFindZeroPairs());
+        document.getElementById('hintBtn').addEventListener('click', () => this.showHint());
+        document.getElementById('clearBtn').addEventListener('click', () => this.clearWorkspace());
+        document.getElementById('nextBtn').addEventListener('click', () => this.nextProblem());
+      }
+
+      updateDisplay() {
+        document.getElementById('score').textContent = this.score;
+        document.getElementById('streak').textContent = this.streak;
+        document.getElementById('level').textContent = this.level;
+      }
+
+      startTimer() {
+        let seconds = 0;
+        setInterval(() => {
+          seconds++;
+          const minutes = Math.floor(seconds / 60);
+          const remainingSeconds = seconds % 60;
+          document.getElementById('timer').textContent = 
+            `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }, 1000);
+      }
+    }
+
+    // Global function for feedback overlay
+    function closeFeedback() {
+      document.getElementById('feedbackOverlay').classList.remove('show');
+    }
+
+    // Start the game when page loads
+    window.addEventListener('load', () => {
+      new IntegerCounterLab();
+    });
+  </script>
+</body>
+</html>

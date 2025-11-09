@@ -1,0 +1,129 @@
+[
+  {
+    "slug": "grade3/addition",
+    "title": "Grade 3 \u2022 Addition",
+    "tags": [
+      "grade3",
+      "arithmetic"
+    ],
+    "level": "Easy"
+  },
+  {
+    "slug": "grade3/multiplication",
+    "title": "Grade 3 \u2022 Multiplication with Cartoons",
+    "tags": [
+      "grade3",
+      "multiplication",
+      "cartoons",
+      "visual"
+    ],
+    "level": "Medium"
+  },
+  {
+    "slug": "grade3/table",
+    "title": "⭐ Grade 3 \u2022 Math Toons Multiplication",
+    "tags": [
+      "grade3",
+      "multiplication",
+      "tables",
+      "interactive",
+      "practice",
+      "visual"
+    ],
+    "level": "Medium"
+  },
+  {
+    "slug": "grade3/place_value",
+    "title": "🏗️ Grade 3 \u2022 Place Value Builder",
+    "tags": [
+      "grade3",
+      "place-value",
+      "interactive",
+      "blocks",
+      "visual"
+    ],
+    "level": "Easy"
+  },
+  {
+    "slug": "grade3/fractions_like_denom",
+    "title": "Grade 3 \u2022 Fractions (Like Denominators)",
+    "tags": [
+      "grade3",
+      "fractions"
+    ],
+    "level": "Medium"
+  },
+  {
+    "slug": "grade3/distributive_property",
+    "title": "🧮 Grade 3 \u2022 Distributive Property - Array of Dots",
+    "tags": [
+      "grade3",
+      "distributive-property",
+      "arrays",
+      "multiplication",
+      "interactive",
+      "visual",
+      "dots"
+    ],
+    "level": "Medium"
+  },
+  {
+    "slug": "grade7/integers",
+    "title": "🎯 Grade 7 \u2022 Integer Counter Lab",
+    "tags": [
+      "grade7",
+      "integers",
+      "counters",
+      "zero-pairs",
+      "interactive",
+      "visual"
+    ],
+    "level": "Medium"
+  },
+  {
+    "slug": "geometry/Angles/index",
+    "title": "🧭 Grade 9 \u2022 Geometry Lab: Angles",
+    "tags": [
+      "grade9",
+      "geometry",
+      "angles",
+      "proofs",
+      "construction",
+      "measurement",
+      "interactive",
+      "comprehensive"
+    ],
+    "level": "Hard"
+  },
+  {
+    "slug": "geometry/Angle/angle",
+    "title": "🎵 Geometry Jive: Angle Adventure",
+    "tags": [
+      "geometry",
+      "angles",
+      "vocabulary",
+      "measurement",
+      "interactive",
+      "learn-practice",
+      "comprehensive",
+      "mascot"
+    ],
+    "level": "Hard"
+  },
+  {
+    "slug": "geometry/PartsOfACircle",
+    "title": "⭕ Parts of a Circle - Geometry Fun!",
+    "tags": [
+      "geometry",
+      "circles",
+      "radius",
+      "diameter",
+      "chord",
+      "tangent",
+      "secant",
+      "interactive",
+      "explore-practice"
+    ],
+    "level": "Medium"
+  }
+]

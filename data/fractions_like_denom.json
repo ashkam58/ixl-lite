@@ -1,0 +1,20 @@
+[
+  {
+    "prompt": "Compute: 1/6 + 3/6",
+    "answer": "4/6",
+    "hint": "Same denominators\u2014add numerators.",
+    "explainWrong": "Denominator stays 6. 1+3=4."
+  },
+  {
+    "prompt": "Compute: 2/8 + 5/8",
+    "answer": "7/8",
+    "hint": "Add numerators.",
+    "explainWrong": "Denominator stays 8."
+  },
+  {
+    "prompt": "Simplify after adding: 3/10 + 2/10",
+    "answer": "5/10",
+    "hint": "Add numerators.",
+    "explainWrong": "3+2=5, denominator 10."
+  }
+]

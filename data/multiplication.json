@@ -1,0 +1,86 @@
+[
+  {
+    "prompt": "🐭 Mickey Mouse has 3 bags of cookies. Each bag has 4 cookies. How many cookies does Mickey have in total?",
+    "answer": "12",
+    "hint": "Count 3 groups of 4: 4 + 4 + 4",
+    "explainWrong": "3 × 4 = 12. Think of it as 3 groups of 4 cookies each.",
+    "modelHtml": "<div style='display:flex;gap:10px;justify-content:center;margin:10px 0'><div style='text-align:center'>🍪🍪<br>🍪🍪<br><small>Bag 1</small></div><div style='text-align:center'>🍪🍪<br>🍪🍪<br><small>Bag 2</small></div><div style='text-align:center'>🍪🍪<br>🍪🍪<br><small>Bag 3</small></div></div>"
+  },
+  {
+    "prompt": "🦸‍♀️ Wonder Woman has 5 magic bracelets. Each bracelet has 2 gems. How many gems are there altogether?",
+    "answer": "10",
+    "hint": "Count 5 groups of 2 gems each",
+    "explainWrong": "5 × 2 = 10. Each of the 5 bracelets has 2 gems.",
+    "modelHtml": "<div style='text-align:center;margin:10px 0'>💎💎 💎💎 💎💎 💎💎 💎💎<br><small>5 bracelets with 2 gems each</small></div>"
+  },
+  {
+    "prompt": "🦁 Simba sees 4 groups of zebras. Each group has 3 zebras. How many zebras does Simba see?",
+    "answer": "12",
+    "hint": "Add 3 + 3 + 3 + 3, or think 4 × 3",
+    "explainWrong": "4 × 3 = 12. There are 4 groups with 3 zebras in each group.",
+    "modelHtml": "<div style='display:flex;gap:15px;justify-content:center;margin:10px 0'><div>🦓🦓🦓</div><div>🦓🦓🦓</div><div>🦓🦓🦓</div><div>🦓🦓🦓</div></div>"
+  },
+  {
+    "prompt": "🚗 Lightning McQueen races on 6 tracks. He completes 2 laps on each track. How many total laps does he complete?",
+    "answer": "12",
+    "hint": "6 tracks × 2 laps each = ?",
+    "explainWrong": "6 × 2 = 12. Lightning completes 2 laps on each of the 6 tracks.",
+    "modelHtml": "<div style='text-align:center;margin:10px 0'>🏁🏁 🏁🏁 🏁🏁 🏁🏁 🏁🏁 🏁🏁<br><small>6 tracks, 2 laps each</small></div>"
+  },
+  {
+    "prompt": "🧚‍♀️ Tinker Bell sprinkles fairy dust on 7 flowers. She uses 3 sparkles per flower. How many sparkles does she use?",
+    "answer": "21",
+    "hint": "Count by 3s: 3, 6, 9, 12, 15, 18, 21",
+    "explainWrong": "7 × 3 = 21. Each of the 7 flowers gets 3 sparkles.",
+    "modelHtml": "<div style='text-align:center;margin:10px 0'>✨✨✨ ✨✨✨ ✨✨✨ ✨✨✨ ✨✨✨ ✨✨✨ ✨✨✨<br>🌸 🌸 🌸 🌸 🌸 🌸 🌸</div>"
+  },
+  {
+    "prompt": "🕷️ Spider-Man swings between 8 buildings. He shoots 2 webs for each building. How many webs does he shoot?",
+    "answer": "16",
+    "hint": "8 buildings × 2 webs each = ?",
+    "explainWrong": "8 × 2 = 16. Spider-Man shoots 2 webs for each of the 8 buildings.",
+    "modelHtml": "<div style='text-align:center;margin:10px 0'>🕸️🕸️ 🕸️🕸️ 🕸️🕸️ 🕸️🕸️ 🕸️🕸️ 🕸️🕸️ 🕸️🕸️ 🕸️🕸️<br><small>8 buildings, 2 webs each</small></div>"
+  },
+  {
+    "prompt": "🦄 A unicorn has 9 rainbow manes. Each mane has 4 colors. How many colors are there in total?",
+    "answer": "36",
+    "hint": "9 × 4 = ? Think of 9 groups of 4",
+    "explainWrong": "9 × 4 = 36. Each of the 9 manes has 4 different colors.",
+    "modelHtml": "<div style='text-align:center;margin:10px 0'>🌈🌈🌈🌈 🌈🌈🌈🌈 🌈🌈🌈🌈<br>🌈🌈🌈🌈 🌈🌈🌈🌈 🌈🌈🌈🌈<br>🌈🌈🌈🌈 🌈🌈🌈🌈 🌈🌈🌈🌈<br><small>9 manes with 4 colors each</small></div>"
+  },
+  {
+    "prompt": "🐢 The Ninja Turtles order pizza. They get 5 pizzas, and each pizza has 6 slices. How many slices do they have?",
+    "answer": "30",
+    "hint": "5 pizzas × 6 slices each = ?",
+    "explainWrong": "5 × 6 = 30. Each of the 5 pizzas is cut into 6 slices.",
+    "modelHtml": "<div style='text-align:center;margin:10px 0'>🍕🍕🍕🍕🍕🍕<br>🍕🍕🍕🍕🍕🍕<br>🍕🍕🍕🍕🍕🍕<br>🍕🍕🍕🍕🍕🍕<br>🍕🍕🍕🍕🍕🍕<br><small>5 pizzas, 6 slices each</small></div>"
+  },
+  {
+    "prompt": "🦸‍♂️ Superman saves 7 groups of people. Each group has 5 people. How many people does Superman save?",
+    "answer": "35",
+    "hint": "Count by 5s seven times: 5, 10, 15, 20, 25, 30, 35",
+    "explainWrong": "7 × 5 = 35. Superman saves 5 people in each of the 7 groups.",
+    "modelHtml": "<div style='display:flex;gap:8px;justify-content:center;margin:10px 0'><div>👥👥👥<br>👥👥</div><div>👥👥👥<br>👥👥</div><div>👥👥👥<br>👥👥</div><div>👥👥👥<br>👥👥</div><div>👥👥👥<br>👥👥</div><div>👥👥👥<br>👥👥</div><div>👥👥👥<br>👥👥</div></div>"
+  },
+  {
+    "prompt": "🧜‍♀️ Ariel collects seashells. She finds 6 treasure chests, each containing 7 seashells. How many seashells does she collect?",
+    "answer": "42",
+    "hint": "6 chests × 7 seashells each = ?",
+    "explainWrong": "6 × 7 = 42. Each of the 6 treasure chests contains 7 seashells.",
+    "modelHtml": "<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:10px;justify-items:center;margin:10px 0'><div>🐚🐚🐚🐚<br>🐚🐚🐚<br>📦</div><div>🐚🐚🐚🐚<br>🐚🐚🐚<br>📦</div><div>🐚🐚🐚🐚<br>🐚🐚🐚<br>📦</div><div>🐚🐚🐚🐚<br>🐚🐚🐚<br>📦</div><div>🐚🐚🐚🐚<br>🐚🐚🐚<br>📦</div><div>🐚🐚🐚🐚<br>🐚🐚🐚<br>📦</div></div>"
+  },
+  {
+    "prompt": "🎪 At the circus, there are 4 rings. In each ring, 8 clowns are performing. How many clowns are performing in total?",
+    "answer": "32",
+    "hint": "4 rings × 8 clowns each = ?",
+    "explainWrong": "4 × 8 = 32. Each of the 4 circus rings has 8 clowns performing.",
+    "modelHtml": "<div style='display:grid;grid-template-columns:repeat(2,1fr);gap:15px;justify-items:center;margin:10px 0'><div>🤡🤡🤡🤡<br>🤡🤡🤡🤡<br><small>Ring 1</small></div><div>🤡🤡🤡🤡<br>🤡🤡🤡🤡<br><small>Ring 2</small></div><div>🤡🤡🤡🤡<br>🤡🤡🤡🤡<br><small>Ring 3</small></div><div>🤡🤡🤡🤡<br>🤡🤡🤡🤡<br><small>Ring 4</small></div></div>"
+  },
+  {
+    "prompt": "🦕 A friendly dinosaur counts 9 groups of baby dinosaurs. Each group has 3 babies. How many baby dinosaurs are there?",
+    "answer": "27",
+    "hint": "Count by 3s nine times: 3, 6, 9, 12, 15, 18, 21, 24, 27",
+    "explainWrong": "9 × 3 = 27. There are 3 baby dinosaurs in each of the 9 groups.",
+    "modelHtml": "<div style='display:grid;grid-template-columns:repeat(3,1fr);gap:8px;justify-items:center;margin:10px 0'><div>🦕🦕🦕</div><div>🦕🦕🦕</div><div>🦕🦕🦕</div><div>🦕🦕🦕</div><div>🦕🦕🦕</div><div>🦕🦕🦕</div><div>🦕🦕🦕</div><div>🦕🦕🦕</div><div>🦕🦕🦕</div></div>"
+  }
+]
