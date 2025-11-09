@@ -80,6 +80,7 @@
   </div>
 
   <div class="container">
+    <aside id="sidebar" class="sidebar"></aside>
     <div id="results" class="grid"></div>
   </div>
 
@@ -88,44 +89,85 @@
   </div>
 
   <script src="engine/router.js"></script>
+  <script src="assets/nav.js" defer></script>
   <script>
     // Subject navigation interactivity (touch-friendly)
     (function(){
       const submenu = document.getElementById('subjectSubmenu');
-      function showMath(){
+
+      // Progressive Math navigation
+
+      // Unified subject navigation
+      function showSubject(subject) {
+        const manifest = window.Manifest || [];
+        // Math: show grades first
+        if(subject === 'math') {
+          submenu.innerHTML = `
+            <div class="submenu-inner">
+              <div class="submenu-title">Math — Choose a grade</div>
+              <div class="submenu-actions">
+                <button class="btn primary" data-grade="grade3">Grade 3</button>
+                <button class="btn primary" data-grade="grade7">Grade 7</button>
+              </div>
+              <div class="submenu-note muted">Select a grade to see its topics.</div>
+            </div>`;
+          submenu.hidden = false; submenu.setAttribute('aria-hidden','false');
+          return;
+        }
+        // Other subjects: show topics directly
+        const topics = manifest.filter(m => {
+          const slug = (m.slug||'').toLowerCase();
+          const tags = (m.tags||[]).map(t=>String(t).toLowerCase());
+          return slug.startsWith(subject) || tags.includes(subject);
+        });
         submenu.innerHTML = `
           <div class="submenu-inner">
-            <div class="submenu-title">Math — choose a grade</div>
+            <div class="submenu-title">${subject.charAt(0).toUpperCase()+subject.slice(1)} — Choose a topic</div>
             <div class="submenu-actions">
-              <a class="btn primary" href="chapters/grade3/addition.html">Grade 3</a>
-              <a class="btn primary" href="chapters/grade7/integers.html">Grade 7</a>
+              ${topics.length ? topics.map(t => `<a class="btn primary" href="chapters/${t.slug}.html">${t.title}</a>`).join('') : `<span class='muted'>No topics found.</span>`}
             </div>
-            <div class="submenu-note muted">Tap a grade to open its activities.</div>
+            <div class="submenu-note muted">Select a topic to start learning.</div>
           </div>`;
         submenu.hidden = false; submenu.setAttribute('aria-hidden','false');
       }
 
-      function showPython(){
+      function showMathTopics(grade){
+        const manifest = window.Manifest || [];
+        const topics = manifest.filter(m => (m.tags||[]).includes(grade));
         submenu.innerHTML = `
           <div class="submenu-inner">
-            <div class="submenu-title">Python — Interactive (coming soon)</div>
+            <div class="submenu-title">${grade.replace('grade','Grade ')} — Choose a topic</div>
             <div class="submenu-actions">
-              <a class="btn primary" href="chapters/python/index.html">Open Python Sandbox</a>
+              ${topics.map(t => `<a class="btn primary" href="chapters/${t.slug}.html">${t.title}</a>`).join('')}
             </div>
-            <div class="submenu-note muted">A lightweight Python playground will be available here.</div>
+            <div class="submenu-note muted">Select a topic to start learning.</div>
+            <button class="btn ghost" id="backToGrades">← Back to grades</button>
           </div>`;
         submenu.hidden = false; submenu.setAttribute('aria-hidden','false');
+        setTimeout(()=>{
+          const backBtn = document.getElementById('backToGrades');
+          if(backBtn) backBtn.onclick = ()=>showSubject('math');
+        }, 0);
       }
 
       function hideSubmenu(){ submenu.hidden = true; submenu.setAttribute('aria-hidden','true'); }
 
+
       document.addEventListener('click', (e)=>{
+        // Subject button click
         const btn = e.target.closest('.subject-btn');
-        if(!btn) return;
-        const subject = btn.dataset.subject;
-        if(subject === 'math'){ showMath(); }
-        else if(subject === 'python'){ showPython(); }
-        else { hideSubmenu(); }
+        if(btn){
+          const subject = btn.dataset.subject;
+          if(subject){ showSubject(subject); return; }
+          hideSubmenu(); return;
+        }
+        // Grade button click (in submenu)
+        const gradeBtn = e.target.closest('.btn[data-grade]');
+        if(gradeBtn){
+          const grade = gradeBtn.dataset.grade;
+          showMathTopics(grade);
+          return;
+        }
       });
 
       // close submenu when clicking outside or on Escape
@@ -193,6 +235,58 @@
       q.onkeydown = (e)=>{ if(e.key==='Enter') doSearch(); };
     }
     main();
+  </script>
+  <script>
+    // Unified filtering for home page grid (subjects, grades, levels, tags, search)
+    (function(){
+      if(!/\/index\.html?$/.test(location.pathname)) return;
+      const state = { subjects: new Set(), grades: new Set(), levels: new Set(), tags: new Set(), query: '' };
+
+      function matchesSubjects(item){
+        if(state.subjects.size===0) return true;
+        const slug = (item.slug||'');
+        const first = (slug.split('/')[0]||'').toLowerCase();
+        const tags = (item.tags||[]).map(t=>String(t).toLowerCase());
+        const hasMath = /^grade\d+$/i.test(first) || tags.some(t=>/^grade\d+$/i.test(t));
+        for(const s of state.subjects){
+          if(s==='math' && hasMath) return true;
+          if(first===s.toLowerCase() || tags.includes(s.toLowerCase())) return true;
+        }
+        return false;
+      }
+      function matchesGrades(item){
+        if(state.grades.size===0) return true;
+        const slug = (item.slug||'').toLowerCase();
+        const tags = (item.tags||[]).map(t=>String(t).toLowerCase());
+        for(const g of state.grades){ if(slug.includes(g.toLowerCase()) || tags.includes(g.toLowerCase())) return true; }
+        return false;
+      }
+      function matchesLevels(item){ if(state.levels.size===0) return true; return state.levels.has(String(item.level||'').toLowerCase()); }
+      function matchesTags(item){ if(state.tags.size===0) return true; const tags=(item.tags||[]).map(t=>String(t).toLowerCase()); for(const t of state.tags){ if(tags.includes(t)) return true; } return false; }
+      function matchesQuery(item){ const q=(state.query||'').trim().toLowerCase(); if(!q) return true; return (item.title||'').toLowerCase().includes(q) || (item.slug||'').toLowerCase().includes(q) || (item.tags||[]).join(',').toLowerCase().includes(q); }
+      function applyFilters(){ if(!window.Manifest || typeof render !== 'function') return; const list = window.Manifest.filter(it => matchesSubjects(it) && matchesGrades(it) && matchesLevels(it) && matchesTags(it) && matchesQuery(it)); render(list); }
+
+      // Override search to use unified filtering
+      const q = document.getElementById('q');
+      const btn = document.getElementById('searchBtn');
+      if(btn){ btn.onclick = ()=>{ state.query = (q && q.value || '').trim().toLowerCase(); applyFilters(); }; }
+      if(q){ q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); state.query = (q.value||'').trim().toLowerCase(); applyFilters(); } }); }
+
+      // Listen to nav.js events and sidebar filter changes
+      document.addEventListener('ixl:subject', (ev)=>{ state.subjects = new Set([ev.detail && ev.detail.subject].filter(Boolean)); state.grades = new Set(); applyFilters(); });
+      document.addEventListener('ixl:grade', (ev)=>{ state.subjects = new Set(['math']); state.grades = new Set([ev.detail && ev.detail.grade].filter(Boolean)); applyFilters(); });
+      document.addEventListener('ixl:search', (ev)=>{ state.query = (ev.detail && ev.detail.q || '').toLowerCase(); applyFilters(); });
+      document.addEventListener('ixl:filters', (ev)=>{ const d = ev.detail || {}; state.subjects = new Set(d.subjects||[]); state.grades = new Set(d.grades||[]); state.levels = new Set((d.levels||[]).map(x=>String(x).toLowerCase())); state.tags = new Set((d.tags||[]).map(x=>String(x).toLowerCase())); applyFilters(); });
+
+      // Read initial hash (e.g., #grade7 or #geometry) to seed filters
+      (function seedFromHash(){
+        const h = (location.hash||'').replace(/^#/,'').toLowerCase();
+        if(!h) return;
+        if(/^grade\d+$/.test(h)){ state.subjects = new Set(['math']); state.grades = new Set([h]); }
+        else { state.subjects = new Set([h]); }
+        applyFilters();
+      })();
+    })();
   </script>
 </body>
 </html>
