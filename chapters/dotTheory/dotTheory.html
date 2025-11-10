@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Everything Is A Dot • Interactive Math Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0f1226;
+      --card: #171a34;
+      --ink: #eef1ff;
+      --muted: #a7b0ff;
+      --accent: #7c4dff;
+      --accent2: #00d9ff;
+      --good: #00d38f;
+      --warn: #ffb020;
+      --bad:  #ff5a7a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 800px at 10% -10%, #1a1d3f 0%, transparent 50%),
+        radial-gradient(1200px 800px at 110% 0%, #132747 0%, transparent 60%),
+        linear-gradient(180deg, #0b0e1d, #0f1226 40%);
+      min-height:100%;
+    }
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(8px);
+      background:rgba(12,14,31,.6);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .brand{
+      display:flex;align-items:center;gap:12px;font-weight:800;font-size:20px;letter-spacing:.3px
+    }
+    .logo{
+      width:28px;height:28px;border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff 0 10%, #7c4dff 10% 60%, #00d9ff 60% 100%);
+      box-shadow: 0 0 24px rgba(124,77,255,.7), inset 0 0 10px rgba(255,255,255,.35);
+      display:inline-block;flex:none
+    }
+    nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    nav.tabs button{
+      background: linear-gradient(180deg,#232651,#171a34);
+      color:var(--ink); border:1px solid rgba(255,255,255,.08);
+      padding:10px 14px; border-radius:12px; cursor:pointer;
+      font-weight:600; letter-spacing:.2px;
+      box-shadow: var(--shadow);
+      transition:.18s transform,.18s background;
+    }
+    nav.tabs button:hover{transform:translateY(-1px)}
+    nav.tabs button.active{
+      background: linear-gradient(180deg,#7c4dff,#5d34ff);
+      border-color: rgba(255,255,255,.3);
+      box-shadow: 0 12px 28px rgba(124,77,255,.35);
+    }
+    main{max-width:1100px;margin:22px auto;padding:0 16px 80px}
+    .card{
+      background: linear-gradient(180deg,#1a1d3f,#141736);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:18px; margin:14px 0;
+    }
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .row > * {flex: none}
+    .grow{flex:1}
+    .muted{color:var(--muted)}
+    .title{font-family: Fredoka, Inter, system-ui; font-weight:700; font-size:28px;margin:6px 0 4px}
+    .subtitle{font-family: Fredoka; font-size:16px; color:var(--muted); margin-bottom:10px}
+
+    label{font-size:12px; color:var(--muted); display:block; margin-bottom:6px}
+    input[type="number"], input[type="text"], select{
+      background:#0f1330; color:var(--ink); border:1px solid rgba(255,255,255,.15);
+      padding:10px 12px; border-radius:12px; outline:none; min-width:70px;
+    }
+    input[type="range"]{accent-color:var(--accent)}
+    .btn{
+      background: linear-gradient(180deg,#2a2e5f,#202456);
+      color:var(--ink); border:1px solid rgba(255,255,255,.15);
+      padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:700;
+      box-shadow: var(--shadow); transition:.2s transform,.2s box-shadow;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.good{background: linear-gradient(180deg,#00e8a3,#00b77f)}
+    .btn.warn{background: linear-gradient(180deg,#ffcc66,#ffb020)}
+    .btn.bad{background: linear-gradient(180deg,#ff7f9a,#ff5a7a)}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:8px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.15);
+      background: #0f1330; color:var(--muted); font-weight:600; font-size:13px
+    }
+
+    /* Dot grids */
+    .dot-grid{
+      display:grid; gap:10px; justify-content:start; align-content:start;
+      padding:16px; border-radius:14px; background: rgba(255,255,255,.03);
+      border:1px dashed rgba(255,255,255,.12);
+      min-height:90px;
+    }
+    .dot{
+      width:18px; height:18px; border-radius:50%;
+      background: radial-gradient(circle at 35% 35%, #fff 0 15%, var(--accent) 20% 60%, #3612ff 70%);
+      box-shadow: 0 4px 10px rgba(124,77,255,.35), inset 0 0 6px rgba(255,255,255,.5);
+      transition: transform .12s ease, opacity .2s ease, filter .2s ease;
+    }
+    .dot.small{width:14px;height:14px}
+    .dot.tiny{width:10px;height:10px}
+    .dot.cross{filter:grayscale(1) brightness(.7); opacity:.45}
+    .group{
+      padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.1);
+      background: rgba(124,77,255,.08);
+    }
+    .op{font-family: Fredoka; font-size:28px; margin:0 10px; color:#b7c1ff}
+
+    /* Hundred chart for decimals & fractions */
+    .hundred{
+      display:grid; grid-template-columns: repeat(10, 1fr);
+      gap:6px; padding:10px; border-radius:14px;
+      background: rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.12);
+    }
+    .hdot{
+      width:18px;height:18px;border-radius:50%;
+      background: radial-gradient(circle at 35% 35%, #fff 0 15%, #30d6ff 18% 60%, #00aacc 65%);
+      box-shadow: 0 3px 8px rgba(0,217,255,.35);
+      cursor:pointer; transition:.15s transform, .15s filter, .15s opacity;
+    }
+    .hdot.off{
+      background: radial-gradient(circle at 35% 35%, #fff 0 15%, #39406f 18% 60%, #151a39 65%);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      opacity:.7
+    }
+    .legend{display:flex;gap:12px;flex-wrap:wrap}
+    .legend .chip{padding:6px 10px;border-radius:999px;background:#0f1330;border:1px solid rgba(255,255,255,.12);font-size:12px;color:var(--muted)}
+
+    /* Helper banners */
+    .banner{
+      padding:12px 14px; border-radius:12px;
+      background: linear-gradient(180deg, #0f1330, #0d1129);
+      border:1px solid rgba(255,255,255,.1); color:#c6ccff; font-size:14px
+    }
+
+    /* Confetti dots */
+    .confetti{position:fixed; left:0; top:0; width:100%; height:0; pointer-events:none; overflow:visible; z-index:999}
+    .spark{position:absolute; width:10px; height:10px; border-radius:50%}
+
+    /* Layout tweaks */
+    .stack{display:grid; gap:14px}
+    .grid2{display:grid; gap:14px; grid-template-columns: 1fr; }
+    @media (min-width: 880px){ .grid2{ grid-template-columns: 1fr 1fr } }
+    .center{display:flex; justify-content:center; align-items:center}
+    .bigNum{font-family: Fredoka; font-size:44px; font-weight:800}
+    .hl{color:#89f7ff}
+    .eq{font-family: Fredoka; font-size:22px}
+    footer{opacity:.7; font-size:12px; text-align:center; padding:16px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="row">
+        <div class="brand"><span class="logo"></span> Everything Is A Dot</div>
+        <div class="pill" title="Teaching principle">Start from one dot ➜ build the universe of math.</div>
+      </div>
+      <nav class="tabs" id="tabs">
+        <button data-tab="numbers" class="active">Numbers</button>
+        <button data-tab="addsub">Add & Subtract</button>
+        <button data-tab="multiply">Multiply</button>
+        <button data-tab="divide">Divide</button>
+        <button data-tab="fractions">Fractions</button>
+        <button data-tab="decimals">Decimals</button>
+        <button data-tab="practice">Practice</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- NUMBERS -->
+    <section id="numbers" class="card">
+      <div class="title">Numbers from a Single Dot</div>
+      <div class="subtitle">Count, group by tens, and see the numeral grow — click “+1 dot” to build numbers.</div>
+
+      <div class="grid2">
+        <div class="stack">
+          <div class="row">
+            <button class="btn" id="nMinus">− 1 dot</button>
+            <button class="btn good" id="nPlus">+ 1 dot</button>
+            <button class="btn warn" id="nPlusTen">+ 10</button>
+            <button class="btn bad" id="nClear">Clear</button>
+            <span class="pill">Tip: Ten-frame packing after 10</span>
+          </div>
+
+          <div class="card">
+            <div class="row" style="justify-content:space-between; align-items:flex-end">
+              <div>
+                <div class="muted">Current count</div>
+                <div class="bigNum" id="nCount">0</div>
+              </div>
+              <div class="eq muted">
+                <span id="nDecomp">0 = 0 tens + 0 ones</span>
+              </div>
+            </div>
+            <div id="nGrid" class="dot-grid" style="grid-template-columns: repeat(10, 22px)"></div>
+          </div>
+
+          <div class="banner">
+            <strong>Idea:</strong> A number is just “how many dots.” Ten dots make a <em>ten</em>. We pack by tens to read big numbers easily.
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="muted">Jump to a number</div>
+            <div class="row">
+              <input type="number" id="nJump" min="0" max="200" value="20" />
+              <button class="btn" id="nGo">Go</button>
+              <span class="pill">Range 0–200</span>
+            </div>
+            <div class="row">
+              <label class="grow">Dots per row
+                <input type="range" id="nCols" min="5" max="20" value="10" />
+              </label>
+              <label class="grow">Dot size
+                <input type="range" id="nSize" min="10" max="28" value="18" />
+              </label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="muted">Number line (0–100)</div>
+            <input type="range" id="nLine" min="0" max="100" step="1" value="0" style="width:100%">
+            <div class="row" style="justify-content:space-between">
+              <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADD & SUBTRACT -->
+    <section id="addsub" class="card" hidden>
+      <div class="title">Add & Subtract Dots</div>
+      <div class="subtitle">Join groups to add; cross out dots to subtract.</div>
+
+      <div class="grid2">
+        <div class="stack">
+          <div class="row">
+            <label>Group A <input type="number" id="aA" value="3" min="0" max="100"></label>
+            <label>Group B <input type="number" id="aB" value="4" min="0" max="100"></label>
+            <button class="btn good" id="btnAdd">Show A + B</button>
+            <button class="btn bad" id="btnSub">Show A − B</button>
+          </div>
+
+          <div class="card">
+            <div class="row center" style="gap:14px">
+              <div class="group">
+                <div class="muted">A</div>
+                <div id="addA" class="dot-grid" style="grid-template-columns: repeat(10,22px)"></div>
+              </div>
+              <div class="op" id="opAB">+</div>
+              <div class="group">
+                <div class="muted">B</div>
+                <div id="addB" class="dot-grid" style="grid-template-columns: repeat(10,22px)"></div>
+              </div>
+              <div class="op">=</div>
+              <div class="group">
+                <div class="muted">Result</div>
+                <div id="addRes" class="dot-grid" style="grid-template-columns: repeat(10,22px)"></div>
+              </div>
+            </div>
+            <div class="center" style="margin-top:8px">
+              <div class="bigNum" id="addEq">3 + 4 = 7</div>
+            </div>
+          </div>
+
+          <div class="banner">
+            <strong>Idea:</strong> <span class="hl">Addition</span> is putting dots together. <span class="hl">Subtraction</span> is taking dots away.
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="muted">Try quick changes</div>
+            <div class="row">
+              <button class="btn" data-q="3,2">3 + 2</button>
+              <button class="btn" data-q="7,5">7 + 5</button>
+              <button class="btn" data-q="12,9">12 + 9</button>
+              <button class="btn" data-q="15,4">15 − 4</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="muted">Crossing-out demo (subtraction)</div>
+            <div id="subDemo" class="dot-grid" style="grid-template-columns: repeat(10,22px)"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MULTIPLY -->
+    <section id="multiply" class="card" hidden>
+      <div class="title">Multiply with Arrays of Dots</div>
+      <div class="subtitle">Rows × columns = total dots. Repeated addition in disguise.</div>
+
+      <div class="row">
+        <label>Rows <input type="number" id="mRows" value="3" min="1" max="20"></label>
+        <label>Cols <input type="number" id="mCols" value="4" min="1" max="20"></label>
+        <button class="btn good" id="mShow">Build Array</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="muted">Array</div>
+          <div id="mGrid" class="dot-grid"></div>
+          <div class="center" style="margin-top:8px">
+            <div class="bigNum" id="mEq">3 × 4 = 12</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="muted">As repeated addition</div>
+          <div id="mRepeat" class="eq"></div>
+        </div>
+      </div>
+
+      <div class="banner">
+        <strong>Idea:</strong> A rectangle of dots is multiplication. Break it into parts to see distributive property (e.g., 4×7 = 4×3 + 4×4).
+      </div>
+    </section>
+
+    <!-- DIVIDE -->
+    <section id="divide" class="card" hidden>
+      <div class="title">Divide by Grouping Dots</div>
+      <div class="subtitle">Share dots into equal groups. The size of each group is the quotient.</div>
+
+      <div class="row">
+        <label>Dots (dividend) <input type="number" id="dDots" value="14" min="0" max="200"></label>
+        <label>Groups (divisor) <input type="number" id="dGroups" value="3" min="1" max="20"></label>
+        <button class="btn good" id="dShow">Share</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="muted">Groups</div>
+          <div class="row" id="dWrap" style="flex-wrap:wrap; gap:12px"></div>
+          <div class="center" style="margin-top:8px">
+            <div class="bigNum" id="dEq">14 ÷ 3 = 4 remainder 2</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="muted">Idea</div>
+          <div class="banner">Division is fair sharing. If dots don’t fit perfectly, leftovers are the <em>remainder</em>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FRACTIONS -->
+    <section id="fractions" class="card" hidden>
+      <div class="title">Fractions: Part of a Set of Dots</div>
+      <div class="subtitle">Select some dots from a whole set. That’s your numerator over the denominator.</div>
+
+      <div class="row">
+        <label>Total dots (denominator) <input type="number" id="fTotal" value="20" min="1" max="100"></label>
+        <label>Selected dots (numerator) <input type="number" id="fSel" value="5" min="0" max="100"></label>
+        <button class="btn good" id="fBuild">Build Set</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="muted">Tap dots to select / unselect</div>
+          <div id="fGrid" class="dot-grid" style="grid-template-columns: repeat(10,22px)"></div>
+          <div class="row" style="justify-content:space-between; margin-top:8px">
+            <div class="bigNum" id="fEq">5 / 20 = 1 / 4</div>
+            <div class="legend">
+              <span class="chip">Numerator = selected dots</span>
+              <span class="chip">Denominator = total dots</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="muted">Pro tip</div>
+          <div class="banner">Fractions can be simplified. Both numerator and denominator divided by their greatest common factor (GCF) give an equivalent fraction.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECIMALS -->
+    <section id="decimals" class="card" hidden>
+      <div class="title">Decimals on a Hundred-Dot Board</div>
+      <div class="subtitle">Shade parts of 100 dots. Each shaded dot is a hundredth (0.01).</div>
+
+      <div class="row">
+        <label>Value (0.00–1.00) <input type="number" step="0.01" id="deci" value="0.37" min="0" max="1"></label>
+        <button class="btn good" id="dciShow">Shade</button>
+        <button class="btn warn" id="dciClear">Clear</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div id="hundred" class="hundred"></div>
+          <div class="row" style="justify-content:space-between; margin-top:8px">
+            <div class="bigNum" id="dciEq">0.37 = 37/100</div>
+            <div class="legend">
+              <span class="chip">Ones • Tenths • Hundredths</span>
+              <span class="chip">Click dots to toggle</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="muted">Place value</div>
+          <div class="banner">
+            0.<span class="hl">3</span><span class="muted">7</span> = 3 tenths + 7 hundredths.
+            Decimals are just fractions with denominator 10 or 100 (or 1000…).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRACTICE -->
+    <section id="practice" class="card" hidden>
+      <div class="title">Practice Mode</div>
+      <div class="subtitle">Quick, playful questions across dot-concepts. Nail it to pop confetti!</div>
+
+      <div class="row">
+        <label>Topic
+          <select id="pTopic">
+            <option value="add">Addition</option>
+            <option value="sub">Subtraction</option>
+            <option value="mul">Multiplication</option>
+            <option value="div">Division</option>
+            <option value="frac">Fraction (of a set)</option>
+            <option value="dec">Decimals (hundredths)</option>
+          </select>
+        </label>
+        <button class="btn good" id="pNew">New Question</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div id="pViz" class="dot-grid" style="grid-template-columns: repeat(10,22px)"></div>
+        </div>
+        <div class="card">
+          <div id="pText" class="eq" style="min-height:48px"></div>
+          <div class="row" style="margin-top:8px">
+            <input type="text" id="pAns" placeholder="Type your answer…" />
+            <button class="btn" id="pCheck">Check</button>
+            <span class="pill" id="pMsg">Ready!</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="muted">Made with dots, delight, and a dash of math magic ✨</footer>
+  </main>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    // ---------- Utilities ----------
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    function clamp(n, lo, hi){ return Math.max(lo, Math.min(hi, n)); }
+
+    function gcf(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b] = [b, a%b]; } return a||1; }
+
+    function renderDots(container, count, {cols=10, size=18, crossed=0, clickable=false, onToggle=null}={}){
+      container.innerHTML = '';
+      container.style.gridTemplateColumns = `repeat(${cols}, ${size+4}px)`;
+      for(let i=0;i<count;i++){
+        const d = document.createElement('div');
+        d.className = 'dot';
+        if(size<=14) d.classList.add('small');
+        if(size<=10) d.classList.add('tiny');
+        if(i < crossed) d.classList.add('cross');
+        if(clickable){
+          d.style.cursor = 'pointer';
+          d.addEventListener('click', () => onToggle && onToggle(i,d));
+        }
+        container.appendChild(d);
+      }
+    }
+
+    function renderHundred(board, active=0, onCell){
+      board.innerHTML = '';
+      for(let i=0;i<100;i++){
+        const h = document.createElement('div');
+        h.className = 'hdot' + (i < active ? '' : ' off');
+        h.addEventListener('click', ()=>{
+          h.classList.toggle('off');
+          onCell && onCell(i, !h.classList.contains('off'));
+        });
+        board.appendChild(h);
+      }
+    }
+
+    // Simple confetti: colored sparks from top center
+    function boomConfetti() {
+      const root = $('#confetti');
+      const colors = ['#7c4dff','#00d9ff','#00e8a3','#ffb020','#ff5a7a','#c8ff89'];
+      for(let i=0;i<120;i++){
+        const s = document.createElement('div');
+        s.className = 'spark';
+        const c = colors[Math.floor(Math.random()*colors.length)];
+        const size = 6 + Math.random()*10;
+        s.style.width = s.style.height = size+'px';
+        s.style.background = c;
+        const startX = window.innerWidth/2 + (Math.random()-0.5)*120;
+        s.style.left = startX+'px';
+        s.style.top = '0px';
+        root.appendChild(s);
+        const dx = (Math.random()-0.5) * 600;
+        const dy = 400 + Math.random()*400;
+        const rot = (Math.random()-0.5)*720;
+        const t = 700 + Math.random()*900;
+        s.animate([
+          { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+          { transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity: 0 }
+        ], { duration: t, easing: 'cubic-bezier(.2,.7,0,1)' });
+        setTimeout(()=> s.remove(), t+50);
+      }
+    }
+
+    // ---------- Tabs ----------
+    const tabs = $('#tabs');
+    tabs.addEventListener('click', (e)=>{
+      if(e.target.tagName !== 'BUTTON') return;
+      $$('.tabs button').forEach(b=>b.classList.remove('active'));
+      e.target.classList.add('active');
+      const id = e.target.dataset.tab;
+      $$('main > section').forEach(sec => sec.hidden = (sec.id !== id));
+    });
+
+    // ---------- Numbers ----------
+    let nCount = 0, nCols=10, nSize=18;
+    const nGrid = $('#nGrid');
+    function updateNumberView(){
+      $('#nCount').textContent = nCount;
+      const tens = Math.floor(nCount/10), ones = nCount%10;
+      $('#nDecomp').textContent = `${nCount} = ${tens} tens + ${ones} ones`;
+      renderDots(nGrid, nCount, {cols:nCols, size:nSize});
+      $('#nLine').value = clamp(nCount,0,100);
+    }
+    $('#nPlus').addEventListener('click', ()=>{ nCount++; updateNumberView(); });
+    $('#nMinus').addEventListener('click', ()=>{ nCount = Math.max(0, nCount-1); updateNumberView(); });
+    $('#nPlusTen').addEventListener('click', ()=>{ nCount += 10; updateNumberView(); });
+    $('#nClear').addEventListener('click', ()=>{ nCount = 0; updateNumberView(); });
+    $('#nGo').addEventListener('click', ()=>{ nCount = clamp(parseInt($('#nJump').value||0),0,200); updateNumberView(); });
+    $('#nCols').addEventListener('input', e=>{ nCols = parseInt(e.target.value); updateNumberView(); });
+    $('#nSize').addEventListener('input', e=>{ nSize = parseInt(e.target.value); updateNumberView(); });
+    $('#nLine').addEventListener('input', e=>{ nCount = parseInt(e.target.value); updateNumberView(); });
+    nCount = 20; updateNumberView();
+
+    // ---------- Add & Subtract ----------
+    const addA = $('#addA'), addB = $('#addB'), addRes = $('#addRes'), subDemo = $('#subDemo');
+    function showAdd(){
+      const A = parseInt($('#aA').value||0), B = parseInt($('#aB').value||0);
+      renderDots(addA, A, {cols:10, size:18});
+      renderDots(addB, B, {cols:10, size:18});
+      renderDots(addRes, A+B, {cols:10, size:18});
+      $('#opAB').textContent = '+';
+      $('#addEq').textContent = `${A} + ${B} = ${A+B}`;
+      // sub demo resets
+      renderDots(subDemo, A, {cols:10, size:18, crossed:0});
+    }
+    function showSub(){
+      const A = parseInt($('#aA').value||0), B = parseInt($('#aB').value||0);
+      renderDots(addA, A, {cols:10, size:18});
+      renderDots(addB, B, {cols:10, size:18});
+      const res = Math.max(0, A-B);
+      renderDots(addRes, res, {cols:10, size:18});
+      $('#opAB').textContent = '−';
+      $('#addEq').textContent = `${A} − ${B} = ${res}`;
+      renderDots(subDemo, A, {cols:10, size:18, crossed:Math.min(A,B)});
+    }
+    $('#btnAdd').addEventListener('click', showAdd);
+    $('#btnSub').addEventListener('click', showSub);
+    $$('#addsub .card button[data-q]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const [x,y] = btn.dataset.q.split(',').map(s=>parseInt(s));
+        $('#aA').value = x; $('#aB').value = y;
+        if(btn.textContent.includes('−')) showSub(); else showAdd();
+      });
+    });
+    showAdd();
+
+    // ---------- Multiply ----------
+    function buildArray(){
+      const r = clamp(parseInt($('#mRows').value||1),1,20);
+      const c = clamp(parseInt($('#mCols').value||1),1,20);
+      renderDots($('#mGrid'), r*c, {cols:c, size:18});
+      $('#mEq').textContent = `${r} × ${c} = ${r*c}`;
+      const parts = Array.from({length:r}, (_,i)=>`${c}`).join(' + ');
+      $('#mRepeat').textContent = `${r} rows of ${c} = ${parts} = ${r*c}`;
+    }
+    $('#mShow').addEventListener('click', buildArray);
+    buildArray();
+
+    // ---------- Divide ----------
+    function shareDots(){
+      const total = clamp(parseInt($('#dDots').value||0),0,200);
+      const groups = clamp(parseInt($('#dGroups').value||1),1,20);
+      const q = Math.floor(total / groups), rem = total % groups;
+      const wrap = $('#dWrap'); wrap.innerHTML = '';
+      for(let g=0; g<groups; g++){
+        const box = document.createElement('div');
+        box.className = 'group';
+        const hdr = document.createElement('div'); hdr.className='muted';
+        hdr.textContent = `Group ${g+1}`;
+        box.appendChild(hdr);
+        const grid = document.createElement('div');
+        grid.className='dot-grid';
+        grid.style.gridTemplateColumns='repeat(10,22px)';
+        const count = q + (g < rem ? 1 : 0); // distribute remainders visually
+        renderDots(grid, count, {cols:10, size:18});
+        box.appendChild(grid);
+        wrap.appendChild(box);
+      }
+      $('#dEq').textContent = `${total} ÷ ${groups} = ${q}` + (rem? ` remainder ${rem}`:'');
+    }
+    $('#dShow').addEventListener('click', shareDots);
+    shareDots();
+
+    // ---------- Fractions (of a set) ----------
+    let fTotal=20, fSel=5;
+    function rebuildFraction(){
+      fTotal = clamp(parseInt($('#fTotal').value||1),1,100);
+      fSel   = clamp(parseInt($('#fSel').value||0),0,fTotal);
+      const grid = $('#fGrid');
+      let selected = new Set(Array.from({length:fSel}, (_,i)=>i));
+      renderDots(grid, fTotal, {
+        cols:10, size:18, clickable:true,
+        onToggle(i,el){
+          if(selected.has(i)){ selected.delete(i); el.classList.add('cross'); setTimeout(()=>el.classList.remove('cross'),120);}
+          else { selected.add(i); }
+          fSel = selected.size;
+          $('#fSel').value = fSel;
+          updateFracEq();
+        }
+      });
+      // Mark first fSel as selected by “not crossed”; others we keep normal but we’ll track size
+      // To give feedback, we’ll just update equation.
+      updateFracEq();
+    }
+    function updateFracEq(){
+      const g = gcf(fSel, fTotal);
+      const sNum = fSel, sDen = fTotal;
+      const simp = `${sNum/g} / ${sDen/g}`;
+      $('#fEq').textContent = `${sNum} / ${sDen} = ${simp}`;
+    }
+    $('#fBuild').addEventListener('click', rebuildFraction);
+    $('#fTotal').addEventListener('change', rebuildFraction);
+    $('#fSel').addEventListener('change', rebuildFraction);
+    rebuildFraction();
+
+    // ---------- Decimals (hundred board) ----------
+    let hundredActive = 37;
+    const hBoard = $('#hundred');
+    function buildHundred(){
+      renderHundred(hBoard, hundredActive, (_,on)=>{
+        hundredActive += on? +1 : -1;
+        hundredActive = clamp(hundredActive,0,100);
+        updateDeciEq();
+      });
+      updateDeciEq();
+    }
+    function updateDeciEq(){
+      const val = hundredActive/100;
+      $('#dciEq').textContent = `${val.toFixed(2)} = ${hundredActive}/100`;
+      $('#deci').value = val.toFixed(2);
+    }
+    $('#dciShow').addEventListener('click', ()=>{
+      const v = clamp(parseFloat($('#deci').value||0),0,1);
+      hundredActive = Math.round(v*100);
+      buildHundred();
+    });
+    $('#dciClear').addEventListener('click', ()=>{ hundredActive = 0; buildHundred(); });
+    buildHundred();
+
+    // ---------- Practice ----------
+    const pViz = $('#pViz'), pText = $('#pText'), pAns = $('#pAns'), pMsg = $('#pMsg');
+    let current = null;
+
+    function rand(lo, hi){ return Math.floor(Math.random()*(hi-lo+1))+lo; }
+
+    function newQ(){
+      const t = $('#pTopic').value;
+      pViz.innerHTML = '';
+      pAns.value=''; pMsg.textContent='Ready!';
+      if(t==='add'){
+        const a = rand(1,15), b = rand(1,15);
+        current = {t, a, b, ans: a+b};
+        pText.textContent = `Add the dots: ${a} + ${b} = ?`;
+        renderDots(pViz, a, {cols:10, size:18});
+        const plus = document.createElement('div'); plus.className='op'; plus.textContent='+';
+        pViz.appendChild(plus);
+        renderDots(pViz, b, {cols:10, size:18});
+      } else if(t==='sub'){
+        const a = rand(5,20), b = rand(1,Math.min(10,a));
+        current = {t, a, b, ans: a-b};
+        pText.textContent = `Subtract the dots: ${a} − ${b} = ? (no negatives)`;
+        renderDots(pViz, a, {cols:10, size:18, crossed:b});
+      } else if(t==='mul'){
+        const r = rand(2,6), c = rand(2,6);
+        current = {t, r, c, ans: r*c};
+        pText.textContent = `How many dots? ${r} × ${c} = ?`;
+        renderDots(pViz, r*c, {cols:c, size:18});
+      } else if(t==='div'){
+        const q = rand(2,8), g = rand(2,5), r = rand(0, g-1);
+        const total = q*g + r;
+        current = {t, total, g, ans: r ? `${q} r ${r}` : `${q}`};
+        pText.textContent = `Share ${total} dots into ${g} groups. Quotient (and remainder) = ? (format: q or "q r r")`;
+        // groups preview:
+        const wrap = document.createElement('div'); wrap.className='row'; pViz.appendChild(wrap);
+        for(let i=0;i<g;i++){
+          const box = document.createElement('div'); box.className='group';
+          const grid = document.createElement('div'); grid.className='dot-grid'; grid.style.gridTemplateColumns='repeat(10,22px)';
+          const count = q + (i<r?1:0);
+          renderDots(grid, count, {cols:10, size:18});
+          box.appendChild(grid); wrap.appendChild(box);
+        }
+      } else if(t==='frac'){
+        const den = [8,10,12,16,20][rand(0,4)];
+        const num = rand(1, den-1);
+        current = {t, num, den, ans: `${num}/${den}`};
+        pText.textContent = `Shade a fraction: ${num}/${den} of the set. How many dots is that?`;
+        renderDots(pViz, den, {cols:10, size:18});
+      } else if(t==='dec'){
+        const hund = rand(5,95);
+        current = {t, hund, ans: (hund/100).toFixed(2)};
+        pText.textContent = `What decimal is shaded? (hundredths)`;
+        // show as shaded then blank out text:
+        const demo = document.createElement('div'); demo.className='hundred';
+        for(let i=0;i<100;i++){
+          const h = document.createElement('div');
+          h.className = 'hdot' + (i < hund ? '' : ' off');
+          demo.appendChild(h);
+        }
+        pViz.appendChild(demo);
+      }
+    }
+
+    function checkQ(){
+      if(!current) return;
+      let ok=false;
+      const t = current.t;
+      const val = pAns.value.trim();
+      if(t==='add' || t==='sub' || t==='mul'){
+        ok = (parseInt(val) == current.ans);
+      } else if(t==='div'){
+        // accept "q" or "q r r"
+        const parts = val.split(/\s+/);
+        if(parts.length===1) ok = (parts[0] == current.ans);
+        else if(parts.length===3 && parts[1].toLowerCase()==='r'){
+          ok = (`${parts[0]} r ${parts[2]}` === current.ans);
+        }
+      } else if(t==='frac'){
+        // answer is number of dots to shade (numerator)
+        ok = (parseInt(val) == current.num);
+      } else if(t==='dec'){
+        ok = (parseFloat(val).toFixed(2) === current.ans);
+      }
+      if(ok){
+        pMsg.textContent = 'Correct! 🎉';
+        pMsg.style.color = 'var(--good)';
+        boomConfetti();
+      }else{
+        pMsg.textContent = 'Try again!';
+        pMsg.style.color = 'var(--bad)';
+      }
+    }
+    $('#pNew').addEventListener('click', newQ);
+    $('#pCheck').addEventListener('click', checkQ);
+    newQ();
+
+    // Prefill sub demo with current A
+    (function seedSubDemo(){
+      const A = parseInt($('#aA').value||0);
+      renderDots(subDemo, A, {cols:10, size:18, crossed:0});
+    })();
+  </script>
+</body>
+</html>
