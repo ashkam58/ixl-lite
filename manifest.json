@@ -245,5 +245,20 @@
     "title": "📦 Grade 6 \u2022 Rectangular Prism",
     "tags": ["grade6", "Jeffery", "satvik","geometry", "3d-shapes", "rectangular-prism", "interactive", "visual"],
     "level": "Medium"
+  },{
+    "slug": "yuvan/Numbers/Calculation",
+    "title": "🎯 Grade 7 \u2022 Calculation",
+    "tags": ["grade7", "chapterone","numbers", "calculation", "interactive", "visual", "yuvan"],
+    "level": "Medium"
+  },{
+    "slug": "yuvan/Numbers/DivisionAndDivisibility",
+    "title": "🎯 Grade 7 \u2022 Division and Divisibility",
+    "tags": ["grade7", "chapterone","numbers", "division", "divisibility", "interactive", "visual", "yuvan"],
+    "level": "Medium"
+  },{
+    "slug": "yuvan/Numbers/negativeIntegersAndPowers",
+    "title": "🎯 Grade 7 \u2022 Negative Integers and Powers",
+    "tags": ["grade7", "chapterone","numbers", "negative-integers", "powers", "interactive", "visual", "yuvan"],
+    "level": "Medium"
   }
 ]

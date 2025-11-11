@@ -164,6 +164,45 @@
   }
 }
 
+/* ===== Mobile improvements ===== */
+/* Provide consistent compact header + mobile drawer behavior */
+@media (max-width: 900px) {
+  /* Topbar: compact layout */
+  .topbar .wrap { padding: 10px 12px; gap: 8px; }
+  .subject-btn, .subjects { display: none !important; }
+  .hamburger { display: inline-block !important; }
+
+  /* Make hero less wide on phones */
+  .hero { padding: 1.6rem 1rem 1rem; }
+
+  /* Sidebar collapses into a top toolbar (handled by nav.js) */
+  .container { display: block; padding: 0 12px; }
+  .sidebar { display: none; }
+
+  /* Cards: fewer columns and larger touch targets */
+  .grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card { padding: 14px; }
+
+  /* Mobile drawer (full-screen) */
+  .mobile-drawer { left: 0; right: 0; bottom: 0; top: 56px; width: auto; inset: 56px 0 0 0; padding: 18px; border-left: none; }
+
+  /* Subject submenu becomes a bottom sheet if visible */
+  .subject-submenu { position: fixed; left: 8px; right: 8px; bottom: 80px; z-index: 80; max-width: 98vw; border-radius: 12px; }
+
+  /* Pager: stack prev/next and make them full-width touchable buttons */
+  .pager { flex-direction: column; gap: 10px; align-items: stretch; }
+  .pager .prev, .pager .next { width: 100%; min-width: unset; box-sizing: border-box; }
+
+  /* Increase hit areas for controls */
+  .btn, .btn.primary, .btn.ghost { padding: 12px 16px; font-size: 16px; min-height: 48px; }
+}
+
+/* Very small screens: ensure the net grid and scenes scale down */
+@media (max-width: 420px) {
+  .scene { width: 220px; height: 220px; }
+  .net-grid { width: 320px; height: 320px; grid-template-columns: repeat(5, 1fr); }
+}
+
 :root{
   --bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #e0e7ff 75%, #f0f9ff 100%);
   --card: rgba(255, 255, 255, 0.8);

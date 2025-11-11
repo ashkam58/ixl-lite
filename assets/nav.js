@@ -317,9 +317,20 @@
       document.dispatchEvent(new CustomEvent('ixl:filters', {detail: out}));
     };
 
-    drawer.addEventListener('change', (e)=>{ const t = e.target; if(t && t.matches('input[type="checkbox"][data-filter]')) {/* live updates optional */} });
+    // Auto-apply and close the drawer when a filter is selected on mobile
+    drawer.addEventListener('change', (e)=>{
+      const t = e.target;
+      if(t && t.matches('input[type="checkbox"][data-filter]')){
+        copyStatesToSidebar();
+        emitFromDrawer();
+        drawer.hidden = true;
+      }
+    });
+    // Explicit controls
     closeBtn.addEventListener('click', ()=>{ drawer.hidden = true; });
     applyBtn.addEventListener('click', ()=>{ copyStatesToSidebar(); emitFromDrawer(); drawer.hidden = true; });
+    // Escape to close
+    drawer.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ drawer.hidden = true; } });
   }
 
   function buildBreadcrumb(model){

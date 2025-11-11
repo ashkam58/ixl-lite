@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Negative Integers + Powers • Interactive Practice</title>
+  <style>
+    :root{
+      --bg:#0f1226; --card:#1a1f3b; --ink:#e8edff; --muted:#aab3ff;
+      --accent:#7c5cff; --accent2:#00d4ff; --good:#3ddc97; --bad:#ff5c7c;
+      --warn:#ffc857;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;
+      color:var(--ink);background:radial-gradient(1200px 600px at 15% -5%, #1f2650 0%, #0f1226 60%);
+      min-height:100vh;}
+    header{position:sticky;top:0;z-index:5;background:linear-gradient(90deg,var(--card),#152042);
+      border-bottom:1px solid #2a2f56}
+    .wrap{max-width:1100px;margin:auto;padding:16px}
+    h1{margin:0;font-size:clamp(18px,2.6vw,28px)}
+    .sub{color:var(--muted);font-size:14px}
+
+    .grid{display:grid;grid-template-columns:280px 1fr;gap:14px;max-width:1100px;margin:18px auto;padding:0 16px}
+    nav{background:var(--card);border:1px solid #2a2f56;border-radius:18px;padding:14px;position:sticky;top:76px;align-self:start}
+    nav h3{margin:6px 0 10px;font-size:16px;color:var(--muted)}
+    .chip{display:block;padding:10px 12px;margin:6px 0;border-radius:12px;background:#141836;border:1px solid #2a2f56;cursor:pointer}
+    .chip.active{background:linear-gradient(90deg,#1f2a66,#181f3e);border-color:#4450b3}
+
+    .cards{display:grid;gap:14px}
+    .card{background:var(--card);border:1px solid #2a2f56;border-radius:18px;padding:16px;position:relative;overflow:hidden}
+    .badge{position:absolute;top:10px;right:10px;padding:4px 8px;border-radius:999px;font-size:12px;background:#141836;border:1px solid #2a2f56;color:var(--muted)}
+    .q{font-weight:600}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    input[type="text"], input[type="number"]{background:#0f1431;border:1px solid #323a77;color:var(--ink);border-radius:10px;padding:10px 12px;min-width:180px}
+    button{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#0c0c15;border:none;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+    button.ghost{background:#11163a;color:var(--ink);border:1px solid #2a2f56}
+    .muted{color:var(--muted)}
+    details{background:#0f1431;border:1px dashed #334; border-radius:12px;padding:10px;margin-top:10px}
+    .result{font-weight:700}
+    .ok{color:var(--good)} .no{color:var(--bad)} .warn{color:var(--warn)}
+    .scorebar{height:10px;background:#0f1431;border:1px solid #2a2f56;border-radius:999px;overflow:hidden}
+    .scorebar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--good),#9cf6d0)}
+
+    /* playful stickers */
+    .sticker{position:absolute;opacity:.2;filter:drop-shadow(0 6px 12px rgba(0,0,0,.25))}
+    .s1{left:-20px;bottom:-10px;transform:rotate(-12deg);font-size:80px}
+    .s2{right:-14px;top:-12px;transform:rotate(8deg);font-size:70px}
+
+    .game{display:grid;gap:10px;grid-template-columns:1fr auto auto}
+    .pill{padding:8px 12px;border-radius:999px;background:#0f1431;border:1px solid #2a2f56}
+
+    .footer{max-width:1100px;margin:40px auto 80px;padding:0 16px;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Interactive Practice • Negative Integers & Powers</h1>
+      <div class="sub">Auto-check + reveal solutions • Cartoon theme • Includes a quick “Sign Sense” game</div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav>
+      <h3>Jump to set</h3>
+      <a class="chip active" data-section="set1">1) Negative integer arithmetic</a>
+      <a class="chip" data-section="set2">2) Mixed operations & brackets</a>
+      <a class="chip" data-section="set3">3) Word/sequence & mean/median</a>
+      <a class="chip" data-section="set4">4) Powers & roots</a>
+      <a class="chip" data-section="set5">5) Mini‑game: Sign Sense</a>
+      <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="ghost" id="revealAll">Reveal all</button>
+        <button class="ghost" id="resetAll">Reset</button>
+      </div>
+      <div style="margin-top:12px">
+        <div class="muted" style="font-size:12px">Score</div>
+        <div class="scorebar"><span id="scoreFill"></span></div>
+        <div class="muted" id="scoreText" style="margin-top:6px">0 correct / 0 checked</div>
+      </div>
+      <details style="margin-top:12px">
+        <summary>Developer sanity tests</summary>
+        <div class="muted" style="font-size:13px;line-height:1.5">
+          <button class="ghost" id="runTests" style="margin-top:8px">Run tests</button>
+          <div id="testOut" style="margin-top:8px"></div>
+        </div>
+      </details>
+    </nav>
+
+    <main class="cards" id="cards"></main>
+  </div>
+
+  <div class="footer">Tip: For decimals, answers within ±0.01 are accepted. Use standard order of operations. Enjoy the stickers! <span role="img" aria-label="confetti">🎉</span></div>
+
+  <script>
+    // ---------- Problem bank ----------
+    const sets = {
+      set1: [
+        {id:"2a", prompt:"(-3) × 2 × 4", ans:-24, expl:"Odd number of negatives ⇒ negative. 3×2×4=24 ⇒ -24."},
+        {id:"2b", prompt:"5 × (-3) × (-2)", ans:30, expl:"Two negatives ⇒ positive. 5×3×2=30."},
+        {id:"2c", prompt:"(-7) × (-3) × (-10)", ans:-210, expl:"Three negatives ⇒ negative. 7×3×10=210."},
+        {id:"2d", prompt:"(-14) × (-3) × (-5)", ans:-210, expl:"Three negatives ⇒ negative. 14×3×5=210."},
+        {id:"3a", prompt:"1.4 × (−3)", ans:-4.2, tol:0.01, expl:"1.4×3=4.2 and one negative ⇒ -4.2."},
+        {id:"3b", prompt:"(−0.7) × (−3) × (−10)", ans:-21, tol:0.01, expl:"Three negatives ⇒ negative. 0.7×3×10=21."},
+        {id:"3c", prompt:"10.5 × (−3.2)", ans:-33.6, tol:0.01, expl:"10.5×3.2=33.6 with one negative ⇒ -33.6."},
+        {id:"3d", prompt:"(−3) × 2 × 0.5", ans:-3, tol:0.01, expl:"-3 × 2 = -6; -6 × 0.5 = -3."},
+        // extra test-cases (do not modify originals)
+        {id:"x1", prompt:"(−4) × (−5) × (−1) × 2", ans:-40, expl:"Three negatives ⇒ negative. 4×5×1×2=40 ⇒ -40."},
+        {id:"x2", prompt:"(−2.5) × (−0.4)", ans:1.0, tol:0.01, expl:"Two negatives ⇒ positive. 2.5×0.4=1."}
+      ],
+      set2: [
+        {id:"4a", prompt:"−4(−3.4 − 1.7)", ans:20.4, tol:0.01, expl:"Inside: −3.4−1.7=−5.1. Then −4×(−5.1)=+20.4."},
+        {id:"4c", prompt:"−4 − 3.4 + 1.7", ans:-5.7, tol:0.01, expl:"Combine left to right: −4−3.4=−7.4; add 1.7 → −5.7."},
+        {id:"4d", prompt:"−3.4 − 1.7 − 4", ans:-9.1, tol:0.01, expl:"Add negatives: −3.4−1.7=−5.1; −5.1−4=−9.1."},
+        {id:"5a", prompt:"250 × (−320) ÷ (−800)", ans:100, expl:"Two negatives ⇒ positive: 250×320/800=100."},
+        {id:"5b", prompt:"0.5 [ (−75000) ÷ (−350000) ÷ (−2) ]", ans:-3/56, tol:1e-5, prettyAns:"-3/56 ≈ -0.05357", expl:"(−75000)/(−350000)=3/14; then ÷(−2)=−3/28; ×0.5=−3/56."},
+        {id:"5c", prompt:"24000 [ (−2)×0.9 + 300 ÷ (−1500) ]", ans:-48000, expl:"(−2)×0.9=−1.8; 300/(−1500)=−0.2; sum −2.0; ×24000=−48000."},
+        {id:"5d", prompt:"−100000(0.13 − (−0.38)) ÷ (−(6+2))", ans:6375, expl:"0.13+0.38=0.51; −100000×0.51=−51000; divide by −8 ⇒ 6375."}
+      ],
+      set3: [
+        {id:"1b", prompt:"Median of −130, 220, −1395, 640, −1565, −290", ans:-210, expl:"Sorted: −1565, −1395, −290, −130, 220, 640 → mean of middle two = −210."},
+        {id:"1c", prompt:"Range of same data", ans:2205, expl:"max 640 − min (−1565) = 2205."},
+        {id:"1d", prompt:"Mean of same data", ans:-420, expl:"Sum −2520; ÷6 = −420."},
+        {id:"7a", prompt:"First five terms. a₁=4, multiply by −2 each time → a₅? (Give the 5th term)", ans:64, expl:"4, −8, 16, −32, 64."},
+        {id:"7b", prompt:"Difference between 2nd and 4th terms (|a₂ − a₄|)", ans:24, expl:"|−8 − (−32)| = 24."}
+      ],
+      set4: [
+        {id:"p1a", prompt:"4×3²+5", ans:41, expl:"3²=9; 4×9+5=41."},
+        {id:"p1b", prompt:"√49 + 5×8", ans:47, expl:"√49=7; 7+40=47."},
+        {id:"p1c", prompt:"6×2³ − 18", ans:30, expl:"2³=8; 6×8−18=30."},
+        {id:"p1d", prompt:"4×∛1000 − 35", ans:5, expl:"∛1000=10; 40−35=5."},
+        {id:"p3a", prompt:"7³ + 27", ans:370, expl:"343+27=370."},
+        {id:"p3b", prompt:"2×8³ − 624", ans:400, expl:"2×512−624=400."},
+        {id:"p3c", prompt:"6×10³ − 4×9³", ans:3084, expl:"6000−2916=3084."},
+        {id:"p3d", prompt:"4×∛729 + 4", ans:40, expl:"∛729=9; 36+4=40."},
+        {id:"p3e", prompt:"4×∛216 − 5²", ans:-1, expl:"∛216=6; 24−25=−1."},
+        {id:"p4b1", prompt:"Estimate √20 (1 dp)", ans:4.5, tol:0.1, expl:"Between 4 and 5; ≈4.47 → 4.5 (1 dp)."},
+        {id:"p4b2", prompt:"Estimate √5 (1 dp)", ans:2.2, tol:0.1, expl:"≈2.24 → 2.2."},
+        {id:"p4b3", prompt:"Estimate √79 (1 dp)", ans:8.9, tol:0.1, expl:"≈8.89 → 8.9."},
+        {id:"p4b4", prompt:"Estimate √90 (1 dp)", ans:9.5, tol:0.1, expl:"≈9.49 → 9.5."}
+      ]
+    };
+
+    // ---------- Render ----------
+    const cards = document.getElementById('cards');
+    const navChips = [...document.querySelectorAll('.chip')];
+
+    function render(sectionKey){
+      cards.innerHTML = '';
+      // Guard: if set5 (game) or invalid key, handle gracefully
+      if(sectionKey === 'set5'){
+        renderGame();
+        return;
+      }
+      const section = sets[sectionKey];
+      if(!section){
+        const card = document.createElement('section');
+        card.className='card';
+        card.innerHTML = `<div class="q">This section has no questions yet. Pick another from the left.</div>`;
+        cards.appendChild(card);
+        return;
+      }
+      section.forEach((q,idx)=>{
+        const card = document.createElement('section');
+        card.className = 'card';
+        card.dataset.qid = q.id;
+        card.innerHTML = `
+          <div class="badge">#${idx+1}</div>
+          <div class="sticker s1">🧮</div>
+          <div class="sticker s2">✨</div>
+          <div class="q">${q.prompt}</div>
+          <div class="actions">
+            <input type="text" placeholder="Your answer" />
+            <button class="check">Check</button>
+            <span class="result muted"> </span>
+          </div>
+          <details>
+            <summary>Show solution / hint</summary>
+            <div>${q.prettyAns?`Answer: <b>${q.prettyAns}</b>`:`Answer: <b>${fmt(q.ans)}</b>`}</div>
+            <div class="muted">${q.expl||''}</div>
+          </details>
+        `;
+        cards.appendChild(card);
+      });
+    }
+
+    // score handling
+    let checks = 0, correct = 0;
+    function updateScore(){
+      const pct = checks? Math.round(100*correct/checks) : 0;
+      document.getElementById('scoreText').textContent = `${correct} correct / ${checks} checked (${pct}%)`;
+      document.getElementById('scoreFill').style.width = `${pct}%`;
+    }
+
+    function parseNum(v){
+      if(typeof v !== 'string') return Number(v);
+      // normalize unicode minus and spaces
+      v = v.trim().replace(/[−—]/g,'-');
+      // allow simple fractions like -3/56
+      if(/^[-+]?\d+\s*\/\s*\d+$/.test(v)){
+        const [n,d]=v.split('/').map(Number);
+        return n/d;
+      }
+      return Number(v);
+    }
+
+    function approxEqual(a,b,tol=0){
+      return Math.abs(a-b) <= (tol||0);
+    }
+
+    // delegated events
+    cards.addEventListener('click', (e)=>{
+      if(!e.target.classList.contains('check')) return;
+      const card = e.target.closest('.card');
+      const id = card.dataset.qid;
+      const input = card.querySelector('input')?.value ?? '';
+      const res = card.querySelector('.result');
+      const q = Object.values(sets).flat().find(z=>z.id===id);
+      const num = parseNum(input);
+      checks++;
+      if(Number.isFinite(num)){
+        const tol = q?.tol ?? 0;
+        if(q && approxEqual(num, q.ans, tol)){
+          correct++; res.textContent = 'Correct!'; res.className='result ok';
+          confetti(card.querySelector('.badge'));
+        }else{
+          res.innerHTML = `Not yet. Expected around <b>${fmt(q?.ans)}</b>`; res.className='result no';
+        }
+      }else{
+        res.textContent = 'Please enter a number (decimals or simple fraction).'; res.className='result warn';
+      }
+      updateScore();
+    });
+
+    // Enter key = Check
+    cards.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' && e.target.matches('input')){
+        e.preventDefault();
+        e.target.closest('.actions').querySelector('.check').click();
+      }
+    });
+
+    // nav switching
+    navChips.forEach(ch=>ch.addEventListener('click',()=>{
+      navChips.forEach(c=>c.classList.remove('active'));
+      ch.classList.add('active');
+      render(ch.dataset.section);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }));
+
+    // reveal/reset
+    document.getElementById('revealAll').addEventListener('click',()=>{
+      document.querySelectorAll('details').forEach(d=>d.open=true);
+    });
+    document.getElementById('resetAll').addEventListener('click',()=>{
+      document.querySelectorAll('input').forEach(i=>i.value='');
+      document.querySelectorAll('.result').forEach(r=>{r.textContent=''; r.className='result muted'});
+      checks=0;correct=0;updateScore();
+    });
+
+    // utils
+    function fmt(x){
+      if(typeof x === 'undefined') return '—';
+      if(Number.isInteger(x)) return x;
+      return (Math.abs(x)<1e-4? Number(x).toExponential(2) : Number(x).toFixed(2));
+    }
+
+    // --- Tiny confetti burst ---
+    function confetti(el){
+      if(!el) return;
+      const rect = el.getBoundingClientRect();
+      for(let i=0;i<16;i++){
+        const s = document.createElement('span');
+        s.textContent = ['🔹','🔸','⭐','✨','💠'][Math.floor(Math.random()*5)];
+        s.style.position='fixed';
+        s.style.left = (rect.left + rect.width/2) + 'px';
+        s.style.top = (rect.top) + 'px';
+        s.style.transition = 'transform 600ms ease-out, opacity 700ms';
+        s.style.zIndex=50; s.style.pointerEvents='none';
+        document.body.appendChild(s);
+        const dx = (Math.random()*2-1)*120; const dy = 40+Math.random()*120;
+        requestAnimationFrame(()=>{
+          s.style.transform = `translate(${dx}px, ${dy}px) rotate(${(Math.random()*200-100)}deg)`;
+          s.style.opacity = 0;
+        });
+        setTimeout(()=>s.remove(), 800);
+      }
+    }
+
+    // ---------- Mini‑game: Sign Sense ----------
+    function renderGame(){
+      const card = document.createElement('section');
+      card.className='card';
+      card.id='signGame';
+      card.innerHTML = `
+        <div class="badge">Game</div>
+        <h3 style="margin:0 0 8px">Sign Sense</h3>
+        <div class="muted">Decide the sign of a product/division without calculating the magnitude.</div>
+        <div class="game" style="margin-top:10px">
+          <div>
+            <div id="expr" class="pill" style="font-size:20px;font-weight:800">(−2) × 3 × (−5)</div>
+            <div class="muted" id="note" style="margin-top:6px">Odd negatives → negative</div>
+          </div>
+          <button class="ghost" id="btnPos">Answer: +</button>
+          <button class="ghost" id="btnNeg">Answer: −</button>
+        </div>
+        <div style="margin-top:10px" class="muted">Streak: <b id="streak">0</b> • Best: <b id="best">0</b></div>
+      `;
+      cards.appendChild(card);
+      newRound();
+      document.getElementById('btnPos').onclick=()=>judge(1);
+      document.getElementById('btnNeg').onclick=()=>judge(-1);
+
+      function newRound(){
+        const terms = 2+Math.floor(Math.random()*4); // 2..5 terms
+        let negs = 0; let parts=[]; let sign=1;
+        for(let i=0;i<terms;i++){
+          const negative = Math.random()<0.5; // 50%
+          if(negative){negs++; sign*=-1}
+          const val = 1+Math.floor(Math.random()*9);
+          const op = i===0?'' : (Math.random()<0.7? ' × ' : ' ÷ ');
+          parts.push((op)+ (negative?'(−'+val+')':val));
+        }
+        card.dataset.correctSign = sign>0?'+':'-';
+        document.getElementById('expr').textContent = parts.join('');
+        document.getElementById('note').textContent = (negs%2===0? 'Even':'Odd')+ ' negatives → '+(negs%2===0? 'positive':'negative');
+      }
+      let streak=0,best=0;
+      function judge(choice){
+        const ok = (choice>0 && card.dataset.correctSign==='+') || (choice<0 && card.dataset.correctSign==='-');
+        const expr = document.getElementById('expr');
+        if(ok){streak++; best=Math.max(best,streak); expr.style.outline='3px solid var(--good)'; confetti(expr)}
+        else{streak=0; expr.style.outline='3px solid var(--bad)'}
+        document.getElementById('streak').textContent=streak;
+        document.getElementById('best').textContent=best;
+        setTimeout(()=>{expr.style.outline='none'; newRound();}, 450);
+      }
+    }
+
+    // ---- Sanity tests ----
+    document.getElementById('runTests').addEventListener('click', ()=>{
+      const out = [];
+      function pass(msg){out.push('✅ '+msg)}
+      function fail(msg){out.push('❌ '+msg)}
+      try{ render('set1'); pass('render("set1") works'); }catch(e){ fail('render("set1") threw: '+e.message); }
+      try{ render('set5'); pass('render("set5") shows the game without errors'); }catch(e){ fail('render("set5") threw: '+e.message); }
+      try{ const v=parseNum('-3/56'); approxEqual(v,-3/56,1e-9)?pass('fraction parsing -3/56'):fail('fraction parsing failed'); }catch(e){ fail('fraction parsing error: '+e.message); }
+      try{ approxEqual(-0.05357,-3/56,1e-3)?pass('approxEqual tolerance check'):fail('approxEqual tolerance failed'); }catch(e){ fail('approxEqual error: '+e.message); }
+      document.getElementById('testOut').innerHTML = out.map(s=>`<div>${s}</div>`).join('');
+    });
+
+    // initial render (no game until Set 5 is selected)
+    render('set1');
+    updateScore();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Divisibility & Division • Interactive Playground</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: radial-gradient(1200px 600px at 15% 10%, #ffe6ff 0%, #f0f7ff 40%, #f7fff5 70%, #ffffff 100%);
+    --brand1:#6b5bff; /* purple */
+    --brand2:#12c2e9; /* aqua */
+    --brand3:#f64f59; /* coral */
+    --ok:#17b978;     /* green */
+    --bad:#ff4757;    /* red */
+    --warn:#f1c40f;   /* yellow */
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:#1b1f24}
+  body{background:var(--bg)}
+  .top{
+    position:relative;overflow:hidden;color:#fff;padding:28px 18px 22px;border-bottom:4px solid rgba(0,0,0,.06);
+    background: linear-gradient(135deg, var(--brand1), var(--brand2) 50%, var(--brand3));
+  }
+  .title{display:flex;gap:14px;align-items:center;max-width:1200px;margin:0 auto}
+  .logo{width:48px;height:48px;border-radius:14px;background:#fff3;display:grid;place-items:center;backdrop-filter:blur(2px)}
+  .logo span{font-size:26px}
+  h1{margin:0;font-size:clamp(20px,4.6vw,38px);letter-spacing:.2px}
+  .subtitle{opacity:.9;margin-top:6px;font-weight:500}
+
+  .wrap{max-width:1200px;margin:18px auto;padding:0 14px}
+
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{cursor:pointer;padding:10px 14px;border-radius:999px;border:2px solid #0000;background:#fff;color:#2b2b2b;font-weight:600;box-shadow:0 8px 16px rgba(0,0,0,.08);transition:.25s}
+  .tab.active{background:#111;color:#fff}
+
+  .grid{display:grid;gap:14px;margin-top:14px}
+  @media(min-width:880px){.grid{grid-template-columns: 1.2fr 1fr}}
+
+  .card{background:#fff;border-radius:18px;box-shadow:0 10px 24px rgba(22,25,33,.10);padding:18px}
+  .card h2{margin:0 0 10px;font-size:20px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .muted{opacity:.75}
+  .btn{padding:9px 12px;border-radius:12px;border:none;background:linear-gradient(135deg,#111,#222);color:#fff;font-weight:700;cursor:pointer}
+  .btn.ghost{background:#fff;border:2px solid #000;color:#111}
+  .btn.small{padding:7px 10px;font-size:.9rem}
+  input,select{padding:10px 12px;border:2px solid #eef;border-radius:12px;font-size:16px;outline:none}
+  .kpi{display:grid;grid-template-columns: repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}
+  .pill{border-radius:16px;padding:12px;border:2px dashed #eee;background:#fcfcff}
+  .pill .big{font-size:18px;font-weight:800}
+  .status{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+  .status.ok{color:var(--ok)}
+  .status.no{color:var(--bad)}
+  .status.maybe{color:var(--warn)}
+  .hint{background:#f8fbff;border:1px dashed #d9e8ff;padding:10px;border-radius:12px;margin-top:10px}
+
+  /* playground checks */
+  .checks{display:grid;grid-template-columns: repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .check{border-radius:16px;padding:12px;border:2px solid #eef;background:#fff;position:relative}
+  .check h3{margin:0 0 6px}
+  .check .explain{font-size:.92rem;opacity:.8}
+  .badge{position:absolute;right:10px;top:10px;padding:4px 8px;border-radius:999px;font-weight:800}
+  .yes{background:#e7fff3;color:#0f6}
+  .no{background:#ffe7ea;color:#f33}
+  .maybe{background:#fff9da;color:#c18b00}
+
+  /* dots play */
+  .dots{display:grid;grid-template-columns: repeat(auto-fit, minmax(14px,14px));gap:6px;align-items:center}
+  .dot{width:14px;height:14px;border-radius:50%;background: radial-gradient(circle at 30% 30%, #fff, #6b5bff);box-shadow:0 1px 0 #0002}
+  .dot.rest{animation:pulse .8s infinite}
+  @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .groupbar{grid-column:1 / -1;height:4px;background:linear-gradient(90deg,var(--brand2),var(--brand3));border-radius:999px;margin:10px 0}
+
+  /* quiz */
+  .qa{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+  .q{padding:14px;border:2px solid #eee;border-radius:14px;background:#fff}
+  .q h4{margin:0 0 8px}
+  .answer{margin-top:6px}
+  .reveal{display:none;margin-top:10px;border-top:1px dashed #eee;padding-top:8px}
+  .tag{display:inline-block;padding:4px 8px;border-radius:10px;background:#eef;font-weight:700;font-size:.8rem}
+
+  /* confetti */
+  .pop{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:hidden}
+  .piece{position:absolute;width:10px;height:10px;border-radius:2px;opacity:.9;animation:fall 1200ms ease-out forwards}
+  @keyframes fall{to{transform:translateY(120vh) rotate(720deg);opacity:0}}
+
+  /* footer */
+  .foot{margin:20px 0 40px;opacity:.7;text-align:center;font-size:.9rem}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="title">
+      <div class="logo"><span>🔢</span></div>
+      <div>
+        <h1>Divisibility & Division • Interactive Playground</h1>
+        <div class="subtitle">Colorful tools, visual games, and quick quizzes. Learn the rules. See the patterns. Win the math boss fight. 🎮</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="playground">Playground</button>
+      <button class="tab" data-tab="dots">Dot Groups</button>
+      <button class="tab" data-tab="quiz">Quiz + Solutions</button>
+    </div>
+
+    <!-- PLAYGROUND -->
+    <section id="playground" class="grid">
+      <div class="card">
+        <h2>Divisibility Playground</h2>
+        <div class="row">
+          <input id="n" type="number" placeholder="Type a number… e.g. 2435" />
+          <button class="btn" id="analyze">Analyze</button>
+          <span class="muted">Tip: try big numbers too — the rules still work!</span>
+        </div>
+        <div class="kpi">
+          <div class="pill"><div class="muted">Last digit</div><div id="k-last" class="big">–</div></div>
+          <div class="pill"><div class="muted">Last two digits</div><div id="k-last2" class="big">–</div></div>
+          <div class="pill"><div class="muted">Last three digits</div><div id="k-last3" class="big">–</div></div>
+          <div class="pill"><div class="muted">Sum of digits</div><div id="k-sum" class="big">–</div></div>
+        </div>
+        <div class="checks" id="checks"></div>
+        <div class="hint">How to read this: green = divisible ✅, red = not divisible ❌, yellow = depends on another rule. Explanations update for your number.</div>
+      </div>
+      <div class="card">
+        <h2>13-Trick (Investigation)</h2>
+        <p class="muted">Units digit × 4, add to the remaining number. If the new number is divisible by 13, so was the original.</p>
+        <div class="row">
+          <input id="n13" type="number" placeholder="Try 728"/>
+          <button class="btn" id="check13">Test for 13</button>
+        </div>
+        <div id="out13" class="hint">Enter a number to see the steps.</div>
+        <hr style="border:0;border-top:1px dashed #eee;margin:14px 0">
+        <h3>Why does it work?</h3>
+        <p class="muted">10 ≡ −3 (mod 13). Writing a number as 10a + b gives 10a + b ≡ −3a + b. Adding 4b to a gives a + 4b, which is equivalent to the original number modulo 13. Repeating reduces the size until you can tell.</p>
+      </div>
+    </section>
+
+    <!-- DOTS -->
+    <section id="dots" class="grid" style="display:none">
+      <div class="card">
+        <h2>Dot Groups • See Remainders</h2>
+        <div class="row">
+          <input id="dotN" type="number" placeholder="Number of dots (≤ 120)" />
+          <label>÷</label>
+          <select id="dotD">
+            <option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option><option>9</option><option>10</option><option>12</option>
+          </select>
+          <button class="btn" id="drawDots">Draw</button>
+        </div>
+        <div id="dotOut" class="hint">Enter a number and divisor, then draw. Full groups get neat rows; leftovers wiggle as reminders.</div>
+        <div id="dotWrap" style="margin-top:12px"></div>
+      </div>
+      <div class="card">
+        <h2>Quick Facts</h2>
+        <ul>
+          <li>Divisible by 2 ⇒ last digit even.</li>
+          <li>Divisible by 3 or 9 ⇒ sum of digits is a multiple of 3 or 9.</li>
+          <li>Divisible by 4 ⇒ last two digits form a number divisible by 4.</li>
+          <li>Divisible by 8 ⇒ last three digits form a number divisible by 8.</li>
+          <li>Divisible by 5 ⇒ last digit 0 or 5. Divisible by 10 ⇒ last digit 0.</li>
+          <li>Divisible by 6 ⇒ divisible by 2 and 3. Divisible by 12 ⇒ divisible by 3 and 4.</li>
+        </ul>
+        <div class="hint">Both 6 and 9 ⇒ multiple of 18. That’s why any number in both tables is in the 18 times table.</div>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="quiz" style="display:none">
+      <div class="card">
+        <h2>Quiz + Solutions</h2>
+        <div class="row"><button class="btn small" id="shuffle">Shuffle</button><span class="muted">Click “Reveal solution” for worked steps. Inputs check themselves.</span></div>
+        <div class="qa" id="qa"></div>
+      </div>
+    </section>
+
+    <div class="foot">Made with ❤️ for colorful number sense. – AIS</div>
+  </div>
+
+  <div class="pop" id="pop"></div>
+
+<script>
+  /* ---------- helpers ---------- */
+  const $ = (q)=>document.querySelector(q);
+  const sumDigits = n => Math.abs(n).toString().split('').reduce((a,d)=>a+Number(d),0);
+  const last2 = n => Math.abs(n)%100;
+  const last3 = n => Math.abs(n)%1000;
+  const isEven = d => d%2===0;
+  const isPrime = n => {n=+n;if(n<2)return false; for(let p=2;p*p<=n;p++){if(n%p===0)return false;} return true;}
+  const confetti = ()=>{
+    const pop = $('#pop');
+    for(let i=0;i<60;i++){
+      const s=document.createElement('span');
+      s.className='piece';
+      const x=Math.random()*100; const dur=800+Math.random()*800;
+      s.style.left=x+'vw';
+      s.style.top='-10vh';
+      s.style.background = ['#6b5bff','#12c2e9','#f64f59','#ffcf00','#17b978'][Math.floor(Math.random()*5)];
+      s.style.animationDuration = dur+'ms';
+      pop.appendChild(s);
+      setTimeout(()=>s.remove(), dur+100);
+    }
+  }
+
+  /* ---------- Tabs ---------- */
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const id = btn.dataset.tab;
+      ['playground','dots','quiz'].forEach(sec=>$('#'+sec).style.display = (sec===id?'grid':'none'));
+    })
+  })
+
+  /* ---------- Playground ---------- */
+  const RULES=[
+    {name:'2', test:n=>isEven(n%10), explain:n=>`Last digit ${n%10} is ${isEven(n%10)?'even':'odd'}.`},
+    {name:'3', test:n=>sumDigits(n)%3===0, explain:n=>`Digit sum ${sumDigits(n)} is ${sumDigits(n)%3===0?'a':'not a'} multiple of 3.`},
+    {name:'4', test:n=>last2(n)%4===0, explain:n=>`Last two digits ${last2(n)} ${last2(n)%4===0?'are':'are not'} divisible by 4.`},
+    {name:'5', test:n=>[0,5].includes(Math.abs(n)%10), explain:n=>`Ends with ${Math.abs(n)%10}. Need 0 or 5.`},
+    {name:'6', test:n=>isEven(n%10) && sumDigits(n)%3===0, explain:n=>`Needs 2 & 3: ${isEven(n%10)?'✓ 2':'✗ 2'}, ${sumDigits(n)%3===0?'✓ 3':'✗ 3'}.`},
+    {name:'8', test:n=>last3(n)%8===0, explain:n=>`Last three digits ${last3(n)} ${last3(n)%8===0?'are':'are not'} divisible by 8.`},
+    {name:'9', test:n=>sumDigits(n)%9===0, explain:n=>`Digit sum ${sumDigits(n)} ${sumDigits(n)%9===0?'is':'is not'} a multiple of 9.`},
+    {name:'10', test:n=>Math.abs(n)%10===0, explain:n=>`Ends with ${Math.abs(n)%10}. Need 0.`},
+    {name:'12', test:n=> (sumDigits(n)%3===0) && (last2(n)%4===0), explain:n=>`Needs 3 & 4: ${sumDigits(n)%3===0?'✓ 3':'✗ 3'}, ${last2(n)%4===0?'✓ 4':'✗ 4'}.`}
+  ];
+
+  const renderChecks = (n)=>{
+    const box = $('#checks'); box.innerHTML='';
+    RULES.forEach(r=>{
+      const ok = r.test(n);
+      const c=document.createElement('div'); c.className='check';
+      c.innerHTML=`<h3>Divisible by ${r.name}</h3>
+                   <div class="status ${ok?'ok':'no'}">${ok?'✅ Yes':'❌ No'}</div>
+                   <div class="explain">${r.explain(n)}</div>
+                   <span class="badge ${ok?'yes':'no'}">${ok?'Pass':'Fail'}</span>`
+      box.appendChild(c);
+    })
+  }
+
+  $('#analyze').addEventListener('click',()=>{
+    const n = parseInt($('#n').value);
+    if(Number.isNaN(n)) return alert('Enter a number first!');
+    $('#k-last').textContent = Math.abs(n)%10;
+    $('#k-last2').textContent = ('0'+last2(n)).slice(-2);
+    $('#k-last3').textContent = ('00'+last3(n)).slice(-3);
+    $('#k-sum').textContent = sumDigits(n);
+    renderChecks(n);
+  })
+
+  // 13 Trick
+  $('#check13').addEventListener('click',()=>{
+    let n = parseInt($('#n13').value); if(Number.isNaN(n)) return;
+    let steps = [];
+    while(Math.abs(n)>99){
+      const b = Math.abs(n)%10; const a = Math.trunc(Math.abs(n)/10);
+      steps.push(`${n} → (remove ${b})  ${a}  and add 4×${b} = ${a+4*b}`);
+      n = a + 4*b; if(n>1e6) break;
+    }
+    const res = (n%13===0);
+    steps.push(`${n} is ${res?'':'not '}divisible by 13.`)
+    $('#out13').innerHTML = steps.map(s=>`• ${s}`).join('<br>');
+  })
+
+  /* ---------- Dots ---------- */
+  $('#drawDots').addEventListener('click',()=>{
+    let N = Math.min(120, Math.max(0, parseInt($('#dotN').value||0)));
+    const d = parseInt($('#dotD').value);
+    if(!N){$('#dotWrap').innerHTML=''; $('#dotOut').textContent='Enter a number ≤ 120.'; return;}
+    const wrap=document.createElement('div'); wrap.className='dots';
+    let full = Math.floor(N/d), rem = N%d;
+    for(let g=0; g<full; g++){
+      for(let i=0;i<d;i++){const e=document.createElement('div'); e.className='dot'; wrap.appendChild(e);}
+      const bar=document.createElement('div'); bar.className='groupbar'; wrap.appendChild(bar);
+    }
+    for(let i=0;i<rem;i++){const e=document.createElement('div'); e.className='dot rest'; wrap.appendChild(e);}    
+    $('#dotWrap').innerHTML=''; $('#dotWrap').appendChild(wrap);
+    $('#dotOut').innerHTML = `<strong>${N}</strong> ÷ <strong>${d}</strong> = <strong>${Math.floor(N/d)}</strong> remainder <strong>${rem}</strong>.`;
+  })
+
+  /* ---------- Quiz ---------- */
+  const QA=[
+    {id:'q1', type:'input', label:'A number is divisible by 6 and 9 but not by 5. It is > 30 and < 40. What is it?', placeholder:'Type the number', check:v=>+v===36, solution:`Multiples of 6 and 9 ⇒ multiple of 18. Between 31 and 39 only <strong>36</strong> is a multiple of 18. Last digit 6 ≠ 0 or 5 ⇒ not divisible by 5.`},
+
+    {id:'q2', type:'input', label:'Type any 3‑digit number divisible by both 5 and 3, but not by 2.', placeholder:'e.g., 165', check:v=>{v=+v; if(v<100||v>999) return false; const last=v%10; const sum=sumDigits(v); return (last===0||last===5) && (sum%3===0) && (last%2!==0);}, solution:`Ends with 0 or 5 for ×5. To avoid ×2, it must end with 5. Sum of digits must be a multiple of 3 (for ×3). Example answers: 165, 195, 255, 285, 345…`},
+
+    {id:'q3', type:'input', label:'Using digits 5, 6, 7, 8, 9 make a 2‑digit number that is divisible by 3 but not by 2.', placeholder:'e.g., 57', check:v=>{v=+v; const a=Math.floor(v/10), b=v%10; const ok=[5,6,7,8,9].includes(a)&&[5,6,7,8,9].includes(b); return ok && (v%3===0) && (v%2!==0);}, solution:`Divisible by 3 ⇒ digit sum multiple of 3. Not by 2 ⇒ last digit odd. Working pairs: 57, 69, 75, 87, 93 (if 3 allowed) etc. With only {5,6,7,8,9}, examples: <strong>57</strong>, 69, 87,  Ninety‑five doesn’t work (9+5=14).`},
+
+    {id:'q4a', type:'input', label:'Arne bought a computer for £2435. He paid a deposit and then 7 equal monthly payments (integers). What is the <em>smallest</em> deposit he could have paid?', placeholder:'deposit £', check:v=>+v===6, solution:`Remaining amount must be divisible by 7. 2435 ≡ 6 (mod 7). Subtracting 6 makes 2429, which is divisible by 7. So smallest deposit = <strong>£6</strong>.`},
+
+    {id:'q4b', type:'input', label:'What are the monthly payments (for the smallest deposit case)?', placeholder:'monthly £', check:v=>+v===347, solution:`(2435 − 6) ÷ 7 = <strong>£347</strong>.`},
+
+    {id:'q5', type:'input', label:'A number rounds to 110 (nearest ten), is divisible by 7 but not by 2. What is it?', placeholder:'number', check:v=>+v===105, solution:`Numbers rounding to 110: 105–114. From these, 105 and 112 are multiples of 7. Exclude even ⇒ <strong>105</strong>.`},
+
+    {id:'q6', type:'input', label:'What fraction of numbers that are divisible by 6 are also divisible by 9?', placeholder:'type as 1/3, 2/5 …', check:v=>String(v).replace(/\s/g,'')==='1/3', solution:`A number divisible by both 6 and 9 is a multiple of lcm(6,9)=18. Among multiples of 6, every third one is a multiple of 18 ⇒ <strong>1/3</strong>.`},
+
+    {id:'q7', type:'choice', label:'Using only digits 5, 6, 7, 8, 9 can you make a number divisible by both 5 and 2?', options:['Yes','No'], answer:'No', solution:`Divisible by 5 and 2 ⇒ last digit 0. Digit 0 isn’t available ⇒ <strong>Impossible</strong>.`},
+
+    {id:'q8', type:'choice', label:'Using digits 5,6,7,8,9 to make a 5‑digit number (each once). Can it be divisible by 3?', options:['Yes','No'], answer:'No', solution:`Sum of digits 5+6+7+8+9 = 35, not a multiple of 3. Any permutation has the same sum ⇒ <strong>not divisible by 3</strong>.`},
+
+    {id:'q9', type:'choice', label:'Is 83 prime?', options:['Prime','Composite'], answer:'Prime', solution:`√83≈9.1. Test primes ≤9: 2,3,5,7. None divide 83 ⇒ <strong>Prime</strong>.`},
+
+    {id:'q10', type:'input', label:'Is 37 prime? Type yes or no.', placeholder:'yes/no', check:v=>String(v).toLowerCase().startsWith('y'), solution:`√37≈6.1. Test 2,3,5. None divide ⇒ <strong>Prime</strong>.`},
+
+    {id:'q11', type:'input', label:'Is 117 prime? Type prime or composite.', placeholder:'prime/composite', check:v=>String(v).toLowerCase().startsWith('c'), solution:`Digit sum 1+1+7=9 ⇒ multiple of 3 ⇒ <strong>Composite</strong>.`},
+
+    {id:'q12', type:'choice', label:'Is 24 a factorial number?', options:['Yes','No'], answer:'Yes', solution:`24 = 4! = 4×3×2×1.`},
+    {id:'q13', type:'choice', label:'Is 120 a factorial number?', options:['Yes','No'], answer:'Yes', solution:`120 = 5!`},
+    {id:'q14', type:'choice', label:'For n > 1, can n! ever be a perfect square?', options:['Yes','No'], answer:'No', solution:`Beyond 1!, prime exponents in n! are not all even (e.g., 2 appears an odd number of times for some n). Hence <strong>never a square</strong> for n>1.`},
+    {id:'q15', type:'choice', label:'Is 27 a deficient number?', options:['Yes','No'], answer:'Yes', solution:`Proper factors: 1,3,9. Sum = 13 < 27 ⇒ <strong>Deficient</strong>.`},
+    {id:'q16', type:'choice', label:'Is 36 a deficient number?', options:['Yes','No'], answer:'No', solution:`Proper factors: 1,2,3,4,6,9,12,18 sum to 55 > 36 ⇒ <strong>Abundant</strong>.`},
+    {id:'q17', type:'choice', label:'Are all prime numbers deficient?', options:['Yes','No'], answer:'Yes', solution:`A prime p has only proper divisor 1. Sum = 1 < p ⇒ always deficient.`}
+  ];
+
+  const qaBox = $('#qa');
+  function renderQA(list){
+    qaBox.innerHTML='';
+    list.forEach((q,i)=>{
+      const box=document.createElement('div'); box.className='q';
+      let inner=`<h4>${i+1}. ${q.label}</h4>`;
+      if(q.type==='input'){
+        inner+=`<div class="row answer"><input id="${q.id}" placeholder="${q.placeholder||''}"><button class="btn small" data-act="check" data-id="${q.id}">Check</button><span class="tag" id="t-${q.id}"> </span></div>`;
+      } else if(q.type==='choice'){
+        inner+=`<div class="row answer">${q.options.map(o=>`<button class="btn ghost small" data-act="pick" data-id="${q.id}" data-val="${o}">${o}</button>`).join('')}</div><span class="tag" id="t-${q.id}"> </span>`;
+      }
+      inner+=`<div><button class="btn small ghost" data-act="reveal" data-id="${q.id}">Reveal solution</button></div>`;
+      inner+=`<div class="reveal" id="r-${q.id}">${q.solution}</div>`;
+      box.innerHTML=inner; qaBox.appendChild(box);
+    })
+  }
+  renderQA(QA);
+
+  qaBox.addEventListener('click',e=>{
+    const act=e.target.dataset.act; if(!act) return;
+    const id=e.target.dataset.id; const tag=$(`#t-${id}`);
+    const q=QA.find(x=>x.id===id);
+    if(act==='reveal'){ const r=$(`#r-${id}`); r.style.display = (r.style.display==='block'?'none':'block'); return; }
+    if(q.type==='input' && act==='check'){
+      const v=$(`#${id}`).value.trim(); const ok=q.check? q.check(v): (String(v)===String(q.answer));
+      tag.textContent = ok? '✔ Correct' : '✘ Try again'; tag.style.background = ok? '#e7fff3' : '#ffe7ea';
+      if(ok) confetti();
+    }
+    if(q.type==='choice' && act==='pick'){
+      const val=e.target.dataset.val; const ok=(val===q.answer);
+      tag.textContent = ok? '✔ Correct' : '✘ Not quite'; tag.style.background = ok? '#e7fff3' : '#ffe7ea';
+      if(ok) confetti();
+    }
+  })
+
+  $('#shuffle').addEventListener('click',()=>{
+    const mixed=[...QA].sort(()=>Math.random()-.5); renderQA(mixed);
+  })
+</script>
+</body>
+</html>

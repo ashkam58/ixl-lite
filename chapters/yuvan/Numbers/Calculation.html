@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculations • Yuvaan Interactive</title>
+  <style>
+    :root{
+      --bg: #0f1226;
+      --card: #171a34;
+      --ink: #eef4ff;
+      --muted:#9fb0ff;
+      --accent:#7c5cff;
+      --accent2:#00d4ff;
+      --good:#2ecc71;
+      --bad:#ff6b6b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Inter, Arial;
+      color:var(--ink); background: radial-gradient(1600px 800px at 10% -20%, #1e2150 0%, #0f1226 45%, #0a0d1f 100%);
+      min-height:100vh;
+    }
+    header{
+      position:relative; overflow:hidden;
+      background: linear-gradient(135deg, var(--accent) 0%, #a365ff 35%, var(--accent2) 100%);
+      padding: 28px 18px; box-shadow: 0 10px 40px rgba(0,0,0,.35);
+    }
+    header .wrap{max-width:1100px;margin:0 auto;display:flex;gap:16px;align-items:center}
+    h1{margin:0; font-size: clamp(24px, 3.5vw, 40px); letter-spacing:.3px}
+    .tag{background: rgba(255,255,255,.2); padding:6px 10px;border-radius:999px;font-size:12px}
+
+    .container{max-width:1100px;margin:22px auto; padding:0 16px 48px}
+    .grid{display:grid;grid-template-columns: 1fr;gap:16px}
+    @media(min-width:900px){.grid{grid-template-columns: 1.15fr .85fr}}
+
+    .card{background:var(--card);border:1px solid #262b57; border-radius:18px; padding:18px; box-shadow: 0 8px 24px rgba(0,0,0,.35)}
+    h2{margin:6px 0 12px; font-size: clamp(18px, 2.4vw, 26px)}
+    h3{margin:12px 0 10px; font-size: 18px; color:var(--muted)}
+    p{line-height:1.5}
+    code, .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#d6e2ff}
+
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button{border:none; background:#2a2f66; color:var(--ink); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600}
+    button:hover{filter:brightness(1.08)}
+    .ghost{background:transparent; border:1px dashed #3b4083}
+
+    /* details/summary styling */
+    details{background:#111436;border:1px solid #2a2e63;border-radius:14px;margin:10px 0}
+    summary{list-style:none; padding:12px 14px; cursor:pointer; user-select:none; display:flex; align-items:center; gap:10px}
+    summary::before{content:"▶";font-size:12px;color:#cfd8ff;transition: transform .2s}
+    details[open] summary::before{transform:rotate(90deg)}
+    .solution{padding:12px 14px; border-top:1px dashed #353a7a; background:#0e1130}
+    .q{display:flex; gap:12px; align-items:flex-start}
+    .q .num{background:#2f2f8d;color:#fff;border-radius:10px;padding:6px 10px;font-weight:800;min-width:36px;text-align:center}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#2a2f66;color:#cfe3ff;margin-left:6px;font-size:12px}
+
+    /* DOT PLAYGROUND */
+    .play{position:relative;min-height:300px}
+    .field{display:grid;gap:10px;grid-template-columns:repeat(2,1fr)}
+    .field label{font-size:12px;color:#b9c8ff}
+    .field input[type="number"], .field select{width:100%;background:#0e1130;border:1px solid #343a7f;color:#cfe3ff;border-radius:10px;padding:8px 10px}
+    .stage{margin-top:14px;background:#0e1130;border:1px solid #2c3069;border-radius:14px;min-height:190px;padding:14px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px}
+    .dot{width:16px;height:16px;border-radius:50%; background:radial-gradient(circle at 30% 30%, #fff, #ffd166 40%, #f8961e 80%);
+      box-shadow:0 2px 0 rgba(0,0,0,.35)}
+    .row{display:flex; gap:8px; width:100%; justify-content:center}
+    .eq{margin-top:10px; text-align:center; font-size:18px}
+
+    .footer{color:#9ab0ff; text-align:center; margin-top:16px;font-size:12px}
+    a{color:#88e0ff}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Calculations • Yuvaan Interactive</h1>
+      <span class="tag">Hide/Show solutions • Dot Playground • Estimation vibes</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <!-- LEFT: Questions -->
+      <section class="card">
+        <h2>Questions & Hidden Solutions</h2>
+        <div class="actions">
+          <button id="revealAll">Reveal all</button>
+          <button id="hideAll" class="ghost">Hide all</button>
+          <button id="shuffle" title="Jump to a random question">🎲 Random</button>
+        </div>
+
+        <!-- Q1 -->
+        <article class="q" id="q1">
+          <div class="num">1</div>
+          <div>
+            <p><strong>Georgina</strong> wants to buy four calculators at £6.35 each. She has £25. Use estimation to decide if she has enough money.</p>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>Round £6.35 → <span class="mono">£6.50</span>. 4 × £6.50 = <span class="mono">£26</span> &gt; £25 ⇒ <strong>Not enough</strong>.<br>Exact: 4 × 6.35 = <span class="mono">£25.40</span> (short by 40p).</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q2 -->
+        <article class="q" id="q2">
+          <div class="num">2</div>
+          <div>
+            <p><strong>Lara</strong> owes £28 300 on her mortgage. She repays £12 485 and £9 100.</p>
+            <ol>
+              <li>How much does she still owe?</li>
+              <li>She pays the rest in 12 equal monthly instalments. Work out the monthly amount (nearest penny).</li>
+            </ol>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>a) £28 300 − £12 485 − £9 100 = <strong>£6 715</strong>.<br>
+                b) £6 715 ÷ 12 = <strong>£559.58</strong>.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q3 -->
+        <article class="q" id="q3">
+          <div class="num">3</div>
+          <div>
+            <p>A train travels at <span class="mono">310 km/h</span> for <span class="mono">2.55 h</span>. Estimate the distance using <span class="mono">d = st</span>.</p>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>Round to easy numbers: 2.55 h → 2.6 h, 310 → 300. So \(d≈2.6×300=\) <strong>780 km</strong>.<br>Exact value: 310 × 2.55 = <span class="mono">790.5 km</span>.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q4 -->
+        <article class="q" id="q4">
+          <div class="num">4</div>
+          <div>
+            <p>Use estimation/quick checks to decide which calculation is incorrect.</p>
+            <ol type="a">
+              <li><span class="mono">3480 − 18 × 122 = 2284</span></li>
+              <li><span class="mono">(8.3 + 11.8) × (15.8 − 10.9) = 98.49</span></li>
+              <li><span class="mono">27 × 48 ÷ 72 = 18</span></li>
+            </ol>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>a) 18×122=2196, 3480−2196=1284 ≠ 2284 ⇒ <strong>Incorrect</strong>.<br>
+                b) 20.1 × 4.9 = 98.49 ✓<br>
+                c) 27 × (48÷72) = 27 × 2⁄3 = 18 ✓</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q5 -->
+        <article class="q" id="q5">
+          <div class="num">5</div>
+          <div>
+            <ol type="a">
+              <li>0.45 + 0.28 − 0.61</li>
+              <li>0.45 − 0.61 + 0.28</li>
+              <li class="mono pill">Reason</li>
+              <li>0.75 − 0.96 + 0.25</li>
+            </ol>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>a) 0.12 &nbsp; b) 0.12 &nbsp; c) Same result because you are adding <code>+0.45, +0.28, −0.61</code> (addition is commutative/associative). &nbsp; d) (0.75+0.25)−0.96 = 1.00 − 0.96 = <strong>0.04</strong>.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q6 -->
+        <article class="q" id="q6">
+          <div class="num">6</div>
+          <div>
+            <p>Use the fact that <span class="mono">31 × 12 = 372</span> to calculate <span class="mono">15 × 15</span>.</p>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>Since 31×12 = (15+16)×12 = 15×12 + 16×12 = 372 ⇒ 15×12 = 372 − 192 = 180. Then 15×15 = 15×(12+3) = 180 + 45 = <strong>225</strong>.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q7 -->
+        <article class="q" id="q7">
+          <div class="num">7</div>
+          <div>
+            <p><strong>Tom</strong> takes a loan for £6 724 and must also pay £672.40 interest. He pays back £135 each week for 7 weeks, then finishes in 20 more equal weekly instalments. How much per week then?</p>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>Total owed: 6 724 + 672.40 = <span class="mono">£7 396.40</span>.<br>
+                Paid first: 7×135 = £945 ⇒ Remaining = 7 396.40 − 945 = <span class="mono">£6 451.40</span>.<br>
+                Share across 20 weeks ⇒ £6 451.40 ÷ 20 = <strong>£322.57 per week</strong>.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q8 -->
+        <article class="q" id="q8">
+          <div class="num">8</div>
+          <div>
+            <p>Using digits 1,2,3,4,5 once each (and no others) for each part.</p>
+            <ol type="a">
+              <li>Only subtraction giving answer 0.</li>
+              <li>Largest positive with only subtraction.</li>
+              <li>Largest positive with only addition.</li>
+              <li>Smallest positive with only addition.</li>
+              <li>Largest positive with only multiplication.</li>
+              <li>Smallest positive with only multiplication.</li>
+            </ol>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>a) <strong>12 − 3 − 4 − 5 = 0</strong><br>
+                b) <strong>5432 − 1 = 5431</strong><br>
+                c) <strong>5432 + 1 = 5433</strong><br>
+                d) <strong>1 + 2 + 3 + 4 + 5 = 15</strong><br>
+                e) <strong>431 × 52 = 22 412</strong> (maximises the product)<br>
+                f) <strong>1 × 2 × 3 × 4 × 5 = 120</strong></p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q9 -->
+        <article class="q" id="q9">
+          <div class="num">9</div>
+          <div>
+            <p>Recipe for 12 cupcakes: 110 g butter, 110 g caster sugar, 2 eggs, 110 g flour. For 72 people. Eggs sold in boxes of 6 (438 g per box). Other ingredients sold in 500 g and 1 kg amounts. A bag holds 7.7 kg. How many bags?</p>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>Scale ×6: need 660 g butter, 660 g sugar, 660 g flour, and 12 eggs.<br>
+                Buy 1 kg each of butter, sugar, flour = 3 kg. Eggs: 2 boxes (12 eggs) weigh 2×438 g = 876 g.<br>
+                Total weight = 3.876 kg &lt; 7.7 kg ⇒ <strong>1 bag</strong>.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q10 -->
+        <article class="q" id="q10">
+          <div class="num">10</div>
+          <div>
+            <p>Addition pyramid (each brick = sum of two below). Top is <span class="mono">3000</span>, middle-left is <span class="mono">723.4</span>, bottom-left is <span class="mono">23.7</span>. What is the difference between the two missing numbers on the bottom row?</p>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>Let the bottom row be <code>23.7, B, C</code>. Then 23.7 + B = 723.4 ⇒ <strong>B = 699.7</strong>.<br>
+                The other middle brick = 3000 − 723.4 = 2276.6 = B + C ⇒ <strong>C = 1576.9</strong>.<br>
+                Difference: C − B = <strong>877.2</strong>.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q11 -->
+        <article class="q" id="q11">
+          <div class="num">11</div>
+          <div>
+            <p>Estimate <span class="mono">34 × 57</span> in different ways, then choose the closest to the exact answer.</p>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>a) Round both up: 40×60 = <strong>2400</strong> (over).<br>
+                b) Both down: 30×50 = <strong>1500</strong> (under).<br>
+                c) 30×60 = <strong>1800</strong>.<br>
+                d) 40×50 = <strong>2000</strong>.<br>
+                e) Exact 34×57 = <strong>1938</strong> ⇒ nearest is <strong>2000</strong> (off by 62).<br>
+                f) <em>Rule:</em> round one up and the other down to keep the product balanced; pick the nearer of the two options.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <!-- Q12 -->
+        <article class="q" id="q12">
+          <div class="num">12</div>
+          <div>
+            <p>Explain why <span class="mono">35 × 8</span> gives the same answer as <span class="mono">7 × 4 × 10</span> and use the idea to do <span class="mono">18 × 16</span>.</p>
+            <details>
+              <summary>Show solution</summary>
+              <div class="solution">
+                <p>35×8 = (7×5)×8 = 7×(5×8) = 7×40 = 7×4×10 (re‑grouping factors).<br>
+                18×16 = (9×2)×(8×2) = (9×8)×4 = 72×4 = <strong>288</strong> (also (17+1)(17−1)=17²−1).</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- RIGHT: Dot Playground -->
+      <aside class="card play">
+        <h2>Everything‑is‑a‑Dot • Calculation Playground</h2>
+        <p class="muted">Pick two numbers and an operation. Watch the dots act it out.</p>
+        <div class="field">
+          <div>
+            <label for="a">First number</label>
+            <input type="number" id="a" min="0" max="50" value="3" />
+          </div>
+          <div>
+            <label for="b">Second number</label>
+            <input type="number" id="b" min="0" max="50" value="5" />
+          </div>
+          <div>
+            <label for="op">Operation</label>
+            <select id="op">
+              <option value="+">Addition (+)</option>
+              <option value="-">Subtraction (−)</option>
+              <option value="x">Multiplication (×)</option>
+            </select>
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button id="render">Render Dots</button>
+            <button id="random" class="ghost">Random</button>
+          </div>
+        </div>
+        <div class="stage" id="stage" aria-live="polite"></div>
+        <div class="eq" id="eq"></div>
+        <div class="footer">Tip: For × we draw an array (<span class="mono">rows = a</span>, <span class="mono">cols = b</span>). For − we show <span class="mono">a</span> dots then cross out <span class="mono">b</span>.</div>
+      </aside>
+    </div>
+
+    <div class="footer">Built for Yuvaan • Made with HTML, CSS & JS • <a href="#top" id="backTop">Back to top</a></div>
+  </div>
+
+  <script>
+    // Reveal/Hide all solutions
+    const revealAll = document.getElementById('revealAll');
+    const hideAll = document.getElementById('hideAll');
+    revealAll.addEventListener('click',()=>{
+      document.querySelectorAll('details').forEach(d=>d.open=true);
+    });
+    hideAll.addEventListener('click',()=>{
+      document.querySelectorAll('details').forEach(d=>d.open=false);
+    });
+
+    // Random jump
+    document.getElementById('shuffle').addEventListener('click',()=>{
+      const qs=[...document.querySelectorAll('.q')];
+      const pick = qs[Math.floor(Math.random()*qs.length)];
+      pick.scrollIntoView({behavior:'smooth', block:'center'});
+      pick.animate([{transform:'scale(1)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],{duration:700});
+    });
+
+    // DOT PLAYGROUND
+    const aEl = document.getElementById('a');
+    const bEl = document.getElementById('b');
+    const opEl = document.getElementById('op');
+    const stage = document.getElementById('stage');
+    const eq = document.getElementById('eq');
+
+    function mkDot(){
+      const d=document.createElement('div'); d.className='dot'; return d;
+    }
+    function render(){
+      const a = Math.max(0, Math.min(50, parseInt(aEl.value||0)));
+      const b = Math.max(0, Math.min(50, parseInt(bEl.value||0)));
+      stage.innerHTML=''; eq.textContent='';
+      const op = opEl.value;
+      if(op === '+'){
+        // show a dots + b dots
+        for(let i=0;i<a;i++) stage.appendChild(mkDot());
+        const plus = document.createElement('div'); plus.style.width='100%'; plus.style.textAlign='center'; plus.textContent='+'; stage.appendChild(plus);
+        for(let i=0;i<b;i++) stage.appendChild(mkDot());
+        eq.textContent = `${a} + ${b} = ${a+b}`;
+      } else if(op === '-'){
+        // show a dots, fade b of them
+        const row = document.createElement('div'); row.className='row'; stage.appendChild(row);
+        for(let i=0;i<a;i++) row.appendChild(mkDot());
+        // cross out b
+        [...row.children].slice(0,b).forEach((el,i)=>{
+          el.style.filter='grayscale(1) brightness(.55)';
+          el.style.boxShadow='0 0 0 2px #ff6b6b inset';
+        });
+        eq.textContent = `${a} − ${b} = ${a-b}`;
+      } else {
+        // multiplication array a rows by b cols
+        stage.style.alignItems='center';
+        stage.style.justifyContent='center';
+        for(let r=0;r<a;r++){
+          const row=document.createElement('div'); row.className='row';
+          for(let c=0;c<b;c++) row.appendChild(mkDot());
+          stage.appendChild(row);
+        }
+        eq.textContent = `${a} × ${b} = ${a*b}`;
+      }
+    }
+    document.getElementById('render').addEventListener('click', render);
+    document.getElementById('random').addEventListener('click',()=>{
+      aEl.value = Math.floor(Math.random()*11);
+      bEl.value = Math.floor(Math.random()*11);
+      opEl.value = ['+','-','x'][Math.floor(Math.random()*3)];
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
