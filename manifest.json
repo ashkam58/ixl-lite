@@ -240,5 +240,10 @@
     "title": "Satvik's Prime Adventure",
     "tags": ["grade4", "prime-numbers", "interactive", "visual", "practice", "satvik"],
     "level": "Medium"
+  }, {
+    "slug": "grade6/RectangularPrism",
+    "title": "📦 Grade 6 \u2022 Rectangular Prism",
+    "tags": ["grade6", "Jeffery", "satvik","geometry", "3d-shapes", "rectangular-prism", "interactive", "visual"],
+    "level": "Medium"
   }
 ]
