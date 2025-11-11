@@ -4,7 +4,11 @@
     "title": "Grade 3 \u2022 Addition",
     "tags": [
       "grade3",
-      "arithmetic"
+      "arithmetic",
+      "shaan",
+      "aarushi",
+      "srinika",
+      "sanvika"
     ],
     "level": "Easy"
   },
@@ -15,7 +19,11 @@
       "grade3",
       "multiplication",
       "cartoons",
-      "visual"
+      "visual",
+      "shaan",
+      "aarushi",
+      "srinika",
+      "sanvika"
     ],
     "level": "Medium"
   },
@@ -28,7 +36,11 @@
       "tables",
       "interactive",
       "practice",
-      "visual"
+      "visual",
+      "shaan",
+      "aarushi",
+      "srinika",
+      "sanvika"
     ],
     "level": "Medium"
   },
@@ -40,7 +52,11 @@
       "place-value",
       "interactive",
       "blocks",
-      "visual"
+      "visual",
+      "shaan",
+      "aarushi",
+      "srinika",
+      "sanvika"
     ],
     "level": "Easy"
   },
@@ -49,7 +65,11 @@
     "title": "Grade 3 \u2022 Fractions (Like Denominators)",
     "tags": [
       "grade3",
-      "fractions"
+      "fractions",
+      "shaan",
+      "aarushi",
+      "srinika",
+      "sanvika"
     ],
     "level": "Medium"
   },
@@ -63,7 +83,11 @@
       "multiplication",
       "interactive",
       "visual",
-      "dots"
+      "dots",
+      "shaan",
+      "aarushi",
+      "srinika",
+      "sanvika"
     ],
     "level": "Medium"
   },
@@ -78,7 +102,11 @@
       "interactive",
       "shaded-parts",
       "cartoon",
-      "animation"
+      "animation",
+      "shaan",
+      "aarushi",
+      "srinika",
+      "sanvika"
     ],
     "level": "Easy"
   },
@@ -151,7 +179,11 @@
       "worksheet",
       "interactive",
       "cartoon",
-      "practice"
+      "practice",
+      "shaan",
+      "aarushi",
+      "srinika",
+      "sanvika"
     ],
     "level": "Medium"
   }
@@ -201,7 +233,12 @@
   {
     "slug": "grade3/EqualGroups",
     "title": "Grade 3 • Equal Groups: Multiply ↔ Divide",
-    "tags": ["grade3", "multiplication", "division", "equal-groups", "visual", "practice"],
+    "tags": ["grade3", "multiplication", "division", "equal-groups", "visual", "practice", "shaan", "aarushi", "srinika", "sanvika"],
+    "level": "Medium"
+  },{
+    "slug": "grade4/primeNumbers",
+    "title": "Satvik's Prime Adventure",
+    "tags": ["grade4", "prime-numbers", "interactive", "visual", "practice", "satvik"],
     "level": "Medium"
   }
 ]
