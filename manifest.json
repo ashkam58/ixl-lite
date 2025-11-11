@@ -190,4 +190,11 @@
     "tags": ["dotTheory", "visual", "math", "theory"],
     "level": "Medium"
   }
+  ,
+  {
+    "slug": "grade2/numberChart",
+    "title": "Grade 2 • Number Chart Practice",
+    "tags": ["grade2", "number-chart", "numbers", "practice", "visual"],
+    "level": "Easy"
+  }
 ]
