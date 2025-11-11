@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Grade 2 • Number Chart Practice</title>
+  <style>
+    :root{
+      --bg: #f9fbff;
+      --ink:#1f2a44;
+      --mute:#6b7a90;
+      --brand:#8b5cf6; /* violet */
+      --brand2:#22c55e; /* green */
+      --brand3:#f97316; /* orange */
+      --card:#ffffff;
+      --ok:#10b981;
+      --no:#ef4444;
+      --shadow: 0 10px 30px rgba(31,42,68,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Noto Sans, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #e9d5ff66, transparent 60%),
+                  radial-gradient(900px 500px at 110% 10%, #bbf7d066, transparent 60%),
+                  var(--bg);
+      color:var(--ink);
+    }
+    .topbar{
+      position:sticky; top:0; z-index:5; backdrop-filter:saturate(1.2) blur(6px);
+      background: linear-gradient(90deg, #f5f3ffcc, #ecfeffcc);
+      border-bottom:1px solid #e6eaf2;
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; gap:12px}
+    .brand{font-weight:800; letter-spacing:.3px; display:flex; align-items:center; gap:10px}
+    .logo{width:34px; height:34px; border-radius:12px; box-shadow:var(--shadow);
+      background: conic-gradient(from 210deg, #a78bfa, #34d399, #f59e0b, #a78bfa);
+      position:relative; overflow:hidden;
+    }
+    .logo::after{content:""; position:absolute; inset:4px; background:#fff; border-radius:10px}
+    .brand span:last-child{background:linear-gradient(90deg, #7c3aed, #16a34a); -webkit-background-clip:text; background-clip:text; color:transparent}
+
+    .container{max-width:1100px; margin:18px auto; padding:0 16px; display:grid; grid-template-columns: 380px 1fr; gap:18px}
+    @media (max-width: 960px){ .container{grid-template-columns: 1fr} }
+
+    .card{background:var(--card); border-radius:18px; box-shadow:var(--shadow); overflow:hidden}
+    .pane{padding:16px}
+
+    .tabs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px}
+    .tab{padding:8px 12px; border-radius:999px; border:1px solid #e8ecf4; background:#fff; cursor:pointer; font-weight:600; color:#4b5563}
+    .tab.active{background:linear-gradient(90deg, #a78bfa, #34d399); color:#fff; border-color:transparent}
+
+    .hud{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:10px}
+    .chip{display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid #e8ecf4; background:#fff; font-weight:700}
+    .meter{flex:1; background:#eef2ff; height:12px; border-radius:999px; overflow:hidden}
+    .meter>i{display:block; height:100%; width:0%; background:linear-gradient(90deg, #34d399, #a78bfa)}
+
+    .qcard{padding:16px; border:2px dashed #e8ecf4; border-radius:14px; background:#fbfdff}
+    .qtitle{font-size:22px; font-weight:900; display:flex; align-items:center; gap:10px}
+    .qbig{font-size:40px; font-weight:900; letter-spacing:.5px; margin:10px 0}
+
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    button{cursor:pointer; border:none; font-weight:800}
+    .btn{padding:10px 14px; border-radius:12px; background:#111827; color:#fff}
+    .ghost{background:#fff; color:#111; border:1px solid #e8ecf4}
+    .accent{background:linear-gradient(90deg, #7c3aed, #22c55e)}
+    .danger{background:#ef4444}
+
+    .feedback{min-height:28px; font-weight:800; margin-top:8px}
+    .feedback.good{color:var(--ok)}
+    .feedback.bad{color:var(--no)}
+
+    .board{display:grid; grid-template-columns: repeat(10, 1fr); gap:6px; padding:12px}
+    .cell{position:relative; aspect-ratio:1; background:#ffffff; border-radius:10px; display:grid; place-items:center; border:1px solid #eef0f5; font-weight:800; color:#374151}
+    .cell small{position:absolute; bottom:6px; right:8px; font-size:10px; color:#9ca3af}
+    .cell.active{outline:3px solid #8b5cf6; z-index:1}
+    .cell.path{background: #ede9fe}
+    .cell.win{background:#dcfce7}
+
+    .legend{display:flex; gap:12px; flex-wrap:wrap; padding:0 12px 12px}
+    .tag{display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:12px; background:#f3f4f6; font-size:12px}
+    .dot{width:10px; height:10px; border-radius:50%}
+    .dot.path{background:#a78bfa}
+    .dot.end{background:#22c55e}
+
+    .num-pad{display:grid; grid-template-columns: repeat(5, 1fr); gap:8px}
+    .num-pad button{padding:12px; border-radius:12px; background:#fff; border:1px solid #e8ecf4; font-size:16px}
+
+    .muted{color:var(--mute)}
+
+    /* Confetti */
+    .confetti{position:fixed; inset:0; pointer-events:none; overflow:hidden}
+    .piece{position:absolute; width:10px; height:14px; border-radius:3px; opacity:.9; transform:translate(-50%,-50%)}
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="logo"></span><span>Sanvika • Number Sense</span></div>
+      <div style="margin-left:auto; display:flex; gap:8px; align-items:center">
+        <button id="resetBtn" class="tab">Reset</button>
+        <button id="mixedBtn" class="tab active">Mixed</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Left: Question + Controls -->
+    <section class="card pane">
+      <div class="tabs" id="modeTabs">
+        <button class="tab" data-mode="identify">Tap the Number</button>
+        <button class="tab" data-mode="missing">Missing Number</button>
+        <button class="tab" data-mode="succpred">Next / Before</button>
+        <button class="tab" data-mode="add">Add on the Chart</button>
+        <button class="tab" data-mode="sub">Subtract on the Chart</button>
+      </div>
+
+      <div class="hud">
+        <div class="chip" title="Goal is 200"><span>🎯</span> <span>Goal: <b>200</b></span></div>
+        <div class="chip"><span>✅</span> <span>Correct: <b id="correctCount">0</b></span></div>
+        <div class="chip"><span>📚</span> <span>Question: <b id="qIndex">1</b>/200</span></div>
+        <div class="meter" aria-label="progress"><i id="meterBar"></i></div>
+      </div>
+
+      <div class="qcard">
+        <div class="qtitle" id="qTitle">Let’s practice! 👇</div>
+        <div class="qbig" id="qText">Tap or type the answer.</div>
+        <div id="answerArea" class="actions">
+          <input id="answerInput" type="number" min="0" inputmode="numeric" placeholder="Type answer…" style="padding:10px 12px; border-radius:12px; border:1px solid #e8ecf4; width:140px; font-size:18px; font-weight:700" />
+          <div class="num-pad" id="numpad"></div>
+          <button class="btn accent" id="checkBtn">Check</button>
+          <button class="btn ghost" id="skipBtn">Skip</button>
+        </div>
+        <div id="feedback" class="feedback"></div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+        <button class="btn" id="newQBtn">New Question</button>
+        <button class="btn ghost" id="showPathBtn">Show Path</button>
+        <span class="muted">Hint: On the 100-chart, +1 moves ➡️, −1 moves ⬅️; +10 moves ⬇️, −10 moves ⬆️.</span>
+      </div>
+    </section>
+
+    <!-- Right: 100 Board -->
+    <section class="card">
+      <div class="pane">
+        <div class="qtitle">Hundred Chart</div>
+      </div>
+      <div id="board" class="board"></div>
+      <div class="legend">
+        <div class="tag"><span class="dot path"></span> Path</div>
+        <div class="tag"><span class="dot end" style="background:#22c55e"></span> Landing</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+  // ------- State -------
+  const boardEl = document.getElementById('board');
+  const qTitle = document.getElementById('qTitle');
+  const qText = document.getElementById('qText');
+  const answerInput = document.getElementById('answerInput');
+  const feedback = document.getElementById('feedback');
+  const checkBtn = document.getElementById('checkBtn');
+  const newQBtn = document.getElementById('newQBtn');
+  const skipBtn = document.getElementById('skipBtn');
+  const showPathBtn = document.getElementById('showPathBtn');
+  const correctCountEl = document.getElementById('correctCount');
+  const qIndexEl = document.getElementById('qIndex');
+  const meterBar = document.getElementById('meterBar');
+  const tabs = document.getElementById('modeTabs');
+  const mixedBtn = document.getElementById('mixedBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const numpad = document.getElementById('numpad');
+
+  const GOAL = 200;
+
+  const modes = ['identify','missing','succpred','add','sub'];
+  let currentMode = 'identify';
+  let question = null;
+  let correctCount = 0; // total correct
+  let qIndex = 1;
+  let mixed = true;
+
+  // --------- Build 100 board ---------
+  const cells = [];
+  for(let n=1;n<=100;n++){
+    const d=document.createElement('button');
+    d.className='cell';
+    d.setAttribute('data-n', n);
+    d.innerHTML = `<span>${n}</span><small>${(n-1)%10+1}</small>`;
+    d.addEventListener('click', ()=> onCellClick(n));
+    boardEl.appendChild(d);
+    cells[n]=d;
+  }
+
+  function clearBoardStyles(){
+    for(let n=1;n<=100;n++){
+      cells[n].classList.remove('active','path','win');
+    }
+  }
+
+  function onCellClick(n){
+    if(!question) return;
+    // If the task is to tap the number, answer with the tapped number
+    if(question.acceptsTap){
+      validate(n);
+    } else {
+      // tapping highlights for visualization
+      clearBoardStyles();
+      cells[n].classList.add('active');
+    }
+  }
+
+  // --------- Numpad for little hands ---------
+  ;(()=>{
+    const nums=[1,2,3,4,5,6,7,8,9,0,'←','✖'];
+    nums.forEach(v=>{
+      const b=document.createElement('button');
+      b.textContent=v;
+      b.addEventListener('click',()=>{
+        if(v==='←'){ answerInput.value = answerInput.value.slice(0,-1); return; }
+        if(v==='✖'){ answerInput.value=''; return; }
+        answerInput.value += v;
+        answerInput.focus();
+      });
+      numpad.appendChild(b);
+    })
+  })()
+
+  // --------- Question Generators ---------
+  const rand=(a,b)=> Math.floor(Math.random()*(b-a+1))+a;
+  const pick=(arr)=> arr[rand(0,arr.length-1)];
+
+  function genIdentify(){
+    const n = rand(1,100);
+    qTitle.textContent = 'Tap the number on the chart';
+    qText.textContent = `Find and tap: ${n}`;
+    answerInput.value='';
+    clearBoardStyles();
+    question = {mode:'identify', answer:n, acceptsTap:true};
+  }
+
+  function genMissing(){
+    // make a short run like 5 consecutive numbers with one hidden
+    const start = rand(1,95);
+    const seq = [start, start+1, start+2, start+3, start+4];
+    const idx = rand(0,4);
+    const answer = seq[idx];
+    const shown = seq.map((x,i)=> i===idx ? '□' : x).join(' , ');
+    qTitle.textContent = 'Missing number in the sequence';
+    qText.textContent = `${shown}`;
+    question = {mode:'missing', answer, acceptsTap:false};
+    answerInput.value='';
+    clearBoardStyles();
+    // highlight the row where they live
+    seq.forEach(n=>{ if(n) cells[n].classList.add('path') });
+  }
+
+  function genSuccPred(){
+    const type = Math.random()<0.5 ? 'after' : 'before';
+    const base = rand(1,100);
+    let ask, ans;
+    if(type==='after') { ask = `What comes after ${base}?`; ans = base+1; }
+    else { ask = `What comes before ${base}?`; ans = base-1; }
+    // keep inside 1..100
+    if(ans<1 || ans>100) return genSuccPred();
+    qTitle.textContent = 'Next / Before';
+    qText.textContent = ask;
+    question = {mode:'succpred', answer:ans, acceptsTap:false};
+    answerInput.value='';
+    clearBoardStyles();
+    cells[base].classList.add('active');
+  }
+
+  function walkPath(start, steps){
+    // steps>0 move right/down; steps<0 left/up in 1s or 10s only
+    const path=[];
+    const dir = steps>=0?1:-1;
+    for(let i=0;i<Math.abs(steps);i++) path.push(dir);
+    let cur=start;
+    const points=[cur];
+    path.forEach(step=>{
+      if(question.stepKind==='ones') cur += step; else cur += step*10;
+      if(cur>=1 && cur<=100) points.push(cur);
+    });
+    return points;
+  }
+
+  function visualizePath(points){
+    clearBoardStyles();
+    points.forEach((n,i)=>{
+      if(!cells[n]) return;
+      if(i<points.length-1) cells[n].classList.add('path');
+    });
+    const last = points[points.length-1];
+    if(cells[last]) cells[last].classList.add('win');
+  }
+
+  function genAdd(){
+    // start 1..90 to allow + by ones or +10s safely within 100
+    const stepKind = Math.random()<0.6 ? 'ones' : 'tens';
+    const start = stepKind==='ones' ? rand(1,90) : rand(1,80);
+    const k = stepKind==='ones' ? rand(1,9) : rand(1,2+rand(0,1)); // small jumps for grade 1
+    const ans = stepKind==='ones' ? start + k : start + 10*k;
+    if(ans>100) return genAdd();
+    qTitle.textContent = 'Addition on the chart';
+    const phrase = stepKind==='ones'? `+${k}` : `+${10*k}`;
+    qText.textContent = `Start at ${start}, add ${k} ${stepKind==='ones'?'ones':'tens'} (${phrase}). Where do you land?`;
+    question = {mode:'add', answer:ans, acceptsTap:true, stepKind};
+    answerInput.value='';
+    visualizePath(walkPath(start, k));
+  }
+
+  function genSub(){
+    const stepKind = Math.random()<0.6 ? 'ones' : 'tens';
+    const start = stepKind==='ones' ? rand(2,100) : rand(11,100);
+    const k = stepKind==='ones' ? rand(1,9) : rand(1,2+rand(0,1));
+    const ans = stepKind==='ones' ? start - k : start - 10*k;
+    if(ans<1) return genSub();
+    qTitle.textContent = 'Subtraction on the chart';
+    const phrase = stepKind==='ones'? `−${k}` : `−${10*k}`;
+    qText.textContent = `Start at ${start}, subtract ${k} ${stepKind==='ones'?'ones':'tens'} (${phrase}). Where do you land?`;
+    question = {mode:'sub', answer:ans, acceptsTap:true, stepKind};
+    answerInput.value='';
+    visualizePath(walkPath(start, -k));
+  }
+
+  function genQuestion(){
+    feedback.className='feedback';
+    feedback.textContent='';
+    if(mixed){ currentMode = pick(modes); }
+    switch(currentMode){
+      case 'identify': return genIdentify();
+      case 'missing': return genMissing();
+      case 'succpred': return genSuccPred();
+      case 'add': return genAdd();
+      case 'sub': return genSub();
+    }
+  }
+
+  // --------- Validation & Progress ---------
+  function validate(user){
+    const a = Number(user ?? answerInput.value);
+    if(!question) return;
+    if(Number.isNaN(a)) return;
+
+    const ok = a === question.answer;
+    if(ok){
+      correctCount++; qIndex++;
+      correctCountEl.textContent = correctCount;
+      qIndexEl.textContent = Math.min(qIndex, GOAL);
+      feedback.textContent = pick(['Yay! 🎉','You rock! ⭐','High five! ✋','Math ninja! 🐱‍👤','Brilliant! 💡']);
+      feedback.className='feedback good';
+      party(16);
+      // mark answer cell
+      if(cells[a]){ cells[a].classList.add('win'); }
+      meterBar.style.width = Math.min(100, Math.round((correctCount/GOAL)*100)) + '%';
+      if(correctCount>=GOAL){
+        qTitle.textContent = 'Champion of Numbers!';
+        qText.textContent = `You solved ${GOAL} questions! 🏆`;
+        party(100);
+        disableInputs(true);
+        return;
+      }
+      setTimeout(()=> genQuestion(), 700);
+    } else {
+      feedback.textContent = pick(["Try again 🙂","Close! Have another go","You can do it!","Think with the chart ⬅️➡️⬆️⬇️"]);
+      feedback.className='feedback bad';
+      pulseWrong();
+    }
+  }
+
+  function disableInputs(disabled){
+    [checkBtn, newQBtn, skipBtn, showPathBtn, answerInput].forEach(el=> el.disabled = disabled);
+  }
+
+  function pulseWrong(){
+    document.body.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}], {duration:220});
+  }
+
+  // --------- Confetti (simple DOM flakes) ---------
+  function party(count=30){
+    const root = document.getElementById('confetti');
+    for(let i=0;i<count;i++){
+      const p=document.createElement('div');
+      p.className='piece';
+      const x = Math.random()*100; const y = -10; // start above
+      p.style.left = x+'vw';
+      p.style.top = y+'vh';
+      p.style.background = pick(['#a78bfa','#34d399','#f59e0b','#60a5fa','#f472b6']);
+      p.style.transform += ` rotate(${Math.random()*360}deg)`;
+      root.appendChild(p);
+      const fall = p.animate([
+        { transform: `translate(-50%,-50%) rotate(0deg)`, top: y+'vh'},
+        { transform: `translate(-50%,-50%) rotate(360deg)`, top: (110)+'vh'}
+      ], { duration: 900 + Math.random()*1200, easing:'cubic-bezier(.2,.8,.2,1)'});
+      fall.onfinish=()=> p.remove();
+    }
+  }
+
+  // --------- UI Events ---------
+  checkBtn.addEventListener('click', ()=> validate());
+  newQBtn.addEventListener('click', genQuestion);
+  skipBtn.addEventListener('click', ()=>{ qIndex++; qIndexEl.textContent=Math.min(qIndex,GOAL); genQuestion(); });
+  answerInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') validate(); });
+  showPathBtn.addEventListener('click', ()=>{
+    if(!question) return;
+    if(question.mode==='add') visualizePath(walkPath(getStartFromPrompt(), getKFromPrompt()));
+    if(question.mode==='sub') visualizePath(walkPath(getStartFromPrompt(), -getKFromPrompt()));
+  });
+
+  // Tabs
+  tabs.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabs.querySelectorAll('.tab').forEach(b=> b.classList.remove('active'));
+      btn.classList.add('active');
+      currentMode = btn.dataset.mode;
+      mixed=false; mixedBtn.classList.remove('active');
+      genQuestion();
+    });
+  });
+
+  mixedBtn.addEventListener('click', ()=>{ mixed=true; mixedBtn.classList.add('active'); genQuestion(); });
+  resetBtn.addEventListener('click', ()=>{
+    correctCount=0; qIndex=1;
+    correctCountEl.textContent=0; qIndexEl.textContent=1; meterBar.style.width='0%';
+    mixed=true; mixedBtn.classList.add('active');
+    tabs.querySelectorAll('.tab').forEach(b=> b.classList.remove('active'));
+    genQuestion();
+    disableInputs(false);
+  });
+
+  function getStartFromPrompt(){
+    const m = qText.textContent.match(/Start at (\d+)/);
+    return m? Number(m[1]) : 1;
+  }
+  function getKFromPrompt(){
+    const ones = qText.textContent.includes('ones');
+    const m = qText.textContent.match(/add (\d+)/) || qText.textContent.match(/subtract (\d+)/);
+    return m? Number(m[1]) : 1;
+  }
+
+  // Initial question
+  genQuestion();
+  </script>
+</body>
+</html>
