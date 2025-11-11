@@ -56,26 +56,34 @@
     .meter>i{display:block; height:100%; width:0%; background:linear-gradient(90deg, #34d399, #a78bfa)}
 
     .qcard{padding:16px; border:2px dashed #e8ecf4; border-radius:14px; background:#fbfdff}
-    .qtitle{font-size:22px; font-weight:900; display:flex; align-items:center; gap:10px}
-    .qbig{font-size:40px; font-weight:900; letter-spacing:.5px; margin:10px 0}
+    .qtitle{font-size:28px; font-weight:900; display:flex; align-items:center; gap:10px;
+      background: linear-gradient(135deg,#7c3aed,#22c55e,#06b6d4);
+      -webkit-background-clip:text; background-clip:text; color:transparent}
+    .qbig{font-size:clamp(32px,6vw,48px); font-weight:900; letter-spacing:.5px; margin:10px 0}
 
     .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
     button{cursor:pointer; border:none; font-weight:800}
-    .btn{padding:10px 14px; border-radius:12px; background:#111827; color:#fff}
+    .btn{padding:12px 16px; border-radius:14px; background:#111827; color:#fff; transition:transform .12s ease, box-shadow .12s ease}
+    .btn:active{transform:translateY(1px)}
     .ghost{background:#fff; color:#111; border:1px solid #e8ecf4}
-    .accent{background:linear-gradient(90deg, #7c3aed, #22c55e)}
+    .accent{background:linear-gradient(90deg, #7c3aed, #22c55e); box-shadow:0 8px 20px rgba(34,197,94,.18)}
     .danger{background:#ef4444}
 
-    .feedback{min-height:28px; font-weight:800; margin-top:8px}
-    .feedback.good{color:var(--ok)}
+    .feedback{min-height:32px; font-weight:900; margin-top:10px; font-size:clamp(16px,3.4vw,20px)}
+    .feedback.good{color:var(--ok); animation: popText .28s ease}
     .feedback.bad{color:var(--no)}
 
     .board{display:grid; grid-template-columns: repeat(10, 1fr); gap:6px; padding:12px}
-    .cell{position:relative; aspect-ratio:1; background:#ffffff; border-radius:10px; display:grid; place-items:center; border:1px solid #eef0f5; font-weight:800; color:#374151}
+    .cell{position:relative; aspect-ratio:1; background:#ffffff; border-radius:12px; display:grid; place-items:center; border:1px solid #eef0f5; font-weight:900; color:#1f2937; font-size:clamp(14px,2.6vw,18px); transition:transform .12s ease, box-shadow .12s ease}
     .cell small{position:absolute; bottom:6px; right:8px; font-size:10px; color:#9ca3af}
-    .cell.active{outline:3px solid #8b5cf6; z-index:1}
-    .cell.path{background: #ede9fe}
-    .cell.win{background:#dcfce7}
+    .cell.active{outline:3px solid #8b5cf6; z-index:1; box-shadow:0 8px 24px rgba(139,92,246,.25); transform:scale(1.05); animation: pop .28s ease}
+    .cell.path{background: linear-gradient(135deg,#f5f3ff,#ede9fe); position:relative; overflow:hidden}
+    .cell.path::after{content:""; position:absolute; inset:0; background:radial-gradient(600px 40px at -10% 50%, rgba(139,92,246,.18), transparent 60%); animation: sweep 1.2s linear infinite}
+    .cell.win{background:linear-gradient(135deg,#dcfce7,#bbf7d0); animation: glow 1s ease}
+
+    @keyframes pop{0%{transform:scale(.9)}100%{transform:scale(1.05)}}
+    @keyframes sweep{0%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+    @keyframes glow{0%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}100%{box-shadow:0 0 0 14px rgba(34,197,94,0)}}
 
     .legend{display:flex; gap:12px; flex-wrap:wrap; padding:0 12px 12px}
     .tag{display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:12px; background:#f3f4f6; font-size:12px}
@@ -84,12 +92,14 @@
     .dot.end{background:#22c55e}
 
     .num-pad{display:grid; grid-template-columns: repeat(5, 1fr); gap:8px}
-    .num-pad button{padding:12px; border-radius:12px; background:#fff; border:1px solid #e8ecf4; font-size:16px}
+    .num-pad button{padding:14px; border-radius:12px; background:#fff; border:1px solid #e8ecf4; font-size:18px; font-weight:800; transition:transform .1s ease}
+    .num-pad button:active{transform:scale(.96)}
 
     .muted{color:var(--mute)}
 
     /* Confetti */
     .confetti{position:fixed; inset:0; pointer-events:none; overflow:hidden}
+    @keyframes popText{0%{transform:scale(.9)}100%{transform:scale(1)}}
     .piece{position:absolute; width:10px; height:14px; border-radius:3px; opacity:.9; transform:translate(-50%,-50%)}
   </style>
 </head>
@@ -230,6 +240,15 @@
     })
   })()
 
+  // Normalize numpad labels for better readability on some devices
+  ;(()=>{
+    const keys = document.querySelectorAll('#numpad button');
+    if(keys.length>=2){
+      keys[keys.length-2].textContent = '⌫';
+      keys[keys.length-1].textContent = 'Clear';
+    }
+  })();
+
   // --------- Question Generators ---------
   const rand=(a,b)=> Math.floor(Math.random()*(b-a+1))+a;
   const pick=(arr)=> arr[rand(0,arr.length-1)];
@@ -290,13 +309,25 @@
   }
 
   function visualizePath(points){
+    // Animated step-through for better visualization
     clearBoardStyles();
-    points.forEach((n,i)=>{
-      if(!cells[n]) return;
-      if(i<points.length-1) cells[n].classList.add('path');
-    });
-    const last = points[points.length-1];
-    if(cells[last]) cells[last].classList.add('win');
+    let i = 0;
+    function step(){
+      if(i>0 && cells[points[i-1]]){
+        cells[points[i-1]].classList.remove('active');
+        cells[points[i-1]].classList.add('path');
+      }
+      if(i < points.length){
+        const n = points[i];
+        if(cells[n]){ cells[n].classList.add('active'); }
+        i++;
+        setTimeout(step, 260);
+      } else {
+        const last = points[points.length-1];
+        if(cells[last]){ cells[last].classList.remove('active'); cells[last].classList.add('win'); }
+      }
+    }
+    step();
   }
 
   function genAdd(){

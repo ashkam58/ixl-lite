@@ -197,4 +197,11 @@
     "tags": ["grade2", "number-chart", "numbers", "practice", "visual"],
     "level": "Easy"
   }
+  ,
+  {
+    "slug": "grade3/EqualGroups",
+    "title": "Grade 3 • Equal Groups: Multiply ↔ Divide",
+    "tags": ["grade3", "multiplication", "division", "equal-groups", "visual", "practice"],
+    "level": "Medium"
+  }
 ]
