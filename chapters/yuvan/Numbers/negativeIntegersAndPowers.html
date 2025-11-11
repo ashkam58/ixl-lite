@@ -152,6 +152,11 @@
         return;
       }
       const section = sets[sectionKey];
+        if(!Array.isArray(section)){
+          console.warn('render: unknown section', sectionKey);
+          cards.innerHTML = `<section class="card muted">No questions available for "${sectionKey}".</section>`;
+          return;
+        }
       if(!section){
         const card = document.createElement('section');
         card.className='card';
@@ -351,6 +356,58 @@
     // initial render (no game until Set 5 is selected)
     render('set1');
     updateScore();
+
+    // ---------- Additional worksheet content (questions & solutions) ----------
+    (function addWorksheet(){
+      const wrap = document.createElement('section');
+      wrap.style.maxWidth = '1100px'; wrap.style.margin = '20px auto'; wrap.style.padding = '0 16px';
+      wrap.innerHTML = `
+        <details open style="background:var(--card);border:1px solid #2a2f56;border-radius:12px;padding:14px;color:var(--ink)">
+          <summary style="font-weight:700;font-size:16px">Questions & Solutions (Worked examples)</summary>
+          <div style="margin-top:12px;line-height:1.45;color:var(--muted)">
+            <h3>1.3 Calculating with negative integers</h3>
+            <p><strong>Q1a.</strong> Why is the power sometimes negative? <br><strong>Solution:</strong> Negative means the house is <strong>importing</strong> electricity from the grid (it’s using more than it generates). Positive means it’s exporting.</p>
+
+            <p><strong>Q6. “Make a question” problems</strong></p>
+            <ul>
+              <li><strong>Target:</strong> (3×(−15)=−45) — Example: A submarine descends 15 m per minute for 3 minutes. Change in height = −45 m.</li>
+              <li><strong>Target:</strong> (4×(−25)=−100) — Example: A bank charges ₹25 late fee each week for 4 weeks. Net change = −100 rupees.</li>
+            </ul>
+
+            <p><strong>Q8.</strong> Four different calculations equal to −12 (examples):</p>
+            <ol>
+              <li>3 − 15 = −12</li>
+              <li>6 + (−18) = −12</li>
+              <li>4 × (−3) = −12</li>
+              <li>(−24) ÷ 2 = −12</li>
+            </ol>
+
+            <p><strong>Q9.</strong> January minimum temperatures (Budapest −4, Canberra 13, Ellsworth −18, Harare 17, Imst −6, Madrid 3, Nuuk −11, Oslo −7, Ottawa −14, Stanley 7)</p>
+            <ol>
+              <li><strong>Range:</strong> 17 − (−18) = 35 °C</li>
+              <li><strong>Mean:</strong> Sum = −20 → mean = −20/10 = −2 °C</li>
+              <li>Adding +5 and −5 does not change range.</li>
+              <li>New mean example (if two extra numbers are added): illustrate effect (less negative).</li>
+            </ol>
+
+            <p><strong>Q10–Q16</strong> — more worked examples and short answers (see inline content): rules about parity of negatives, square/root explanations and sample calculations were added here for quick reference.</p>
+
+            <h3>1.4 Powers and roots (selected answers)</h3>
+            <ul>
+              <li><strong>Q2.</strong> Squares are ≥ 0 for real n.</li>
+              <li><strong>Q4a.</strong> Best estimate for √11 from choices ≈ 3.5.</li>
+              <li><strong>Q4c.</strong> Accurate square roots: √20≈4.4721, √5≈2.2361, √79≈8.8882, √90≈9.4868.</li>
+              <li><strong>Q5–Q7.</strong> Examples about fencing and side lengths; choose exact perimeter and round up if buying fence.</li>
+            </ul>
+
+            <h4>Investigation / Review (selected)</h4>
+            <p>Sum of squares pyramid examples and formula: ∑k^2 = n(n+1)(2n+1)/6. For n=12 → 650.</p>
+            <p>Misc questions (drop time, squares, pairing problems) — sample solutions included.</p>
+          </div>
+        </details>
+      `;
+      document.body.insertBefore(wrap, document.querySelector('.footer'));
+    })();
 
   </script>
 </body>
