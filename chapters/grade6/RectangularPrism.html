@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box Bot's Delivery Lab</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Use Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- Box Bot Mascot --- */
+        #box-bot-eyes {
+            /* Blinking animation */
+            animation: blink 4s infinite step-start;
+        }
+        @keyframes blink {
+            95% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        /* --- 3D Prism Scene --- */
+        .scene {
+            width: 300px;
+            height: 300px;
+            perspective: 1000px;
+            margin: 40px auto;
+            /* Use custom properties for dynamic sizes */
+            --l: 100px; 
+            --w: 50px;
+            --h: 70px;
+            /* Half-dimensions for transforms */
+            --l-half: 50px;
+            --w-half: 25px;
+            --h-half: 35px;
+        }
+
+        .box {
+            width: var(--l);
+            height: var(--h);
+            position: relative;
+            transform-style: preserve-3d;
+            transform-origin: center;
+            transform: rotateX(-20deg) rotateY(-30deg);
+            transition: transform 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .box__face {
+            position: absolute;
+            border: 2px solid rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #1e3a8a; /* blue-900 */
+            font-size: 14px;
+            transition: all 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            opacity: 0.9;
+        }
+
+        /* Face dimensions and initial 3D positions */
+        .box__face--front {
+            width: var(--l); height: var(--h);
+            background: rgba(253, 224, 71, 0.8); /* yellow-400 */
+            transform: translateZ(var(--w-half));
+        }
+        .box__face--back {
+            width: var(--l); height: var(--h);
+            background: rgba(253, 224, 71, 0.8); /* yellow-400 */
+            transform: rotateY(180deg) translateZ(var(--w-half));
+        }
+        .box__face--right {
+            width: var(--w); height: var(--h);
+            background: rgba(56, 189, 248, 0.8); /* sky-400 */
+            transform: rotateY(90deg) translateZ(var(--l-half));
+        }
+        .box__face--left {
+            width: var(--w); height: var(--h);
+            background: rgba(56, 189, 248, 0.8); /* sky-400 */
+            transform: rotateY(-90deg) translateZ(var(--l-half));
+        }
+        .box__face--top {
+            width: var(--l); height: var(--w);
+            background: rgba(249, 115, 22, 0.8); /* orange-500 */
+            transform: rotateX(90deg) translateZ(var(--h-half));
+        }
+        .box__face--bottom {
+            width: var(--l); height: var(--w);
+            background: rgba(249, 115, 22, 0.8); /* orange-500 */
+            transform: rotateX(-90deg) translateZ(var(--h-half));
+        }
+
+        /* --- Unfolded State --- */
+        /* This creates a "cross" shaped net */
+        .box.is-unfolded {
+            transform: rotateX(0deg) rotateY(0deg) scale(0.8);
+        }
+        .box.is-unfolded .box__face--front {
+            transform: translateZ(0);
+        }
+        .box.is-unfolded .box__face--back {
+            transform: translateY(calc(var(--h) * -2)) translateZ(0); /* Folds 'up' twice */
+        }
+        .box.is-unfolded .box__face--right {
+            transform: translateX(var(--l)) translateZ(0);
+        }
+        .box.is-unfolded .box__face--left {
+            transform: translateX(calc(var(--l) * -1)) translateZ(0);
+        }
+        /* When unfolded, top/bottom should move by the face height (which is --w),
+           not by the prism height (--h). Using the correct variable prevents
+           mis-placement and visual deformation when L, W, H differ. */
+        .box.is-unfolded .box__face--top {
+            transform: translateY(calc(var(--w) * -1)) translateZ(0);
+        }
+        .box.is-unfolded .box__face--bottom {
+            transform: translateY(var(--w)) translateZ(0);
+        }
+
+        /* --- Drag and Drop --- */
+        .face-palette {
+            min-height: 100px;
+            border: 2px dashed #0284c7; /* sky-600 */
+        }
+        .net-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            width: 400px;
+            height: 400px;
+            border: 2px solid #0369a1; /* sky-700 */
+            background: #e0f2fe; /* sky-100 */
+        }
+        .drop-target {
+            border: 1px dashed #7dd3fc; /* sky-300 */
+            transition: background-color 0.2s;
+        }
+        .drop-target.over {
+            background-color: #bae6fd; /* sky-200 */
+        }
+        .face-drag-el {
+            border: 2px solid #0c4a6e; /* sky-900 */
+            cursor: grab;
+            transition: opacity 0.2s;
+            /* Use custom props for size */
+            width: var(--w-px);
+            height: var(--h-px);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .face-drag-el.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        .face-drag-el.snapped {
+            cursor: default;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Toasts (Feedback) --- */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .toast {
+            animation: slide-in 0.5s forwards, slide-out 0.5s 3.5s forwards;
+            transform: translateX(110%);
+        }
+        @keyframes slide-in {
+            from { transform: translateX(110%); }
+            to { transform: translateX(0); }
+        }
+        @keyframes slide-out {
+            from { transform: translateX(0); }
+            to { transform: translateX(110%); }
+        }
+
+        /* --- Confetti --- */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* --- Badge Modal --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.is-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: scale(0.7);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.is-visible .modal-content {
+            transform: scale(1);
+        }
+
+        /* Hard mode label hiding */
+        .labels-hidden .prism-label,
+        .labels-hidden .face-drag-el .label {
+            transition: opacity 0.5s;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="bg-sky-50 text-sky-900">
+
+    <!-- Main Container -->
+    <div id="app-container" class="container mx-auto p-4 lg:p-8 max-w-7xl">
+
+        <!-- Header -->
+        <header class="mb-6 p-4 bg-white rounded-xl shadow-lg border-4 border-sky-600">
+            <h1 class="text-3xl lg:text-4xl font-black text-center text-sky-800 tracking-tighter">
+                🤖 Box Bot's Delivery Lab
+            </h1>
+            <!-- Progress Bar -->
+            <div class="mt-4">
+                <div class="flex justify-between mb-1">
+                    <span class="text-base font-medium text-sky-700">Lab Progress</span>
+                    <span id="progress-text" class="text-sm font-medium text-sky-700">0%</span>
+                </div>
+                <div class="w-full bg-sky-200 rounded-full h-4 shadow-inner">
+                    <div id="progress-bar" class="bg-yellow-400 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <div id="badge-display" class="mt-2 flex gap-2 justify-center">
+                    <!-- Badges will be added here by JS -->
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content (2-Column) -->
+        <main class="flex flex-col lg:flex-row gap-6">
+
+            <!-- Left Column: Visualization & Building -->
+            <section class="lg:w-3/5 w-full flex flex-col gap-6">
+                <!-- 3D Prism Lab -->
+                <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-sky-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-xl font-bold text-sky-700">1. The Unfolder</h2>
+                        <button id="toggle-fold-btn" class="px-4 py-2 bg-sky-500 text-white font-semibold rounded-lg shadow hover:bg-sky-600 transition">
+                            Unfold
+                        </button>
+                    </div>
+                    <div class="scene mx-auto">
+                        <div class="box" id="prism-box">
+                            <div class="box__face box__face--front"><span class="prism-label"></span></div>
+                            <div class="box__face box__face--back"><span class="prism-label"></span></div>
+                            <div class="box__face box__face--left"><span class="prism-label"></span></div>
+                            <div class="box__face box__face--right"><span class="prism-label"></span></div>
+                            <div class="box__face box__face--top"><span class="prism-label"></span></div>
+                            <div class="box__face box__face--bottom"><span class="prism-label"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Net Builder Lab -->
+                <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-sky-200">
+                    <h2 class="text-xl font-bold text-sky-700 mb-2">2. The Net Builder</h2>
+                    <p class="text-sm text-sky-600 mb-2">Drag the faces from the palette to the grid below to build a valid net. Faces can't overlap!</p>
+                    <h3 class="font-semibold text-sky-700">Face Palette:</h3>
+                    <div id="face-palette" class="face-palette p-2 my-2 rounded-lg bg-sky-100 flex flex-wrap gap-2 justify-center">
+                        <!-- Draggable faces will be injected by JS -->
+                    </div>
+                    <h3 class="font-semibold text-sky-700">Build Grid:</h3>
+                    <div id="net-grid" class="net-grid mx-auto mt-2 rounded-lg overflow-hidden shadow-inner">
+                        <!-- 25 drop targets will be injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: Controls & Info -->
+            <section class="lg:w-2/5 w-full space-y-6">
+                
+                <!-- Box Bot Mascot -->
+                <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-sky-200">
+                    <div class="flex items-center gap-4">
+                        <!-- Simple SVG Box Bot -->
+                        <svg id="box-bot" class="w-24 h-24 flex-shrink-0" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g id="bot-body" class="text-orange-500">
+                                <rect x="15" y="30" width="70" height="60" rx="8" fill="currentColor"/>
+                                <rect x="10" y="85" width="20" height="10" rx="5" fill="#a1a1aa"/>
+                                <rect x="70" y="85" width="20" height="10" rx="5" fill="#a1a1aa"/>
+                            </g>
+                            <g id="bot-head" class="text-sky-600">
+                                <rect x="25" y="10" width="50" height="30" rx="6" fill="currentColor"/>
+                                <line x1="40" y1="10" x2="35" y2="2" stroke="#a1a1aa" stroke-width="3" stroke-linecap="round"/>
+                                <circle cx="35" cy="2" r="2" fill="#facc15"/>
+                            </g>
+                            <g id="bot-face">
+                                <g id="box-bot-eyes">
+                                    <circle cx="38" cy="25" r="4" fill="white"/>
+                                    <circle cx="62" cy="25" r="4" fill="white"/>
+                                </g>
+                                <line x1="45" y1="32" x2="55" y2="32" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            </g>
+                        </svg>
+                        <!-- Speech Bubble -->
+                        <div class="relative bg-sky-100 p-3 rounded-lg border-2 border-sky-200 w-full">
+                            <p id="bot-message" class="text-sm font-medium text-sky-800">Hi Jeffrey! I'm Box Bot. Let's get these deliveries sorted! Select a difficulty to start.</p>
+                            <!-- Bubble tail -->
+                            <div class="absolute left-[-10px] top-1/2 -translate-y-1/2 w-0 h-0" style="border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 10px solid #ebf8ff;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Controls -->
+                <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-sky-200 space-y-4">
+                    <h2 class="text-xl font-bold text-sky-700">Lab Controls</h2>
+                    <div>
+                        <label for="difficulty" class="block text-sm font-medium text-sky-700">Difficulty:</label>
+                        <select id="difficulty" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-sky-300 focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm rounded-md shadow">
+                            <option value="easy">Easy (Labels always on)</option>
+                            <option value="medium">Medium (Labels on prism only)</option>
+                            <option value="hard">Hard (All labels hide after 3s)</option>
+                        </select>
+                    </div>
+                    <button id="next-problem-btn" class="w-full px-4 py-3 bg-yellow-400 text-yellow-900 font-bold rounded-lg shadow hover:bg-yellow-500 transition text-lg">
+                        Generate New Problem!
+                    </button>
+                </div>
+
+                <!-- Calculator -->
+                <div class="bg-white p-4 rounded-xl shadow-lg border-2 border-sky-200">
+                    <h2 class="text-xl font-bold text-sky-700">3. The Calculator</h2>
+                    <p class="text-sm text-sky-600 mb-2">Calculate the area of each face pair and the total surface area.</p>
+                    <div id="problem-stats" class="mb-4 p-3 bg-sky-100 rounded-lg" aria-live="polite">
+                        <p class="text-lg font-semibold text-center text-sky-800">L = <span id="l-stat">?</span>, W = <span id="w-stat">?</span>, H = <span id="h-stat">?</span></p>
+                    </div>
+
+                    <form id="calculator-form" class="space-y-3 mt-4">
+                        <div class="flex items-center gap-2">
+                            <label for="area-front-back" class="w-1/2 text-sm font-medium text-sky-700">Front/Back Area (L x H):</label>
+                            <input type="number" id="area-front-back" class="w-1/2 p-2 border border-sky-300 rounded-md shadow-sm" placeholder="2 x (L x H)">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="area-top-bottom" class="w-1/2 text-sm font-medium text-sky-700">Top/Bottom Area (L x W):</label>
+                            <input type="number" id="area-top-bottom" class="w-1/2 p-2 border border-sky-300 rounded-md shadow-sm" placeholder="2 x (L x W)">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="area-left-right" class="w-1/2 text-sm font-medium text-sky-700">Left/Right Area (W x H):</label>
+                            <input type="number" id="area-left-right" class="w-1/2 p-2 border border-sky-300 rounded-md shadow-sm" placeholder="2 x (W x H)">
+                        </div>
+                        <hr class="border-sky-200">
+                        <div class="flex items-center gap-2">
+                            <label for="area-total" class="w-1/2 text-lg font-bold text-sky-800">Total Surface Area:</label>
+                            <input type="number" id="area-total" class="w-1/2 p-2 border-2 border-sky-500 rounded-md shadow-sm" placeholder="Total">
+                        </div>
+                        <button type="submit" id="check-answer-btn" class="w-full px-4 py-3 bg-green-500 text-white font-bold rounded-lg shadow hover:bg-green-600 transition text-lg">
+                            Check My Work!
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Overlays -->
+    <div id="toast-container"></div>
+    <canvas id="confetti-canvas"></canvas>
+    
+    <!-- Badge Unlock Modal -->
+    <div id="badge-modal" class="modal-overlay">
+        <div class="modal-content bg-white p-6 rounded-xl shadow-2xl text-center w-80 border-4 border-yellow-400">
+            <h2 class="text-2xl font-black text-sky-800">BADGE UNLOCKED!</h2>
+            <div id="badge-modal-icon" class="text-7xl my-4"></div>
+            <p id="badge-modal-name" class="text-xl font-bold text-orange-500"></p>
+            <p id="badge-modal-desc" class="text-sm text-sky-600 mt-1"></p>
+            <button id="close-modal-btn" class="mt-6 px-4 py-2 bg-sky-500 text-white font-semibold rounded-lg shadow hover:bg-sky-600 transition">
+                Awesome!
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- STATE ---
+            let currentProblem = { l: 0, w: 0, h: 0 };
+            let correctAnswers = { frontBack: 0, topBottom: 0, leftRight: 0, total: 0 };
+            let difficulty = 'easy';
+            let progress = 0;
+            let unlockedBadges = [];
+            let isFolded = true;
+            let placedFaces = {}; // Tracks grid cells, e.g. {'cell-1-2': 'face-1'}
+            const faceScale = 15; // Pixels per unit for drag/drop faces
+            const badgeData = {
+                rookie: { name: 'Rookie Packer', desc: 'You completed your first 5 problems!', icon: '📦' },
+                pro: { name: 'Pro Packer', desc: 'You mastered 10 problems!', icon: '⭐' },
+                expert: { name: 'Expert Folder', desc: 'You aced 20 problems!', icon: '🏆' }
+            };
+
+            // --- DOM Elements ---
+            const $ = (selector) => document.querySelector(selector);
+            const $$ = (selector) => document.querySelectorAll(selector);
+            
+            // App
+            const appContainer = $('#app-container');
+            // Header
+            const progressBar = $('#progress-bar');
+            const progressText = $('#progress-text');
+            const badgeDisplay = $('#badge-display');
+            // Prism
+            const prismBox = $('#prism-box');
+            const scene = $('.scene');
+            const toggleFoldBtn = $('#toggle-fold-btn');
+            // Net Builder
+            const facePalette = $('#face-palette');
+            const netGrid = $('#net-grid');
+            // Controls
+            const botMessage = $('#bot-message');
+            const difficultySelect = $('#difficulty');
+            const nextProblemBtn = $('#next-problem-btn');
+            // Calculator
+            const lStat = $('#l-stat');
+            const wStat = $('#w-stat');
+            const hStat = $('#h-stat');
+            const calcForm = $('#calculator-form');
+            const areaFrontBack = $('#area-front-back');
+            const areaTopBottom = $('#area-top-bottom');
+            const areaLeftRight = $('#area-left-right');
+            const areaTotal = $('#area-total');
+            // Overlays
+            const toastContainer = $('#toast-container');
+            const confettiCanvas = $('#confetti-canvas');
+            const confettiCtx = confettiCanvas.getContext('2d');
+            const badgeModal = $('#badge-modal');
+            const closeModalBtn = $('#close-modal-btn');
+
+            // --- 1. INITIALIZATION ---
+
+            function init() {
+                // Create grid cells
+                for (let r = 0; r < 5; r++) {
+                    for (let c = 0; c < 5; c++) {
+                        const cell = document.createElement('div');
+                        cell.id = `cell-${r}-${c}`;
+                        cell.classList.add('drop-target');
+                        netGrid.appendChild(cell);
+                    }
+                }
+                
+                addEventListeners();
+                generateProblem();
+                speak("Welcome! I'm ready for a new problem. Hit the 'Generate' button!");
+            }
+
+            function addEventListeners() {
+                nextProblemBtn.addEventListener('click', generateProblem);
+                toggleFoldBtn.addEventListener('click', toggleFold);
+                difficultySelect.addEventListener('change', (e) => {
+                    difficulty = e.target.value;
+                    speak(`Difficulty set to ${difficulty}. Let's go!`);
+                    applyDifficulty();
+                });
+                calcForm.addEventListener('submit', checkAnswer);
+                closeModalBtn.addEventListener('click', () => badgeModal.classList.remove('is-visible'));
+
+                // --- Drag and Drop Event Listeners ---
+                // Add to palette (for dynamic children)
+                facePalette.addEventListener('dragstart', (e) => {
+                    if (e.target.classList.contains('face-drag-el')) {
+                        e.dataTransfer.setData('text/plain', e.target.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                        setTimeout(() => e.target.classList.add('dragging'), 0);
+                    }
+                });
+                
+                facePalette.addEventListener('dragend', (e) => {
+                    if (e.target.classList.contains('face-drag-el')) {
+                        e.target.classList.remove('dragging');
+                    }
+                });
+
+                // Add to grid cells
+                netGrid.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (e.target.classList.contains('drop-target')) {
+                        e.target.classList.add('over');
+                    }
+                });
+                
+                netGrid.addEventListener('dragleave', (e) => {
+                    if (e.target.classList.contains('drop-target')) {
+                        e.target.classList.remove('over');
+                    }
+                });
+                
+                netGrid.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const targetCell = e.target.closest('.drop-target');
+                    if (!targetCell) return;
+                    
+                    targetCell.classList.remove('over');
+                    
+                    // OVERLAP CHECK
+                    if (targetCell.children.length > 0) {
+                        showToast("Oops! Can't stack faces!", 'error');
+                        speak("Whoops! Only one face per grid square, please.");
+                        return;
+                    }
+
+                    const faceId = e.dataTransfer.getData('text/plain');
+                    const faceEl = $(`#${faceId}`);
+                    
+                    if (faceEl) {
+                        // Remove from old parent if it was in another cell
+                        const oldCellId = Object.keys(placedFaces).find(key => placedFaces[key] === faceId);
+                        if (oldCellId) {
+                            delete placedFaces[oldCellId];
+                        }
+
+                        // Snap to grid
+                        targetCell.appendChild(faceEl);
+                        faceEl.classList.add('snapped');
+                        placedFaces[targetCell.id] = faceId;
+                    }
+                });
+
+                // Allow dragging back to palette
+                facePalette.addEventListener('dragover', (e) => e.preventDefault());
+                facePalette.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const faceId = e.dataTransfer.getData('text/plain');
+                    const faceEl = $(`#${faceId}`);
+                    
+                    if (faceEl) {
+                        // Remove from old cell
+                        const oldCellId = Object.keys(placedFaces).find(key => placedFaces[key] === faceId);
+                        if (oldCellId) {
+                            delete placedFaces[oldCellId];
+                        }
+                        // Add back to palette
+                        facePalette.appendChild(faceEl);
+                        faceEl.classList.remove('snapped');
+                    }
+                });
+            }
+
+            // --- 2. CORE LOGIC ---
+
+            function generateProblem() {
+                // Reset everything
+                resetLab();
+                
+                // New values
+                const l = randInt(3, 10);
+                const w = randInt(3, 10);
+                const h = randInt(3, 10);
+                currentProblem = { l, w, h };
+                
+                // Calculate answers
+                const frontBack = 2 * (l * h);
+                const topBottom = 2 * (l * w);
+                const leftRight = 2 * (w * h);
+                correctAnswers = {
+                    frontBack,
+                    topBottom,
+                    leftRight,
+                    total: frontBack + topBottom + leftRight
+                };
+                
+                // Update UI
+                lStat.textContent = l;
+                wStat.textContent = w;
+                hStat.textContent = h;
+                
+                updatePrism(l, w, h);
+                createDraggableFaces(l, w, h);
+                
+                speak(`New problem! L=${l}, W=${w}, H=${h}. Good luck, Jeffrey!`);
+            }
+
+            function resetLab() {
+                isFolded = true;
+                prismBox.classList.remove('is-unfolded');
+                toggleFoldBtn.textContent = 'Unfold';
+                
+                facePalette.innerHTML = '';
+                placedFaces = {};
+                $$('.drop-target').forEach(cell => cell.innerHTML = '');
+                
+                calcForm.reset();
+                $$('input').forEach(input => input.classList.remove('border-red-500', 'border-green-500'));
+                
+                appContainer.classList.remove('labels-hidden');
+            }
+
+            function updatePrism(l, w, h) {
+                // Scale for visual display in 3D
+                const scale = 15;
+                const l_px = l * scale;
+                const w_px = w * scale;
+                const h_px = h * scale;
+
+                // Set CSS custom properties
+                scene.style.setProperty('--l', `${l_px}px`);
+                scene.style.setProperty('--w', `${w_px}px`);
+                scene.style.setProperty('--h', `${h_px}px`);
+                scene.style.setProperty('--l-half', `${l_px / 2}px`);
+                scene.style.setProperty('--w-half', `${w_px / 2}px`);
+                scene.style.setProperty('--h-half', `${h_px / 2}px`);
+
+                // Update labels
+                $('.box__face--front .prism-label').textContent = `L=${l}, H=${h}`;
+                $('.box__face--back .prism-label').textContent = `L=${l}, H=${h}`;
+                $('.box__face--top .prism-label').textContent = `L=${l}, W=${w}`;
+                $('.box__face--bottom .prism-label').textContent = `L=${l}, W=${w}`;
+                $('.box__face--left .prism-label').textContent = `W=${w}, H=${h}`;
+                $('.box__face--right .prism-label').textContent = `W=${w}, H=${h}`;
+
+                applyDifficulty();
+            }
+
+            function createDraggableFaces(l, w, h) {
+                const faces = [
+                    { id: 'face-1', w: l, h: h, label: `L=${l}, H=${h}`, bg: 'bg-yellow-300', text: 'text-yellow-900', pair: 'frontBack' },
+                    { id: 'face-2', w: l, h: h, label: `L=${l}, H=${h}`, bg: 'bg-yellow-300', text: 'text-yellow-900', pair: 'frontBack' },
+                    { id: 'face-3', w: l, h: w, label: `L=${l}, W=${w}`, bg: 'bg-orange-400', text: 'text-orange-900', pair: 'topBottom' },
+                    { id: 'face-4', w: l, h: w, label: `L=${l}, W=${w}`, bg: 'bg-orange-400', text: 'text-orange-900', pair: 'topBottom' },
+                    { id: 'face-5', w: w, h: h, label: `W=${w}, H=${h}`, bg: 'bg-sky-400', text: 'text-sky-900', pair: 'leftRight' },
+                    { id: 'face-6', w: w, h: h, label: `W=${w}, H=${h}`, bg: 'bg-sky-400', text: 'text-sky-900', pair: 'leftRight' }
+                ];
+
+                faces.forEach(face => {
+                    const el = document.createElement('div');
+                    el.id = face.id;
+                    el.classList.add('face-drag-el', face.bg, face.text, 'p-1', 'rounded', 'flex', 'items-center', 'justify-center');
+                    el.draggable = true;
+                    el.style.setProperty('--w-px', `${face.w * faceScale}px`);
+                    el.style.setProperty('--h-px', `${face.h * faceScale}px`);
+                    el.dataset.pair = face.pair;
+                    el.innerHTML = `<span class="label">${face.label}</span>`;
+                    facePalette.appendChild(el);
+                });
+
+                applyDifficulty();
+            }
+
+            function toggleFold() {
+                isFolded = !isFolded;
+                prismBox.classList.toggle('is-unfolded');
+                if (isFolded) {
+                    toggleFoldBtn.textContent = 'Unfold';
+                    speak('Folding it back up!');
+                } else {
+                    toggleFoldBtn.textContent = 'Fold';
+                    speak('Unfolding to show the net!');
+                }
+            }
+
+            function applyDifficulty() {
+                appContainer.classList.remove('labels-hidden');
+                
+                if (difficulty === 'easy') {
+                    // All labels visible
+                    $$('.prism-label').forEach(el => el.style.opacity = 1);
+                    $$('.face-drag-el .label').forEach(el => el.style.opacity = 1);
+                } else if (difficulty === 'medium') {
+                    // Only prism labels visible
+                    $$('.prism-label').forEach(el => el.style.opacity = 1);
+                    $$('.face-drag-el .label').forEach(el => el.style.opacity = 0);
+                } else if (difficulty === 'hard') {
+                    // Hide all after 3s
+                    $$('.prism-label').forEach(el => el.style.opacity = 1);
+                    $$('.face-drag-el .label').forEach(el => el.style.opacity = 1);
+                    setTimeout(() => {
+                        appContainer.classList.add('labels-hidden');
+                        speak("Time's up! Labels are hidden.");
+                    }, 3000);
+                }
+            }
+
+            function checkAnswer(e) {
+                e.preventDefault();
+                speak("Checking your work...");
+
+                let allCorrect = true;
+
+                // 1. Check Net
+                if (Object.keys(placedFaces).length < 6) {
+                    showToast('Place all 6 faces on the grid first!', 'warn');
+                    speak('Hold on! You need to place all 6 faces on the grid.');
+                    allCorrect = false;
+                } else {
+                    // A simple "validity" check could be to ensure all 6 faces are on the grid.
+                    // A true adjacency check is very complex. We'll count this as "built".
+                    showToast('Net is built!', 'info');
+                }
+
+                // 2. Check Calculations
+                const userFrontBack = parseInt(areaFrontBack.value);
+                const userTopBottom = parseInt(areaTopBottom.value);
+                const userLeftRight = parseInt(areaLeftRight.value);
+                const userTotal = parseInt(areaTotal.value);
+
+                if (userFrontBack === correctAnswers.frontBack) {
+                    areaFrontBack.classList.add('border-green-500');
+                    areaFrontBack.classList.remove('border-red-500');
+                } else {
+                    areaFrontBack.classList.add('border-red-500');
+                    areaFrontBack.classList.remove('border-green-500');
+                    allCorrect = false;
+                }
+
+                if (userTopBottom === correctAnswers.topBottom) {
+                    areaTopBottom.classList.add('border-green-500');
+                    areaTopBottom.classList.remove('border-red-500');
+                } else {
+                    areaTopBottom.classList.add('border-red-500');
+                    areaTopBottom.classList.remove('border-green-500');
+                    allCorrect = false;
+                }
+
+                if (userLeftRight === correctAnswers.leftRight) {
+                    areaLeftRight.classList.add('border-green-500');
+                    areaLeftRight.classList.remove('border-red-500');
+                } else {
+                    areaLeftRight.classList.add('border-red-500');
+                    areaLeftRight.classList.remove('border-green-500');
+                    allCorrect = false;
+                }
+
+                if (userTotal === correctAnswers.total) {
+                    areaTotal.classList.add('border-green-500');
+                    areaTotal.classList.remove('border-red-500');
+                } else {
+                    areaTotal.classList.add('border-red-500');
+                    areaTotal.classList.remove('border-green-500');
+                    allCorrect = false;
+                }
+
+                // 3. Final Feedback
+                if (allCorrect) {
+                    showToast('Nailed it! You are a surface area superstar!', 'success');
+                    speak('Box-tastic! Everything is correct. Great job, Jeffrey!');
+                    runConfetti();
+                    updateProgress(10);
+                } else {
+                    showToast('Almost! Check the red boxes and try again.', 'error');
+                    speak('So close! Check the calculations I marked in red.');
+                }
+            }
+
+
+            // --- 3. UI & FEEDBACK ---
+
+            function speak(message) {
+                botMessage.textContent = message;
+            }
+
+            function randInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                let bgColor, textColor, emoji;
+
+                switch (type) {
+                    case 'success':
+                        bgColor = 'bg-green-500'; textColor = 'text-white'; emoji = '🎉';
+                        break;
+                    case 'error':
+                        bgColor = 'bg-red-500'; textColor = 'text-white'; emoji = '❌';
+                        break;
+                    case 'warn':
+                        bgColor = 'bg-yellow-400'; textColor = 'text-yellow-900'; emoji = '⚠️';
+                        break;
+                    default:
+                        bgColor = 'bg-sky-600'; textColor = 'text-white'; emoji = 'ℹ️';
+                }
+
+                toast.className = `toast p-4 rounded-lg shadow-xl mb-2 ${bgColor} ${textColor} font-semibold`;
+                toast.innerHTML = `${emoji} ${message}`;
+                
+                toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.remove();
+                }, 4000);
+            }
+            
+            function updateProgress(amount) {
+                progress += amount;
+                if (progress > 100) progress = 100; // Cap at 100 for this "level"
+                
+                const progressPercent = Math.round((progress / 100) * 100); // Simple 0-100 scale
+                progressBar.style.width = `${progressPercent}%`;
+                progressText.textContent = `${progressPercent}%`;
+
+                // Check for badge unlocks
+                if (progress >= 20 && !unlockedBadges.includes('rookie')) {
+                    showBadge('rookie');
+                }
+                if (progress >= 50 && !unlockedBadges.includes('pro')) {
+                    showBadge('pro');
+                }
+                if (progress >= 100 && !unlockedBadges.includes('expert')) {
+                    showBadge('expert');
+                }
+            }
+            
+            function showBadge(badgeKey) {
+                unlockedBadges.push(badgeKey);
+                const badge = badgeData[badgeKey];
+                
+                // Show modal
+                $('#badge-modal-icon').textContent = badge.icon;
+                $('#badge-modal-name').textContent = badge.name;
+                $('#badge-modal-desc').textContent = badge.desc;
+                badgeModal.classList.add('is-visible');
+                
+                // Add to header display
+                const badgeEl = document.createElement('span');
+                badgeEl.className = 'text-2xl';
+                badgeEl.title = `${badge.name}: ${badge.desc}`;
+                badgeEl.textContent = badge.icon;
+                badgeDisplay.appendChild(badgeEl);
+
+                speak(`Wow! You unlocked the ${badge.name} badge!`);
+            }
+
+            // --- 4. CONFETTI ---
+            let particles = [];
+            
+            function runConfetti() {
+                const particleCount = 200;
+                const colors = ['#fde047', '#f97316', '#22c55e', '#3b82f6', '#ec4899'];
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle(
+                        confettiCanvas.width / 2, 
+                        confettiCanvas.height - 50,
+                        colors[Math.floor(Math.random() * colors.length)]
+                    ));
+                }
+                if (particles.length > 0) animateConfetti();
+            }
+            
+            class Particle {
+                constructor(x, y, color) {
+                    this.x = x;
+                    this.y = y;
+                    this.color = color;
+                    this.size = Math.random() * 5 + 5;
+                    this.vx = Math.random() * 20 - 10; // Horizontal velocity
+                    this.vy = Math.random() * -20 - 10; // Initial upward velocity
+                    this.gravity = 0.5;
+                    this.life = 100;
+                }
+                
+                update() {
+                    this.vy += this.gravity;
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.life -= 1;
+                }
+                
+                draw(ctx) {
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = Math.max(0, this.life / 100);
+                    ctx.beginPath();
+                    ctx.fillRect(this.x, this.y, this.size, this.size);
+                    ctx.closePath();
+                }
+            }
+            
+            function animateConfetti() {
+                confettiCanvas.width = window.innerWidth;
+                confettiCanvas.height = window.innerHeight;
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                
+                particles.forEach(p => {
+                    p.update();
+                    p.draw(confettiCtx);
+                });
+                
+                particles = particles.filter(p => p.life > 0);
+                
+                if (particles.length > 0) {
+                    requestAnimationFrame(animateConfetti);
+                } else {
+                    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+                }
+            }
+
+            // --- START ---
+            init();
+        });
+    </script>
+</body>
+</html>
