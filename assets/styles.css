@@ -58,6 +58,13 @@
   .hamburger{display:block}
 }
 
+/* Small phones: wrap topbar and stretch search */
+@media (max-width: 640px){
+  .topbar .wrap{flex-wrap:wrap; gap:10px}
+  .site-search{order:3; width:100%}
+  .site-search input{width:100%}
+}
+
 /* Sidebar (index) */
 /* Sidebar + main layout: use CSS grid so main content expands to fill available space */
 .sidebar{display:block;min-width:260px;max-width:340px;margin: 0;}
