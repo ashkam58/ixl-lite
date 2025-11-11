@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Magic Python Playground — Kids Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#fef6ff;
+      --card:#fff;
+      --accent1:#ff7ab6;
+      --accent2:#7ad3ff;
+      --text:#222;
+      --muted:#657089;
+      --glass: rgba(255,255,255,0.7);
+      --shadow: 0 8px 24px rgba(15,15,40,0.08);
+      --round:16px;
+    }
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+    body{
+      margin:0; background: linear-gradient(180deg,#fffaf9,#fef6ff 50%); color:var(--text);
+      min-height:100vh; padding:28px; display:flex; flex-direction:column; align-items:center;
+    }
+    .app {
+      width:100%; max-width:1100px; border-radius:24px; box-shadow:var(--shadow); overflow:hidden;
+      background: radial-gradient(1200px 400px at 10% 20%, rgba(122,211,255,0.06), transparent 10%),
+                  radial-gradient(1000px 300px at 90% 80%, rgba(255,122,182,0.06), transparent 10%),
+                  linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.9));
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    header{
+      display:flex; align-items:center; gap:20px; padding:20px 28px; background: linear-gradient(90deg,var(--accent2),var(--accent1));
+      color:white;
+    }
+    header h1{margin:0; font-family:'Fredoka One'; font-size:22px; letter-spacing:0.2px;}
+    .mascot{width:86px; height:86px; border-radius:16px; background: linear-gradient(180deg, #fff, rgba(255,255,255,0.05));
+      display:flex; align-items:center; justify-content:center; box-shadow: 0 6px 16px rgba(0,0,0,0.08); border:3px solid rgba(255,255,255,0.12);}
+    .mascot svg{width:70px;height:70px; transform:translateY(-3px)}
+    .top-right{margin-left:auto; text-align:right;}
+    .sub{font-size:12px; opacity:0.95}
+    .layout{display:grid; grid-template-columns: 1fr 360px; gap:22px; padding:22px;}
+    .card{background:var(--card); border-radius:16px; padding:18px; box-shadow:var(--shadow);}
+    nav.tabs{display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+    .tab{background:linear-gradient(180deg, #fff, #fbfbff); padding:10px 12px; border-radius:12px; cursor:pointer; border:1px solid rgba(12,12,40,0.03);}
+    .tab.active{background:linear-gradient(90deg, rgba(122,211,255,0.12), rgba(255,122,182,0.12)); box-shadow:0 6px 18px rgba(122,211,255,0.06); font-weight:600;}
+    .exercise{margin-bottom:14px; border-radius:12px; padding:12px; border:1px dashed rgba(15,15,40,0.04); background: linear-gradient(180deg, rgba(250,250,255,0.9), rgba(255,255,255,0.98));}
+    pre.code{background:linear-gradient(180deg,#f8fbff,#fff); padding:12px; border-radius:10px; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,monospace; font-size:14px; overflow:auto; white-space:pre-wrap;}
+    .controls{display:flex; gap:8px; margin-top:10px; align-items:center;}
+    input[type="text"], input[type="number"]{padding:10px 12px; border-radius:10px; border:1px solid rgba(15,15,40,0.06); width:220px; font-size:14px;}
+    button{padding:10px 14px; border-radius:10px; border:0; cursor:pointer; font-weight:600;}
+    .btn-check{background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:#fff;}
+    .btn-new{background:transparent; border:1px solid rgba(15,15,40,0.06); color:var(--muted);}
+    .score{display:flex; align-items:center; gap:12px; font-weight:600; color:var(--muted)}
+    .points{background:linear-gradient(90deg, #fff7f9, #f9ffff); padding:8px 10px; border-radius:10px; display:flex; gap:8px; align-items:center; box-shadow:0 6px 16px rgba(15,15,40,0.04);}
+    .progress{height:10px; background:#f1f4ff; border-radius:20px; overflow:hidden;}
+    .progress > i{display:block; height:100%; background:linear-gradient(90deg,var(--accent2),var(--accent1)); width:0%;}
+    .hint{font-size:13px; color:var(--muted)}
+    .right{color:green; font-weight:700}
+    .wrong{color:#d64576; font-weight:700}
+    /* sidebar */
+    .sidebar .card{position:sticky; top:28px;}
+    .leader{display:flex; align-items:center; gap:12px; margin-bottom:12px}
+    .leader img{width:56px; height:56px; border-radius:12px}
+    .list{display:flex; flex-direction:column; gap:8px; margin-top:8px}
+    .mini{font-size:13px; color:var(--muted); padding:8px; border-radius:8px; background:linear-gradient(180deg,#fff,#fbfbff); border:1px solid rgba(15,15,40,0.03)}
+    footer{padding:18px 22px; font-size:13px; color:var(--muted); width:100%; text-align:center;}
+    /* responsive */
+    @media (max-width:980px){ .layout{grid-template-columns:1fr; } .sidebar{order:2} header{flex-wrap:wrap} .mascot{display:none}}
+    /* small confetti container */
+    #confettiCanvas{position:fixed; left:0; top:0; width:100%; height:100%; pointer-events:none; z-index:9999;}
+    /* teacher notes */
+    .notes{font-size:14px; color:#2b2b3b; line-height:1.45}
+    .badge{display:inline-block; padding:6px 8px; border-radius:999px; background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:white; font-weight:700; font-size:12px}
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas"></canvas>
+  <div class="app">
+    <header>
+      <div class="mascot" title="Magic Mascot">
+        <!-- friendly generic mascot (no copyrighted characters) -->
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <g>
+            <ellipse cx="32" cy="38" rx="22" ry="18" fill="#fff" opacity="0.9"/>
+            <circle cx="24" cy="26" r="6" fill="#fff"/>
+            <circle cx="40" cy="26" r="6" fill="#fff"/>
+            <circle cx="24" cy="26" r="4" fill="#2b2b3b"/>
+            <circle cx="40" cy="26" r="4" fill="#2b2b3b"/>
+            <path d="M22 40 q10 8 20 0" stroke="#2b2b3b" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M10 34 q10 -20 44 0" stroke="#ffd1eb" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.8"/>
+          </g>
+        </svg>
+      </div>
+
+      <div>
+        <h1>Magic Python Playground</h1>
+        <div class="sub">First class: Variables • print • input • basic operations — playful practice for kids</div>
+      </div>
+
+      <div class="top-right">
+        <div class="sub">Instructor: <strong>Ashkam</strong></div>
+        <div style="margin-top:6px" class="badge">Class 1 • Beginner</div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <main>
+        <div class="card">
+          <nav class="tabs" id="tabs">
+            <div class="tab active" data-topic="variables">Variables</div>
+            <div class="tab" data-topic="print">Print</div>
+            <div class="tab" data-topic="input">Input</div>
+            <div class="tab" data-topic="operations">Operations</div>
+          </nav>
+
+          <div id="content">
+            <!-- exercises will be rendered here -->
+          </div>
+
+          <div style="display:flex; gap:12px; align-items:center; margin-top:12px;">
+            <div class="points score" title="Score tracker">
+              <div style="font-size:12px; color:var(--muted)">Points</div>
+              <div class="points" id="scoreBox">★ <span id="score">0</span></div>
+            </div>
+            <div style="flex:1">
+              <div class="hint">Streak: <strong id="streak">0</strong> • Correct: <span id="correctCount">0</span> / Attempts: <span id="attempts">0</span></div>
+              <div style="height:8px; margin-top:8px;" class="progress"><i id="progressBar" style="width:0%"></i></div>
+            </div>
+
+            <button class="btn-new" id="newSet">New questions</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <h3 style="margin:0 0 8px 0">Quick teacher plan & practice curve</h3>
+          <div class="notes">
+            <strong>Learning objective (Class 1):</strong>
+            <ul>
+              <li>Introduce what a variable is — a labelled box that holds a value.</li>
+              <li>Understand `print()` as a way to show results, and `input()` as a way to get values from the user.</li>
+              <li>Practice basic arithmetic operators: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>.</li>
+            </ul>
+
+            <strong>Lesson flow (35–45 min)</strong>
+            <ol>
+              <li>5 min — Warm-up: what is a variable? (use real boxes toy analogy)</li>
+              <li>10 min — Live demo: assign values and use <code>print()</code></li>
+              <li>10 min — Guided practice with this app (kids solve easy → medium → hard)</li>
+              <li>5–10 min — Input exercises + recap (ask each child to type their name in an input exercise)</li>
+            </ol>
+
+            <strong>Drills & memorization cues</strong>
+            <ul>
+              <li>Teach the mnemonic: <em>VAR = Very Awesome Reserves</em> (a box that keeps values)</li>
+              <li>For <code>print()</code>, chant: <em>"print shows what the computer says"</em></li>
+              <li>Small frequent practice (5–10 problems per day) beats one long session.</li>
+            </ul>
+
+            <strong>Assessment</strong> Use the app's easy/medium/hard rounds and track points; aim for 10 correct answers in a row to earn a "wizard" badge.
+          </div>
+        </div>
+      </main>
+
+      <aside class="sidebar">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:13px; color:var(--muted)">Class Progress</div>
+              <div style="font-weight:800; font-size:20px">Beginner Track</div>
+            </div>
+            <div>
+              <div style="font-size:12px; color:var(--muted)">Level</div>
+              <div style="font-size:18px; font-weight:800">1</div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;" class="list">
+            <div class="mini">🏷 Variables — assign & recall</div>
+            <div class="mini">🖨 print() — show outputs</div>
+            <div class="mini">⌨ input() — type values</div>
+            <div class="mini">➕➖✖️➗ Operations — numbers</div>
+          </div>
+
+          <div style="margin-top:12px">
+            <div style="font-size:13px; color:var(--muted); margin-bottom:8px">Top tips</div>
+            <div class="mini"><strong>Tip</strong> — Ask kids to explain code in plain words before answering.</div>
+            <div class="mini" style="margin-top:8px">Reward: confetti + points for correct answers ✨</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <div style="font-weight:800">Class leaderboard</div>
+          <div style="margin-top:10px" id="leaders">
+            <div class="mini">You — <strong id="yourRank">1</strong> • Points: <strong id="yourPoints">0</strong></div>
+            <div class="mini">Buddy — Points: <strong>0</strong></div>
+            <div class="mini">Next badge: 50 points</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      Built for teachers & kids — keep practice playful! ✨
+    </footer>
+  </div>
+
+  <script>
+    /***********************
+     * Confetti basic engine
+     ***********************/
+    (function(){
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      let W = canvas.width = innerWidth;
+      let H = canvas.height = innerHeight;
+      window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
+
+      const particles = [];
+      function spawnConfetti(x = W/2, y = H/4, count = 40){
+        for(let i=0;i<count;i++){
+          particles.push({
+            x: x + (Math.random()-0.5)*200,
+            y: y + (Math.random()-0.5)*80,
+            vx: (Math.random()-0.5)*6,
+            vy: Math.random()*6 + 2,
+            size: Math.random()*8+4,
+            rot: Math.random()*360,
+            color: ["#ff7ab6","#7ad3ff","#ffd86b","#9affc8","#c79bff"][Math.floor(Math.random()*5)],
+            life: 70 + Math.random()*40
+          });
+        }
+      }
+
+      function update(){
+        if(!ctx) return;
+        ctx.clearRect(0,0,W,H);
+        for(let i=particles.length-1;i>=0;i--){
+          const p = particles[i];
+          p.vy += 0.18; p.x += p.vx; p.y += p.vy; p.rot += p.vx*2;
+          p.life--;
+          ctx.save();
+          ctx.translate(p.x,p.y);
+          ctx.rotate(p.rot*Math.PI/180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+          ctx.restore();
+          if(p.life<=0 || p.y > H + 50) particles.splice(i,1);
+        }
+        requestAnimationFrame(update);
+      }
+      update();
+
+      window.__spawnConfetti = spawnConfetti;
+    })();
+
+    /*****************************
+     * Simple simulated Python runner
+     * (supports: assignments, print(), input(), int())
+     *****************************/
+    function simulatePython(code, simulatedInput = ""){
+      const lines = code.split('\\n').map(l=>l.trim()).filter(Boolean);
+      const vars = {};
+      const outputs = [];
+      // helper: replace variable names in expression with JSON stringified values from vars
+      function substitute(expr){
+        // replace int(...) with parseInt
+        expr = expr.replace(/int\\(([^)]+)\\)/g, (m, inner)=>`parseInt(${substitute(inner)})`);
+        // replace input(...) with JSON value of simulatedInput
+        expr = expr.replace(/input\\(([^)]*)\\)/g, (_m, _a)=> JSON.stringify(simulatedInput));
+        // tokenize to replace var names: simple approach - replace standalone words that match var keys
+        // sort keys by length desc to avoid partial replacement
+        const keys = Object.keys(vars).sort((a,b)=>b.length-a.length);
+        for(const k of keys){
+          // replace only standalone var occurrences (word boundaries)
+          const v = JSON.stringify(vars[k]);
+          const re = new RegExp('\\\\b' + k + '\\\\b', 'g');
+          expr = expr.replace(re, v);
+        }
+        return expr;
+      }
+
+      for(const raw of lines){
+        const line = raw;
+        if(line.startsWith('#')) continue;
+        if(line.startsWith('print(') && line.endsWith(')')){
+          const inner = line.slice(6, -1);
+          try{
+            const jsExpr = substitute(inner);
+            // eval in safe function wrapper
+            const val = Function('"use strict"; return ('+jsExpr+')')();
+            outputs.push(String(val));
+          }catch(e){
+            outputs.push('ERROR');
+          }
+          continue;
+        }
+        if(line.includes('=')){
+          const parts = line.split('=');
+          const left = parts.shift().trim();
+          const right = parts.join('=').trim();
+          try{
+            const jsExpr = substitute(right);
+            const val = Function('"use strict"; return ('+jsExpr+')')();
+            vars[left] = val;
+          }catch(e){
+            vars[left] = undefined;
+          }
+          continue;
+        }
+        // raw expression (like just print or something) - ignore for now
+      }
+      return {outputs, vars};
+    }
+
+    /***********************
+     * UI + exercises logic
+     ***********************/
+    const topics = {
+      variables: {
+        title: "Variables",
+        makeProblem: (level)=>{
+          // level: easy, medium, hard
+          if(level==='easy'){
+            const x = randInt(1,9);
+            const code = `x = ${x}\\nprint(x)`;
+            const answer = String(x);
+            return {code, answer, hint: 'What value was stored in x?'};
+          } else if(level==='medium'){
+            const x = randInt(1,9), y = randInt(1,9);
+            const code = `x = ${x}\\ny = x + ${y}\\nprint(y)`;
+            const answer = String(x + y);
+            return {code, answer, hint: 'Follow assignments top to bottom.'};
+          } else {
+            const x = randInt(1,9), y = randInt(1,9);
+            const code = `x = ${x}\\ny = x\\nx = ${y}\\nprint(y)`;
+            // note: print(y) prints original x value stored into y
+            const answer = String(x);
+            return {code, answer, hint: 'Variables copy values; changing x after copying does not change y.'};
+          }
+        }
+      },
+      print: {
+        title: "Print",
+        makeProblem: (level)=>{
+          if(level==='easy'){
+            const a = randInt(1,9);
+            return {code:`print(${a})`, answer:String(a), hint:'print shows the value.'};
+          } else if(level==='medium'){
+            const a = randInt(1,9), b = randInt(1,9);
+            return {code:`print(${a} + ${b})`, answer:String(a + b), hint:'Addition happens inside print.'};
+          } else {
+            const name = pick(['"Asha"','"Benny"','"Kai"']);
+            return {code:`greeting = "Hi " + ${name}\\nprint(greeting)`, answer: "Hi " + name.replace(/"/g,''), hint: 'String concatenation with +.'};
+          }
+        }
+      },
+      input: {
+        title: "Input",
+        makeProblem: (level)=>{
+          if(level==='easy'){
+            return {code:`name = input("What is your name?")\\nprint("Hello " + name)`, answerPlaceholder:'Type a name (e.g., Sam)', hint:'Type the input and then press Run'};
+          } else if(level==='medium'){
+            return {code:`num = int(input("Give a number: "))\\nprint(num + 5)`, answerPlaceholder:'If you type 3, output will be 8', hint:'Try small numbers'};
+          } else {
+            return {code:`a = int(input("a: "))\\nb = int(input("b: "))\\nprint(a * b)`, answerPlaceholder:'Multiply the two numbers', hint:'Two inputs needed — type each separated by comma in the input box (first,second)'};
+          }
+        }
+      },
+      operations: {
+        title: "Operations",
+        makeProblem: (level)=>{
+          if(level==='easy'){
+            const a=randInt(1,9), b=randInt(1,9);
+            return {code:`print(${a} + ${b})`, answer:String(a+b), hint:'Addition'};
+          } else if(level==='medium'){
+            const a=randInt(2,9), b=randInt(2,7);
+            return {code:`print(${a} * ${b})`, answer:String(a*b), hint:'Multiplication'};
+          } else {
+            const a=randInt(6,20), b=randInt(2,5);
+            // use division — show Python / which returns float
+            const val = (a / b).toFixed(2).replace(/\.00$/,'');
+            return {code:`print(${a} / ${b})`, answer:String(a / b), hint:'Division may give decimal numbers (we accept up to 2 decimals)'};
+          }
+        }
+      }
+    };
+
+    // helper utils
+    function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+    function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+    // state
+    let currentTopic = 'variables';
+    let currentProblems = [];
+    let score = 0, streak = 0, correctCount = 0, attempts = 0;
+    const levels = ['easy','medium','hard'];
+
+    function makeProblemsFor(topicKey){
+      const arr = [];
+      // create 6 problems (2 per difficulty)
+      for(const lvl of levels){
+        for(let i=0;i<2;i++){
+          const p = topics[topicKey].makeProblem(lvl);
+          p.level = lvl;
+          arr.push(p);
+        }
+      }
+      return arr.sort(()=>Math.random()-0.5);
+    }
+
+    function renderContent(){
+      const content = document.getElementById('content');
+      content.innerHTML = '';
+      currentProblems = makeProblemsFor(currentTopic);
+      currentProblems.forEach((p,idx)=>{
+        const ex = document.createElement('div');
+        ex.className = 'exercise';
+        ex.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="font-weight:800; margin-bottom:6px">Problem ${idx+1} <span style="font-weight:600; font-size:13px; color:var(--muted)">(${p.level})</span></div>
+              <pre class="code" id="code-${idx}">${p.code}</pre>
+              <div class="hint" id="hint-${idx}">${p.hint || ''}</div>
+            </div>
+            <div style="width:260px; text-align:center">
+              <div style="margin-bottom:10px; font-size:13px; color:var(--muted)">Your answer</div>
+              <input id="answer-${idx}" type="text" placeholder="${p.answerPlaceholder || 'Type the output here'}" />
+              <div class="controls">
+                <button class="btn-check" data-idx="${idx}">Check</button>
+                <button class="btn-new" data-reshuffle="${idx}">Skip</button>
+              </div>
+              <div style="height:32px; margin-top:10px"><span id="feedback-${idx}"></span></div>
+            </div>
+          </div>
+        `;
+        content.appendChild(ex);
+      });
+
+      // use event delegation on the content container for buttons (more robust across re-renders)
+      updateSidebar();
+    }
+
+    // delegated click handling for checks and reshuffle/skip buttons
+    document.getElementById('content').addEventListener('click', (e)=>{
+      const checkBtn = e.target.closest('.btn-check');
+      if(checkBtn){
+        const idx = Number(checkBtn.getAttribute('data-idx'));
+        if(!Number.isNaN(idx)) handleCheck(idx);
+        return;
+      }
+      const skipBtn = e.target.closest('button[data-reshuffle]');
+      if(skipBtn){
+        const idx = Number(skipBtn.getAttribute('data-reshuffle'));
+        if(!Number.isNaN(Number(idx))){
+          currentProblems[idx] = topics[currentTopic].makeProblem(currentProblems[idx].level);
+          renderContent();
+        }
+        return;
+      }
+    });
+
+    function handleCheck(idx){
+      const p = currentProblems[idx];
+      const answerEl = document.getElementById(`answer-${idx}`);
+      const feedbackEl = document.getElementById(`feedback-${idx}`);
+      if(!answerEl || !feedbackEl){ console.warn('handleCheck: missing elements for', idx); return; }
+      const userRaw = (answerEl.value || '').trim();
+      attempts++;
+      document.getElementById('attempts').textContent = attempts;
+      // if topic is input with two inputs separated by comma for some hard problems
+      if(currentTopic === 'input'){
+        // prepare simulatedInput
+        let simInput = userRaw;
+        // for problems that require two inputs (we asked to comma separate), handle specially
+        if(p.code.includes('\\n') && p.code.split('\\n').filter(Boolean).length>2 && userRaw.includes(',')){
+          // treat "a,b" → run simulate with first then second: we'll adapt simulatedInput to be first for first input; but our simple simulatePython uses single simulatedInput string for all input() calls.
+          // To support multiple inputs, we implement an adapter: if userRaw has comma, we will replace input(...) calls in code with the respective values directly.
+          const vals = userRaw.split(',').map(s=>s.trim());
+          // replace input() occurrences in code sequentially
+          let replCode = p.code;
+          let i = 0;
+          replCode = replCode.replace(/input\\(([^)]*)\\)/g, ()=> JSON.stringify(vals[i++]||''));
+          const result = simulatePython(replCode, '');
+          const out = result.outputs.join('\\n');
+          checkAnswer(idx, out);
+        } else {
+          // normal single input: simulation uses userRaw as the input value
+          try{
+            const res = simulatePython(p.code, userRaw);
+            const out = res.outputs.join('\\n');
+            checkAnswer(idx, out);
+          }catch(e){
+            checkAnswer(idx, 'ERROR');
+          }
+        }
+      } else {
+        // non-input problems: compute expected from p.answer (some are string, some numbers)
+        // For operations where answer may be float, accept approx (2 decimals)
+        let correct = p.answer;
+        // normalize numbers that look like floats
+        if(!isNaN(Number(correct)) && String(correct).includes('.')){
+          // compare numeric (2-decimal)
+          const expected = Number(correct);
+          const given = Number(userRaw);
+          if(!isNaN(given) && Math.abs(expected - given) < 0.01){
+            correctAnswer(idx);
+            return;
+          } else {
+            wrongAnswer(idx, `Expected ${expected}`);
+            return;
+          }
+        } else {
+          // string compare loose
+          if(String(userRaw) === String(correct)){
+            correctAnswer(idx);
+            return;
+          } else {
+            wrongAnswer(idx, `Expected ${String(correct)}`);
+            return;
+          }
+        }
+      }
+    }
+
+    function checkAnswer(idx, out){
+      // called for input-simulated answers
+      const userInputEl = document.getElementById(`answer-${idx}`);
+      const userRaw = userInputEl.value.trim();
+      const resultOut = (out === undefined ? '' : String(out).trim());
+      // Accept equality ignoring trailing .0 for numbers
+      const normalizedUser = userRaw;
+      // For input-based questions we compare user's typed expected output equal to the simulation output OR (if user provided the input to feed) consider showing the output as the feedback.
+      // We'll accept two modes:
+      // - If user typed the input value (for input exercises) we will display the computed output and mark correct if user's expected-output matches computed output (if they typed that).
+      // - If user typed input value and left answer blank, we'll show result as "Output: ...".
+      if(normalizedUser === '' || normalizedUser.indexOf('->')===0){
+        // show the output to help them learn
+        const fb = document.getElementById(`feedback-${idx}`);
+        fb.innerHTML = `<span class="hint">Output: <strong>${escapeHtml(resultOut)}</strong></span>`;
+        // this is not scored
+      } else {
+        // If user typed e.g., "Sam" as input, they might expect to see "Hello Sam" — they should type expected output in answer box.
+        // Our UI asks them to type the output: so compare the answer they typed to the computed output. If they typed input value instead, they can type the expected output.
+        // We'll treat the current answer as user's claimed output (i.e., they type what print would show).
+        // To disambiguate, if their answer equals simulation output => correct.
+        const theirClaim = normalizedUser;
+        if(theirClaim === resultOut){
+          correctAnswer(idx);
+        } else {
+          // If they likely entered input instead of output, give helpful feedback (show output)
+          wrongAnswer(idx, `Output is: ${escapeHtml(resultOut)}`);
+        }
+      }
+    }
+
+    function correctAnswer(idx){
+      const fb = document.getElementById(`feedback-${idx}`);
+      fb.innerHTML = `<span class="right">Correct!</span>`;
+      score += (currentProblems[idx].level==='easy'?5: currentProblems[idx].level==='medium'?8:12);
+      streak++; correctCount++;
+      document.getElementById('score').textContent = score;
+      document.getElementById('streak').textContent = streak;
+      document.getElementById('correctCount').textContent = correctCount;
+      document.getElementById('yourPoints').textContent = score;
+      document.getElementById('yourRank').textContent = 1;
+      // progress bar
+      const prog = Math.min(100, Math.floor((correctCount / 12) * 100));
+      document.getElementById('progressBar').style.width = prog + '%';
+      document.getElementById('scoreBox').innerHTML = '★ ' + score;
+      // confetti
+      window.__spawnConfetti(innerWidth/2, innerHeight/4, 40);
+      // small delay then disable input for that exercise
+      setTimeout(()=>{ const el = document.getElementById(`answer-${idx}`); if(el) el.disabled = true; }, 200);
+    }
+
+    function wrongAnswer(idx, message){
+      const fb = document.getElementById(`feedback-${idx}`);
+      fb.innerHTML = `<span class="wrong">Try again — ${message}</span>`;
+      streak = 0;
+      document.getElementById('streak').textContent = streak;
+    }
+
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // tab click
+    document.querySelectorAll('.tab').forEach(t=>{
+      t.addEventListener('click', (e)=>{
+        document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        currentTopic = t.getAttribute('data-topic');
+        renderContent();
+      });
+    });
+
+    document.getElementById('newSet').addEventListener('click', ()=>{ renderContent(); });
+
+    // init
+    renderContent();
+
+    function updateSidebar(){
+      document.getElementById('leaders').querySelector('.mini strong#yourPoints')?.textContent = score;
+      document.getElementById('yourPoints').textContent = score;
+    }
+  </script>
+</body>
+</html>
