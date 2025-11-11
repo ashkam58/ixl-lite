@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shaan • Equal Groups: Multiply ↔ Divide</title>
+  <style>
+    :root{
+      --bg: linear-gradient(120deg,#d9f7ff,#f6e7ff);
+      --ink:#1b1f27;
+      --brand:#6c5ce7;
+      --accent:#00c2ff;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --card: #ffffffcc;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Noto Sans, Ubuntu, Cantarell, Arial;
+      color:var(--ink); background:var(--bg); min-height:100vh; display:flex; flex-direction:column;
+    }
+    header{
+      position:sticky; top:0; z-index:5; backdrop-filter: blur(6px);
+      background: #ffffffb0; border-bottom:1px solid #00000010;
+    }
+    .wrap{ max-width:1100px; margin:auto; padding:14px 18px; display:flex; align-items:center; gap:12px; }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px; }
+    .logo{ width:36px; height:36px; border-radius:50%; background: conic-gradient(from 120deg, #6c5ce7, #00c2ff, #22c55e, #f59e0b, #6c5ce7);
+           box-shadow:0 6px 18px #6c5ce766 inset, 0 3px 10px #0001; }
+    .chip{ padding:6px 10px; border-radius:999px; background:#fff; border:1px solid #00000012; font-weight:700; font-size:12px; }
+    .score{ margin-left:auto; display:flex; gap:8px; align-items:center; }
+    .meter{ height:10px; width:200px; background:#0001; border-radius:999px; overflow:hidden; }
+    .meter>span{ display:block; height:100%; width:0%; background:linear-gradient(90deg, #22c55e,#00c2ff); transition:width .35s ease; }
+
+    main{ max-width:1100px; margin:18px auto; padding:0 18px 90px; width:100%; }
+
+    .card{ background:var(--card); border:1px solid #00000012; border-radius:20px; box-shadow:0 8px 20px #0000000e; padding:16px; }
+
+    .playground{ display:grid; grid-template-columns: 1.2fr .8fr; gap:16px; }
+
+    .model{ display:flex; gap:16px; flex-wrap:wrap; align-items:center; justify-content:center; min-height:220px; padding:18px; position:relative; }
+    .pen{ position:absolute; inset:8px; pointer-events:none; background-image: radial-gradient(#00000008 1px, transparent 1px); background-size: 22px 22px; border-radius:14px; }
+
+    .group{ width:180px; height:180px; border-radius:50%; border:3px dashed #8b8bff; background:#ffffffee; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; position:relative; transition: transform .2s ease; }
+    .group:hover{ transform: translateY(-4px) rotate(-1deg); }
+    .dot{ width:42px; height:42px; border-radius:50%; background:#2f80ed; box-shadow:0 6px 0 #1b4fa6 inset, 0 2px 6px #0002; animation: pop .24s ease; }
+    @keyframes pop{ from{ transform:scale(.4); opacity:0 } to{ transform:scale(1); opacity:1 } }
+
+    .panel{ display:flex; flex-direction:column; gap:14px; }
+    .panel h3{ margin:0 0 4px; }
+    .formula{ font-size:22px; font-weight:800; letter-spacing:.3px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .formula .hint{ font-weight:600; font-size:14px; color:#475569; }
+
+    .row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    input[type=number].box{ width:90px; padding:8px 10px; border-radius:12px; border:2px solid #00000022; font-size:20px; font-weight:800; text-align:center; background:#fff; }
+    button{ padding:11px 14px; border-radius:12px; border:none; font-weight:800; cursor:pointer; box-shadow:0 6px 14px #0001; }
+    .primary{ background:var(--brand); color:white; }
+    .ghost{ background:white; border:2px solid #0001; }
+    .good{ background:var(--good); color:white }
+    .bad{ background:var(--bad); color:white }
+
+    .tag{ background:#f1f5f9; border:1px solid #e2e8f0; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+
+    .msg{ padding:10px 12px; border-radius:12px; font-weight:700; }
+    .msg.good{ background:#dcfce7; color:#14532d; border:2px solid #86efac }
+    .msg.bad{ background:#fee2e2; color:#7f1d1d; border:2px solid #fecaca }
+
+    footer{ position:fixed; inset:auto 0 0 0; background:#ffffffdd; border-top:1px solid #0001; }
+    .foot{ max-width:1100px; margin:auto; padding:12px 18px; display:flex; gap:12px; align-items:center; justify-content:space-between; }
+    .small{ font-size:12px; color:#475569 }
+
+    /* Confetti */
+    .confetti{ position:fixed; top:-10vh; font-size:22px; animation: fall 1.4s linear forwards; }
+    @keyframes fall{ to{ transform:translateY(110vh) rotate(260deg); opacity:0 } }
+
+    .shadowed{ text-shadow: 0 2px 0 #fff, 0 6px 16px #0002; }
+
+    .modebar{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+    .modebar .btn{ padding:8px 12px; border-radius:999px; border:2px solid #0001; background:#fff; cursor:pointer; font-weight:800; }
+    .modebar .btn.active{ background:var(--accent); color:#002133; border-color:transparent; box-shadow:0 8px 16px #00c2ff33; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="brand"><div class="logo"></div> <span class="shadowed">Equal Groups • Shaan</span></div>
+      <span class="chip">Grade 3 skill: relate × and ÷</span>
+      <div class="score">
+        <span class="chip" id="streak">🔥 Streak: 0</span>
+        <div class="meter" title="Progress to 20">
+          <span id="bar"></span>
+        </div>
+        <span class="chip" id="progress">0 / 20</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="playground">
+      <section class="card model" id="model">
+        <div class="pen"></div>
+      </section>
+
+      <section class="card panel">
+        <div class="modebar">
+          <span class="small">Difficulty:</span>
+          <button class="btn active" data-mode="easy">Easy</button>
+          <button class="btn" data-mode="med">Medium</button>
+          <button class="btn" data-mode="hard">Hard</button>
+        </div>
+        <div>
+          <h3>Sentences that match the model</h3>
+          <div class="formula" id="mulLine">—</div>
+          <div class="formula" id="divLine">—</div>
+          <div class="small" id="caption"></div>
+        </div>
+
+        <div class="row">
+          <button class="primary" id="checkBtn">Check</button>
+          <button class="ghost" id="skipBtn">Skip</button>
+          <button class="ghost" id="hintBtn">Hint</button>
+          <button class="ghost" id="resetBtn">Reset</button>
+        </div>
+        <div id="feedback"></div>
+
+        <div class="row">
+          <span class="tag" id="goalTag">Goal: 20 correct</span>
+          <span class="tag" id="timerTag">Time: 00:00</span>
+        </div>
+      </section>
+    </div>
+    <section class="card" style="max-width:1100px;margin:8px auto 100px;">
+      <h3 style="margin:6px 0 10px;">Clicker Lab • Build the Model</h3>
+      <div class="small">Click to build equal groups that match the target. When you think it matches, press <strong>Submit Build</strong> to earn ⭐.</div>
+      <div id="clickerTarget" class="formula" style="margin-top:8px"></div>
+      <div class="row" style="margin:6px 0 10px">
+        <button class="ghost" id="newTargetBtn">New Target</button>
+        <span class="tag">Stars: <span id="stars">0</span></span>
+        <span class="tag">Build Progress: <span id="buildProg">0 groups</span></span>
+      </div>
+      <div class="model" id="buildArea" style="min-height:200px"></div>
+      <div class="row" style="justify-content:flex-start">
+        <button class="primary" id="clickBtn">Click +1 dot</button>
+        <button class="ghost" id="nextGroupBtn">Next Group ➜</button>
+        <button class="ghost" id="undoBtn">Undo</button>
+        <button class="ghost" id="resetBuildBtn">Reset Build</button>
+        <button class="good" id="submitBuildBtn">Submit Build</button>
+      </div>
+      <div id="clickerMsg" style="margin-top:8px"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="foot">
+      <div>
+        <strong>How it works:</strong>
+        <span class="small">We draw <em>equal groups</em>. Fill in the missing numbers so both sentences describe the same model.</span>
+      </div>
+      <div class="small">Made for Shaan • Confetti-friendly 🎉</div>
+    </div>
+  </footer>
+
+  <script>
+    // ====== State ======
+    const state = { round:0, correct:0, streak:0, start: Date.now(), g:0, p:0, t:0, difficulty:'easy', boxes:[] };
+
+    const el = (sel)=>document.querySelector(sel);
+    const modelEl = el('#model');
+    const mulLine = el('#mulLine');
+    const divLine = el('#divLine');
+    const caption = el('#caption');
+    const feedback = el('#feedback');
+    const bar = el('#bar');
+    const progress = el('#progress');
+    const streakTag = el('#streak');
+    const timerTag = el('#timerTag');
+
+    // Simple timer
+    setInterval(()=>{
+      const s = Math.floor((Date.now()-state.start)/1000);
+      const mm = String(Math.floor(s/60)).padStart(2,'0');
+      const ss = String(s%60).padStart(2,'0');
+      timerTag.textContent = `Time: ${mm}:${ss}`;
+    }, 1000);
+
+    // ====== Sounds ======
+    function beep(hz=900, dur=0.12){
+      try{
+        const a=new (window.AudioContext||window.webkitAudioContext)();
+        const o=a.createOscillator(); const g=a.createGain();
+        o.connect(g); g.connect(a.destination); o.frequency.value=hz; o.type='triangle';
+        g.gain.value=0.05; o.start(); setTimeout(()=>{o.stop();a.close()}, dur*1000);
+      }catch(e){}
+    }
+
+    // ====== Confetti ======
+    function confettiBurst(n=36){
+      const bits = ['🎉','✨','⭐','🎈','🟣','🟡','🟢'];
+      for(let i=0;i<n;i++){
+        const s=document.createElement('div'); s.className='confetti';
+        s.textContent = bits[Math.floor(Math.random()*bits.length)];
+        s.style.left = Math.random()*100+'vw';
+        s.style.transform = `translateY(-8vh) rotate(${Math.random()*180}deg)`;
+        s.style.animationDuration = (1+Math.random()*0.9)+'s';
+        document.body.appendChild(s);
+        setTimeout(()=>s.remove(), 1600);
+      }
+    }
+
+    // ====== Helpers ======
+    function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a }
+    function clearNode(n){ while(n.firstChild) n.removeChild(n.firstChild) }
+    function addBox(answer){
+      const inp=document.createElement('input');
+      inp.type='number'; inp.className='box'; inp.inputMode='numeric';
+      inp.dataset.answer = String(answer);
+      state.boxes.push(inp);
+      return inp;
+    }
+
+    // ====== Model Drawing ======
+    function drawModel(groups, per){
+      modelEl.querySelectorAll('.group').forEach(n=>n.remove());
+      const total = groups*per;
+      for(let g=0; g<groups; g++){
+        const box=document.createElement('div');
+        box.className='group'; box.setAttribute('aria-label',`group ${g+1}`);
+        for(let i=0;i<per;i++){
+          const d=document.createElement('div'); d.className='dot'; box.appendChild(d);
+        }
+        modelEl.appendChild(box);
+      }
+      caption.innerHTML = `<span class="hint">Model:</span> ${groups} groups of ${per} = <strong>${total}</strong>`;
+    }
+
+    // ====== Round Generator ======
+    function newRound(){
+      state.round++; feedback.innerHTML=''; state.boxes=[];
+      state.g = randInt(2,5);
+      state.p = randInt(1,6);
+      state.t = state.g * state.p;
+      drawModel(state.g, state.p);
+
+      // Render equations by difficulty
+      renderEquations();
+
+      progress.textContent = `${state.correct} / 20`;
+      bar.style.width = `${Math.min(100, (state.correct/20)*100)}%`;
+      streakTag.textContent = `🔥 Streak: ${state.streak}`;
+      // focus first box if exists
+      if(state.boxes[0]) state.boxes[0].focus();
+    }
+
+    function renderEquations(){
+      clearNode(mulLine); clearNode(divLine);
+      const {g,p,t,difficulty} = state;
+      // --- Multiplication line ---
+      if(difficulty==='easy'){
+        mulLine.textContent = `${g} × ${p} = ${t}`;
+      } else if(difficulty==='med'){
+        // hide product only
+        mulLine.append(`${g} × ${p} = `, addBox(t));
+      } else { // hard: hide all three
+        mulLine.append(addBox(g), ' × ', addBox(p), ' = ', addBox(t));
+      }
+
+      // --- Division line ---
+      if(difficulty==='easy'){
+        // hide only quotient or divisor (random)
+        if(Math.random()<0.5){
+          divLine.append(`${t} ÷ ${g} = `, addBox(p));
+        }else{
+          divLine.append(`${t} ÷ `, addBox(g), ` = ${p}`);
+        }
+      }else if(difficulty==='med'){
+        // hide quotient
+        divLine.append(`${t} ÷ ${g} = `, addBox(p));
+      }else{ // hard: hide all values
+        divLine.append(addBox(t), ' ÷ ', addBox(g), ' = ', addBox(p));
+      }
+    }
+
+    // ====== Check Logic ======
+    function check(){
+      if(state.boxes.length===0){ return }
+      let allGood=true; let firstWrong=null;
+      for(const inp of state.boxes){
+        const guess = Number(inp.value);
+        const want = Number(inp.dataset.answer);
+        if(!Number.isFinite(guess) || String(guess)!==String(want)){
+          allGood=false; if(!firstWrong) firstWrong = inp;
+        }
+      }
+      if(allGood){
+        state.correct++; state.streak++;
+        goodMsg(`Correct! ${state.t} split into ${state.g} groups has ${state.p} each.`);
+        confettiBurst(30); beep(1100,.12);
+        if(state.correct>=20){ winner(); } else { setTimeout(newRound, 550); }
+      }else{
+        state.streak=0; beep(220,.12);
+        badMsg('Some blanks need love. Count the dots in one group and try again.');
+        if(firstWrong){ firstWrong.focus(); firstWrong.select && firstWrong.select(); }
+      }
+      streakTag.textContent = `🔥 Streak: ${state.streak}`;
+      progress.textContent = `${state.correct} / 20`;
+      bar.style.width = `${Math.min(100, (state.correct/20)*100)}%`;
+    }
+
+    function goodMsg(t){ feedback.innerHTML = `<div class="msg good">${t}</div>` }
+    function badMsg(t){ feedback.innerHTML = `<div class="msg bad">${t}</div>` }
+
+    function hint(){
+      const {g,p,t,difficulty} = state;
+      let text = `There are <strong>${g}</strong> equal groups with <strong>${p}</strong> in each. So <strong>${g} × ${p} = ${t}</strong>.<br>`+
+                 `Division shares <strong>${t}</strong> into <strong>${g}</strong> equal groups → <strong>${p}</strong> each.`;
+      if(difficulty==='hard') text += '<br><em>Hard mode tip:</em> fill the multiplication first; use it to finish the division.';
+      badMsg(text);
+    }
+
+    function skip(){ state.streak=0; newRound() }
+
+    function resetAll(){ Object.assign(state,{round:0, correct:0, streak:0, start:Date.now()}); newRound() }
+
+    function winner(){
+      mulLine.textContent = 'Champion!';
+      divLine.textContent = `You solved 20!`;
+      goodMsg('Shaan unlocked the Equal-Groups Badge 🏅');
+      for(let i=0;i<6;i++) setTimeout(()=>confettiBurst(28), i*220);
+    }
+
+    // ====== Events ======
+    document.querySelectorAll('.modebar .btn').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        document.querySelectorAll('.modebar .btn').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
+        state.difficulty = b.dataset.mode;
+        state.streak=0; // switching resets streak
+        newRound();
+      })
+    })
+    el('#checkBtn').addEventListener('click', check);
+    el('#skipBtn').addEventListener('click', skip);
+    el('#hintBtn').addEventListener('click', hint);
+    el('#resetBtn').addEventListener('click', resetAll);
+    // Enter key submits when focused in any box
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Enter') check(); });
+
+    // Bootstrap
+    newRound();
+      // ====== Clicker Lab ======
+    const clicker = {
+      target:{g:3,p:2}, built:[], stars:0
+    };
+    const buildArea = document.getElementById('buildArea');
+    const starsEl = document.getElementById('stars');
+    const buildProg = document.getElementById('buildProg');
+    const clickerMsg = document.getElementById('clickerMsg');
+    const clickerTarget = document.getElementById('clickerTarget');
+
+    function setTargetFromState(){
+      clicker.target = { g: randInt(2,5), p: randInt(1,6) };
+      renderTarget(); resetBuild();
+    }
+    function renderTarget(){
+      const {g,p}=clicker.target; const t=g*p;
+      clickerTarget.textContent = `Target: build ${g} × ${p} = ${t}`;
+    }
+    function resetBuild(){
+      clicker.built = Array.from({length:1},()=>0); // start with 1 group
+      renderBuild(); talk('Start clicking to add dots in Group 1.');
+    }
+    function renderBuild(){
+      clearNode(buildArea);
+      clicker.built.forEach((count,idx)=>{
+        const box=document.createElement('div'); box.className='group';
+        for(let i=0;i<count;i++){ const d=document.createElement('div'); d.className='dot'; box.appendChild(d); }
+        const cap=document.createElement('div'); cap.className='small'; cap.style.position='absolute'; cap.style.bottom='8px'; cap.textContent=`G${idx+1}: ${count}`; box.appendChild(cap);
+        buildArea.appendChild(box);
+      });
+      buildProg.textContent = `${clicker.built.length} group${clicker.built.length>1?'s':''}`;
+    }
+    function talk(t,good=false){
+      clickerMsg.innerHTML = `<div class="msg ${good?'good':'bad'}">${t}</div>`;
+    }
+    function addDot(){
+      const i = clicker.built.length-1; const {p} = clicker.target;
+      if(clicker.built[i] >= p){ talk(`Group ${i+1} is full (${p}). Click "Next Group".`, false); beep(350,.08); return; }
+      clicker.built[i]++; renderBuild();
+    }
+    function nextGroup(){
+      const {p,g} = clicker.target; const i = clicker.built.length-1;
+      if(clicker.built[i] !== p){ talk(`Fill Group ${i+1} to ${p} dots first.`,false); return; }
+      if(clicker.built.length>=g){ talk(`You already have ${g} groups — try Submit!`,true); return; }
+      clicker.built.push(0); renderBuild();
+    }
+    function undo(){
+      const i = clicker.built.length-1;
+      if(clicker.built[i]>0){ clicker.built[i]--; }
+      else if(clicker.built.length>1){ clicker.built.pop(); }
+      renderBuild();
+    }
+    function submitBuild(){
+      const {g,p}=clicker.target;
+      const ok = clicker.built.length===g && clicker.built.every(c=>c===p);
+      if(ok){
+        clicker.stars += g*p; // reward with total dots
+        starsEl.textContent = clicker.stars;
+        confettiBurst(40); beep(1200,.12);
+        talk(`Perfect build! Earned ${g*p} ⭐. New target ready.`, true);
+        setTargetFromState();
+      }else{
+        beep(250,.12); talk('Not an exact match yet. Each group must have the same count as the target.');
+      }
+    }
+
+    document.getElementById('clickBtn').addEventListener('click', addDot);
+    document.getElementById('nextGroupBtn').addEventListener('click', nextGroup);
+    document.getElementById('undoBtn').addEventListener('click', undo);
+    document.getElementById('resetBuildBtn').addEventListener('click', resetBuild);
+    document.getElementById('submitBuildBtn').addEventListener('click', submitBuild);
+    document.getElementById('newTargetBtn').addEventListener('click', setTargetFromState);
+
+    // seed from main round initially
+    setTargetFromState();
+
+    </script>
+</body>
+</html>
