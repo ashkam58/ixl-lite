@@ -59,8 +59,9 @@
 }
 
 /* Sidebar (index) */
-.sidebar{display:block;min-width:280px;max-width:320px;margin: 0 16px 16px 24px}
-.container{display:flex;gap:16px;align-items:flex-start}
+/* Sidebar + main layout: use CSS grid so main content expands to fill available space */
+.sidebar{display:block;min-width:260px;max-width:340px;margin: 0;}
+.container{max-width:1400px;margin:1rem auto;padding:0 24px;display:grid;grid-template-columns: minmax(260px,340px) 1fr;gap:24px;align-items:start}
 
 /* Filter Sidebar */
 .filter-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -160,9 +161,9 @@
   --bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #e0e7ff 75%, #f0f9ff 100%);
   --card: rgba(255, 255, 255, 0.8);
   --card-border: rgba(255, 255, 255, 0.5);
-  --brand: linear-gradient(135deg, #3b82f6, #06b6d4);
-  --brand-solid: #3b82f6;
-  --brand-dark: #2563eb;
+  --brand: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  --brand-solid: #8b5cf6;
+  --brand-dark: #7c3aed;
   --text: #1e293b;
   --text-light: #334155;
   --muted: rgba(30, 41, 59, 0.6);
@@ -184,7 +185,7 @@ html,body{height:100%;margin:0;padding:0}
 
 body{
   margin:0;
-  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Baloo 2', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg);
   background-attachment: fixed;
   color: var(--text);
@@ -195,37 +196,43 @@ body{
 }
 
 /* Static Educational Background */
-.edu-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: -1;
+/* Cartoon background (replaces emoji nodes visually) */
+.edu-background { position: fixed; inset:0; pointer-events:none; z-index:-1; }
+.edu-emoji{ display:none }
+body::before, body::after{
+  content:""; position: fixed; z-index:-1; filter: blur(0.4px); opacity:0.85; pointer-events:none;
 }
-
-.edu-emoji {
-  position: absolute;
-  font-size: 2rem;
-  opacity: 0.08;
-  color: var(--brand-solid);
-  user-select: none;
+body::before{
+  inset:auto auto 20% -6rem; width:56vw; height:56vw; max-height:70vh; border-radius:50%;
+  background:
+    radial-gradient(120px 120px at 20% 20%, #fde68a66, transparent 60%),
+    radial-gradient(140px 140px at 70% 10%, #fca5a566, transparent 60%),
+    radial-gradient(200px 200px at 50% 70%, #93c5fd66, transparent 60%),
+    radial-gradient(160px 160px at 80% 60%, #a78bfa66, transparent 60%);
+  filter: blur(2px);
+}
+body::after{
+  inset:-8rem -10rem auto auto; width:48vw; height:48vw; max-height:60vh; border-radius:50%;
+  background:
+    radial-gradient(160px 160px at 30% 30%, #86efac66, transparent 60%),
+    radial-gradient(120px 120px at 70% 50%, #fca5a566, transparent 60%),
+    radial-gradient(200px 200px at 40% 80%, #fde68a66, transparent 60%);
 }
 
 /* Hero Section */
 .hero {
   text-align: center;
-  padding: 3rem 2rem 2rem;
+  padding: 2.6rem 2rem 1.6rem;
   max-width: 800px;
   margin: 0 auto;
 }
 
 .hero-content h1 {
-  font-size: 2.5rem;
+  font-family: 'Baloo 2', 'Inter', ui-sans-serif;
+  font-size: clamp(2rem, 6vw, 3rem);
   font-weight: 800;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6);
+  background: linear-gradient(135deg, #f59e0b, #8b5cf6, #06b6d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -381,11 +388,7 @@ a:hover{text-decoration:underline;}
 }
 .container{max-width:1200px; margin:1rem auto; padding:0 24px}
 
-.grid{
-  display:grid; 
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-  gap:20px;
-}
+.grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:16px; }
 
 .card{
   background: var(--card);
@@ -394,7 +397,7 @@ a:hover{text-decoration:underline;}
   border-radius: var(--radius);
   border: var(--glass-border);
   box-shadow: var(--shadow);
-  padding: 24px;
+  padding: 16px;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
@@ -408,11 +411,11 @@ a:hover{text-decoration:underline;}
 
 .badge{
   display:inline-block; 
-  font-size:12px; 
+  font-size:11px; 
   font-weight: 600;
-  padding:6px 12px; 
+  padding:6px 10px; 
   border-radius:20px; 
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  background: linear-gradient(135deg, #f59e0b, #8b5cf6);
   color: white;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -495,8 +498,9 @@ a:hover{text-decoration:underline;}
 .card h3 {
   margin: 12px 0 8px 0;
   color: var(--text);
-  font-weight: 700;
-  font-size: 1.2em;
+  font-family: 'Baloo 2', 'Inter', ui-sans-serif;
+  font-weight: 800;
+  font-size: 1.1em;
   line-height: 1.3;
 }
 
