@@ -194,8 +194,8 @@
   }
 
   function buildSidebar(model){
-    // Only on index page
-    if(!/\/index\.html?$/.test(location.pathname)) return;
+  // Only on index page or root
+  if(!(location.pathname === '/' || /\/index\.html?$/.test(location.pathname))) return;
     const container = document.getElementById('sidebar');
     if(!container) return;
     container.innerHTML = '';
