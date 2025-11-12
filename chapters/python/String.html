@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Sorcerer</title>
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 2. Use a kid-friendly font (Inter) */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* A little bounce animation for the mascot */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-5%); }
+            50% { transform: translateY(0); }
+        }
+        .mascot-bounce {
+            animation: bounce 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-4 md:p-8 min-h-screen flex items-center justify-center">
+
+    <!-- Main Game Container -->
+    <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-5 md:p-8 border-4 border-purple-500">
+        
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-5xl font-bold text-purple-400">String Sorcerer</h1>
+            <p class="text-lg text-gray-300">Your First Python String Quest!</p>
+        </header>
+
+        <div class="flex flex-col md:flex-row gap-6">
+
+            <!-- Left Panel: Quest Log & Mascot -->
+            <div class="w-full md:w-1/2 bg-gray-900 rounded-xl p-6 border-2 border-gray-700">
+                <div class="flex items-center gap-4 mb-4">
+                    <div id="mascot" class="text-5xl mascot-bounce">🧙</div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-yellow-400" id="level-title">Level 1: The First Spell</h2>
+                        <div class="text-sm bg-purple-600 text-white px-3 py-1 rounded-full inline-block mt-1" id="level-counter">Level 1 of 10</div>
+                    </div>
+                </div>
+                <!-- Task instructions from the "Game Master" -->
+                <div class="bg-gray-800 p-4 rounded-lg min-h-[150px] border border-gray-600">
+                    <p class="text-lg font-medium text-yellow-200 mb-2">Quest:</p>
+                    <p id="task-description" class="text-gray-200 leading-relaxed">...</p>
+                </div>
+            </div>
+
+            <!-- Right Panel: Code Editor & Output -->
+            <div class="w-full md:w-1/2 flex flex-col gap-4">
+                
+                <!-- "Code Scroll" - Text Area -->
+                <div>
+                    <label for="code-editor" class="text-lg font-medium text-green-400 block mb-2">Your Magic Scroll (Editor)</label>
+                    <textarea id="code-editor" class="w-full h-40 bg-gray-900 text-white border-2 border-gray-700 rounded-lg p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" placeholder="Cast your spell here..."></textarea>
+                </div>
+
+                <!-- "Crystal Ball" - Output -->
+                <div>
+                    <label for="output-area" class="text-lg font-medium text-blue-400 block mb-2">Your Crystal Ball (Output)</label>
+                    <div id="output-area" class="w-full h-24 bg-gray-900 text-gray-300 border-2 border-gray-700 rounded-lg p-4 font-mono text-sm overflow-auto">
+                        &gt; Awaiting your spell...
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 mt-2">
+                    <button id="run-button" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-5 rounded-lg text-lg shadow-lg transition duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Run Spell
+                    </button>
+                    <button id="next-button" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-5 rounded-lg text-lg shadow-lg transition duration-200 opacity-50 cursor-not-allowed" disabled>
+                        Next Quest
+                        <svg class="w-6 h-6 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Message Area -->
+        <div id="feedback-message" class="mt-6 p-4 rounded-lg text-center font-medium text-lg hidden"></div>
+
+    </div>
+
+    <script>
+        // --- 1. GAME ELEMENTS ---
+        const levelTitle = document.getElementById('level-title');
+        const levelCounter = document.getElementById('level-counter');
+        const taskDescription = document.getElementById('task-description');
+        const codeEditor = document.getElementById('code-editor');
+        const outputArea = document.getElementById('output-area');
+        const runButton = document.getElementById('run-button');
+        const nextButton = document.getElementById('next-button');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const mascot = document.getElementById('mascot');
+
+        let currentLevel = 0;
+
+        // --- 2. THE QUEST LOG (LEVELS) ---
+        // We check the user's literal input string. No 'eval()' for safety!
+        const levels = [
+            {
+                title: "The First Spell",
+                task: "The scroll only opens if you say the right words! Type 'hello' (with the single quotes) in the editor and press Run.",
+                check: (input) => {
+                    if (input === "'hello'" || input === '"hello"') {
+                        setOutput("A magical glow surrounds you!");
+                        return { success: true, message: "Great! You can use single quotes (') or double quotes (\") to make a string!" };
+                    }
+                    return { success: false, message: "Not quite... try typing 'hello' exactly as it appears, including the quotes." };
+                }
+            },
+            {
+                title: "The Tricky Quote",
+                task: "The scroll needs a message that *has* a quote. Try to write: I'm a wizard! (Hint: Wrap the whole thing in *double* quotes!)",
+                check: (input) => {
+                    if (input === `"I'm a wizard!"`) {
+                        setOutput("The scroll accepts your message!");
+                        return { success: true, message: "Amazing! You used double quotes to 'hold' the single quote. That's smart!" };
+                    }
+                    return { success: false, message: "Almost! Remember to use double quotes (\") at the very beginning and end." };
+                }
+            },
+            {
+                title: "The Big Announcement",
+                task: "To show a message, use the `print()` spell. Try to print `Hello, world!`. Your spell should look like: `print('Hello, world!')`",
+                check: (input) => {
+                    if (input === `print('Hello, world!')` || input === `print("Hello, world!")`) {
+                        setOutput("Hello, world!");
+                        return { success: true, message: "You did it! See? The `print()` spell shows the *value* of the string, without the quotes." };
+                    }
+                    return { success: false, message: "Close! Make sure you type `print('Hello, world!')` exactly." };
+                }
+            },
+            {
+                title: "The Multi-Line Chant",
+                task: "We need a two-line chant. Type this exact chant using triple-quotes:\n`\"\"\"`\n`Abraca`\n`dabra`\n`\"\"\"`",
+                check: (input) => {
+                    // Normalize line endings for checking
+                    const normalizedInput = input.replace(/\r\n/g, '\n');
+                    const expected = '"""\nAbraca\ndabra\n"""';
+                    if (normalizedInput === expected) {
+                        setOutput("The room echoes...\nAbraca\ndabra");
+                        return { success: true, message: "Perfect! Triple quotes (`\"\"\"`) are for strings that span multiple lines." };
+                    }
+                    return { success: false, message: "Make sure you start and end with `\"\"\"` and have the words on separate lines in between." };
+                }
+            },
+            {
+                title: "The Power of Two",
+                task: "Let's combine two spells! Use the `+` sign to join 'py' and 'thon'. Type this spell: `print('py' + 'thon')`",
+                check: (input) => {
+                    if (input === `print('py' + 'thon')` || input === `print("py" + "thon")`) {
+                        setOutput("python");
+                        return { success: true, message: "Awesome! The `+` sign sticks strings together. This is 'concatenation'!" };
+                    }
+                    return { success: false, message: "Don't forget the `print()` and the `+` sign between the two words!" };
+                }
+            },
+            {
+                title: "The Echo Spell",
+                task: "Let's make an echo! Make the word `'Boo!'` repeat 3 times using the `*` spell. Try: `print('Boo!' * 3)`",
+                check: (input) => {
+                    if (input === `print('Boo!' * 3)` || input === `print("Boo!" * 3)`) {
+                        setOutput("Boo!Boo!Boo!");
+                        return { success: true, message: "Spooky! The `*` sign repeats a string. So magical!" };
+                    }
+                    return { success: false, message: "Remember the spell: `print('YourString' * Number)`" };
+                }
+            },
+            {
+                title: "The Secret Letter",
+                task: "Every string has secret letters. Let's find the *first* letter of `'wizard'`. The spell is `print('wizard'[0])`. (Computers start counting from 0!)",
+                check: (input) => {
+                    if (input === `print('wizard'[0])` || input === `print("wizard"[0])`) {
+                        setOutput("w");
+                        // This level becomes a 2-parter
+                        levels[currentLevel].task = "That was it! `[0]` gets the first letter. Now get the *last* letter. The secret code is `[-1]`. Try: `print('wizard'[-1])`";
+                        levels[currentLevel].check = (input2) => {
+                             if (input2 === `print('wizard'[-1])` || input2 === `print("wizard"[-1])`) {
+                                setOutput("d");
+                                return { success: true, message: "Incredible! `[0]` is the first, `[-1]` is the last. You're a true code-sorcerer!" };
+                             }
+                             return { success: false, message: "Almost! Use `[-1]` to get the last letter." };
+                        };
+                        // Reload the task description
+                        taskDescription.textContent = levels[currentLevel].task;
+                        return { success: false, message: "Correct! Now for part 2... (see new quest)" };
+                    }
+                    return { success: false, message: "That's not it. The spell is `print('wizard'[0])`" };
+                }
+            },
+            {
+                title: "The Slicing Spell",
+                task: "Let's grab a *piece* of a spell, called a 'slice'. Get the first two letters of `'python'` with `print('python'[0:2])`. (This means 'start at 0 and go *up to* 2').",
+                check: (input) => {
+                    if (input === `print('python'[0:2])` || input === `print("python"[0:2])` || input === `print('python'[:2])` || input === `print("python"[:2])`) {
+                        setOutput("py");
+                        return { success: true, message: "You 'sliced' it! Bonus tip: `[:2]` does the same thing!" };
+                    }
+                    return { success: false, message: "Make sure you use the square brackets with the colon: `[0:2]`" };
+                }
+            },
+            {
+                title: "The Unbreakable Spell",
+                task: "Python strings are 'immutable' (unbreakable). Let's prove it. Type this to see a magical error: `spell = 'fire'` (then on a new line) `spell[0] = 'w'`",
+                check: (input) => {
+                    const normalizedInput = input.replace(/\r\n/g, '\n');
+                    if (normalizedInput === `spell = 'fire'\nspell[0] = 'w'` || normalizedInput === `spell = "fire"\nspell[0] = "w"`) {
+                        setOutput("Error! TypeError: 'str' object does not support item assignment");
+                        return { success: true, message: "It failed! This is a *feature*. You can't change a string. To make 'water', you must make a *new* string: `spell = 'water'`" };
+                    }
+                    return { success: false, message: "Type the two lines exactly, with the second line right below the first." };
+                }
+            },
+            {
+                title: "The Spell's Length",
+                task: "Final challenge! How long is the spell `'supercalifragilistic'`? Use the `len()` function to find out: `print(len('supercalifragilistic'))`",
+                check: (input) => {
+                    if (input === `print(len('supercalifragilistic'))` || input === `print(len("supercalifragilistic"))`) {
+                        setOutput("34");
+                        return { success: true, message: "34 letters! You've mastered the basics of Python strings. You are now a String Sorcerer!" };
+                    }
+                    return { success: false, message: "Use the `len()` function, just like in the task description!" };
+                }
+            }
+        ];
+
+        // --- 3. GAME LOGIC ---
+
+        function loadLevel(levelIndex) {
+            if (levelIndex >= levels.length) {
+                showWinScreen();
+                return;
+            }
+
+            const level = levels[levelIndex];
+            levelTitle.textContent = level.title;
+            taskDescription.textContent = level.task;
+            levelCounter.textContent = `Level ${levelIndex + 1} of ${levels.length}`;
+
+            // Reset UI
+            codeEditor.value = '';
+            setOutput("Awaiting your spell...");
+            feedbackMessage.textContent = '';
+            feedbackMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium text-lg hidden';
+            
+            nextButton.classList.add('opacity-50', 'cursor-not-allowed');
+            nextButton.disabled = true;
+            
+            runButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            runButton.disabled = false;
+
+            mascot.textContent = '🧙';
+        }
+
+        function setOutput(message) {
+            outputArea.textContent = `> ${message}`;
+        }
+
+        function showFeedback(message, isSuccess) {
+            feedbackMessage.textContent = message;
+            if (isSuccess) {
+                feedbackMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium text-lg bg-green-800 text-green-200 block border border-green-600';
+            } else {
+                feedbackMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium text-lg bg-red-800 text-red-200 block border border-red-600';
+            }
+        }
+
+        function handleRun() {
+            const code = codeEditor.value.trim();
+            const level = levels[currentLevel];
+            
+            const result = level.check(code);
+
+            showFeedback(result.message, result.success);
+
+            if (result.success) {
+                mascot.textContent = '🎉';
+                nextButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                nextButton.disabled = false;
+                runButton.classList.add('opacity-50', 'cursor-not-allowed');
+                runButton.disabled = true;
+            } else {
+                mascot.textContent = '🤔';
+            }
+        }
+
+        function handleNext() {
+            currentLevel++;
+            loadLevel(currentLevel);
+        }
+
+        function showWinScreen() {
+            levelTitle.textContent = "Quest Complete!";
+            taskDescription.textContent = "You have mastered all the string spells! Your journey as a Python Sorcerer has only just begun. Well done!";
+            levelCounter.textContent = "Finished!";
+            codeEditor.style.display = 'none';
+            outputArea.style.display = 'none';
+            runButton.style.display = 'none';
+            nextButton.style.display = 'none';
+            feedbackMessage.style.display = 'none';
+            document.getElementById('code-editor').labels[0].style.display = 'none';
+            document.getElementById('output-area').labels[0].style.display = 'none';
+            mascot.textContent = '🏆';
+            showFeedback("Congratulations, String Sorcerer!", true);
+        }
+
+        // --- 4. EVENT LISTENERS ---
+        runButton.addEventListener('click', handleRun);
+        nextButton.addEventListener('click', handleNext);
+
+        // --- 5. START GAME ---
+        loadLevel(currentLevel);
+
+    </script>
+</body>
+</html>
