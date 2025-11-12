@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Python Warmups — THINK Mode Playground</title>
+  <style>
+    :root{
+      --bg1:#fff6ff;--bg2:#f4fbff;--card:#ffffff;--ink:#1a1a1a;--muted:#5f6b7a;
+      --accent:#7c3aed;--accent2:#06b6d4;--good:#16a34a;--warn:#f59e0b;--bad:#ef4444
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Helvetica,Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink)}
+    header{display:flex;align-items:center;gap:14px;padding:14px 20px}
+    .logo{width:64px;height:64px;border-radius:16px;display:grid;place-items:center;color:#fff;font-weight:900;letter-spacing:.5px;
+      background:conic-gradient(from 220deg,var(--accent),var(--accent2),#22d3ee,#a78bfa,var(--accent));box-shadow:0 10px 28px rgba(0,0,0,.12)}
+    h1{font-size:22px;margin:0}
+    .sub{color:var(--muted);font-size:13px}
+    .wrap{padding:14px;display:grid;grid-template-columns:320px 1fr 360px;gap:14px}
+    .card{background:var(--card);border:1px solid rgba(0,0,0,.06);border-radius:16px;padding:14px;box-shadow:0 16px 40px rgba(10,15,30,.08)}
+    .tabs{display:flex;gap:6px;margin-bottom:8px}
+    .tab{padding:8px 10px;border-radius:999px;border:1px dashed rgba(0,0,0,.08);cursor:pointer;font-weight:700;font-size:12px}
+    .tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;border:none}
+    .hide{display:none}
+    .theory p{margin:.4rem 0;color:var(--muted)}
+    .theory code{background:#f4f6ff;border:1px solid #e8ebff;padding:2px 6px;border-radius:6px}
+    .pin{display:inline-block;background:#eef7ff;border:1px solid #dce8ff;border-radius:8px;padding:6px 8px;color:#1e3a8a;font-weight:700;margin:.3rem 0}
+
+    .editor{display:flex;flex-direction:column;height:72vh}
+    textarea{flex:1;border-radius:12px;border:2px dashed #ecedf4;padding:12px 14px;font:13.5px/1.5 ui-monospace,Menlo,Consolas,monospace;resize:none}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    button{border:none;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer}
+    .run{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+    .ghost{background:#fff;border:2px solid rgba(0,0,0,.06);color:var(--accent)}
+    .download{background:linear-gradient(90deg,#22c55e,#06b6d4);color:#fff}
+    .think{background:linear-gradient(90deg,#f59e0b,#f97316);color:#fff}
+
+    .console{background:#0b1020;color:#cde9ff;border-radius:12px;padding:10px;min-height:160px;overflow:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace}
+
+    .right h3{margin:.4rem 0}
+    .list{display:flex;flex-direction:column;gap:8px;max-height:64vh;overflow:auto}
+    .item{padding:10px;border-radius:12px;border:1px solid rgba(0,0,0,.06);background:linear-gradient(90deg,#fff,#fbfdff);cursor:pointer}
+    .item:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.06)}
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef7ff;color:#1e3a8a;font-weight:900;font-size:11px;margin-left:6px}
+
+    .docs a{color:#1d4ed8;text-decoration:none;border-bottom:1px dashed #bfdbfe}
+    .docs li{margin:.4rem 0}
+
+    .progress{height:10px;background:#f2f4f8;border-radius:999px;overflow:hidden}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s ease}
+
+    .hint{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:8px;border-radius:10px;font-size:13px}
+
+    /* tiny confetti */
+    #confetti{position:fixed;inset:0;pointer-events:none}
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+  <header>
+    <div class="logo">AIS</div>
+    <div>
+      <h1>Python Warmups — THINK Mode Playground</h1>
+      <div class="sub">Print • Variables • Input • Types • Strings — with step-by-step prompts, drills, quizzes, and PyCharm packs</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- LEFT: Learn / Docs / Tips -->
+    <aside class="card theory">
+      <div class="tabs">
+        <div class="tab active" data-tab="learn">Learn</div>
+        <div class="tab" data-tab="docs">Docs</div>
+        <div class="tab" data-tab="tips">Tips</div>
+      </div>
+
+      <section id="learn" class="tabpane">
+        <p><span class="pin">Concept map</span></p>
+        <p><strong>print(x)</strong> → shows results.
+           <strong>Variables</strong> → names for values: <code>name = "Ashkam"</code>.
+           <strong>input(prompt)</strong> → reads text; convert with <code>int()</code>/<code>float()</code> for math.
+        </p>
+        <p><strong>Strings</strong>: quotes, concatenation <code>"Hi" + ", " + name</code>, repetition <code>"ha"*3</code>, slices <code>s[:3]</code>, last char <code>s[-1]</code>.</p>
+        <div class="hint"><strong>THINK mode:</strong> Before running, say (out loud!) what you expect the output to be, then compare. Prediction → Run → Reflect.</div>
+        <p class="pin">Goal</p>
+        <p>Master 20 warmups first, then unlock quizzes. Score ≥ 80% three times to trigger confetti & badge.</p>
+        <div class="progress"><div id="progbar" class="bar"></div></div>
+      </section>
+
+      <section id="docs" class="tabpane hide docs">
+        <p><strong>Official docs (curated)</strong></p>
+        <ul>
+          <li><a href="https://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator" target="_blank">Tutorial → Using Python as a Calculator</a></li>
+          <li><a href="https://docs.python.org/3/tutorial/introduction.html#strings" target="_blank">Tutorial → Strings</a></li>
+          <li><a href="https://docs.python.org/3/library/functions.html#print" target="_blank">Builtins → print()</a></li>
+          <li><a href="https://docs.python.org/3/library/functions.html#input" target="_blank">Builtins → input()</a></li>
+          <li><a href="https://docs.python.org/3/library/functions.html#int" target="_blank">Builtins → int()</a> • <a href="https://docs.python.org/3/library/functions.html#float" target="_blank">float()</a> • <a href="https://docs.python.org/3/library/functions.html#type" target="_blank">type()</a></li>
+        </ul>
+        <p class="small">Skim the official pages; then test ideas here instantly.</p>
+      </section>
+
+      <section id="tips" class="tabpane hide">
+        <p><strong>Predict → Run → Reflect</strong>. Write a tiny hypothesis for the output, run it, and note mismatches.</p>
+        <p><strong>Use print as a flashlight</strong>: sprinkle <code>print()</code> to see variables while debugging.</p>
+        <p><strong>Type conversions</strong>: numbers + strings don’t mix — convert explicitly with <code>int()</code> or <code>str()</code>.</p>
+      </section>
+    </aside>
+
+    <!-- CENTER: Editor + Console + Controls -->
+    <section class="card editor">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div><strong>Editor</strong> <span class="sub">(Skulpt runner; input() supported via browser prompt)</span></div>
+        <div class="pin">THINK: predict first!</div>
+      </div>
+      <textarea id="editor"># Start here — try predicting outputs before running!
+name = "Ashkam"
+print("Hello, " + name + "!")
+
+age = 25
+print(age + 1)
+
+# Try: print(3*"ha")
+# Try: print("5"+"7"); print(5+7)
+# Try: pi=3.14; r=5; print(pi*r*r)
+# Try: n=int(input("Enter a number: ")); print(n*2)
+</textarea>
+      <div class="controls">
+        <button class="run" onclick="runCode()">Run ▶</button>
+        <button class="ghost" onclick="clearConsole()">Clear</button>
+        <button class="ghost" onclick="loadPack('warmups')">Load Warmups</button>
+        <button class="ghost" onclick="loadPack('strings')">Load Strings</button>
+        <button class="ghost" onclick="loadPack('inputs')">Load Inputs</button>
+        <button class="think" onclick="injectThinking()">Insert THINK prompts</button>
+        <button class="download" onclick="downloadPy()">Download .py</button>
+      </div>
+      <div style="margin-top:8px"><strong>Console</strong></div>
+      <pre id="console" class="console">(output will appear here)
+</pre>
+    </section>
+
+    <!-- RIGHT: Exercises, Quizzes, PyCharm tasks -->
+    <aside class="card right">
+      <div class="tabs">
+        <div class="tab active" data-tab="ex">Exercises</div>
+        <div class="tab" data-tab="quiz">Quiz</div>
+        <div class="tab" data-tab="pypack">PyCharm</div>
+      </div>
+
+      <section id="ex" class="tabpane">
+        <h3>Clickable Warmups <span class="badge" id="doneBadge">0/20</span></h3>
+        <div class="list" id="ex-list"></div>
+        <hr>
+        <h3>Extra Drills</h3>
+        <ul class="small">
+          <li>Write <code>greet(name)</code> that returns <code>"Hello, name!"</code>.</li>
+          <li>Ask three numbers and print their average (rounded to 2 decimals).</li>
+          <li>Take a word, print first, middle, last characters.</li>
+          <li>Create <code>is_even(n)</code> and test it on 5 inputs.</li>
+          <li>Input two strings and print them joined with a hyphen.</li>
+        </ul>
+      </section>
+
+      <section id="quiz" class="tabpane hide">
+        <h3>Quick Quiz (auto-check)</h3>
+        <p class="sub">Answer from memory. No running code — THINK first.</p>
+        <ol id="quizList" class="small"></ol>
+        <div class="controls" style="margin-top:8px">
+          <button class="run" onclick="gradeQuiz()">Submit</button>
+          <button class="ghost" onclick="newQuiz()">New Quiz</button>
+        </div>
+        <div id="quizResult" class="pin" style="display:none"></div>
+      </section>
+
+      <section id="pypack" class="tabpane hide">
+        <h3>PyCharm Practice Pack</h3>
+        <p class="small">Downloads are single-file for now — copy into PyCharm projects:</p>
+        <div class="controls">
+          <button class="download" onclick="downloadTemplate('functions')">Functions Pack</button>
+          <button class="download" onclick="downloadTemplate('inputs')">Inputs Pack</button>
+          <button class="download" onclick="downloadTemplate('strings')">Strings Pack</button>
+        </div>
+        <p class="hint" style="margin-top:8px">Pro tip: add <code>assert</code> tests and docstrings; then refactor names to be descriptive.</p>
+      </section>
+    </aside>
+  </main>
+
+  <footer style="padding:10px 16px;color:var(--muted);font-size:12px">
+    Built for lively classrooms. In-browser runner: Skulpt; for full Python features, use the PyCharm downloads.
+  </footer>
+
+  <!-- Skulpt -->
+  <script src="https://cdn.jsdelivr.net/npm/skulpt/dist/skulpt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/skulpt/dist/skulpt-stdlib.js"></script>
+  <script>
+    /* ---------------- Tabs ---------------- */
+    document.querySelectorAll('.tab').forEach(t=>{
+      t.addEventListener('click',()=>{
+        const pane = t.getAttribute('data-tab');
+        t.parentElement.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        const parent = t.closest('.card');
+        parent.querySelectorAll('.tabpane').forEach(p=>p.classList.add('hide'));
+        parent.querySelector('#'+pane).classList.remove('hide');
+      });
+    });
+
+    /* -------------- Confetti (tiny) -------------- */
+    const c = document.getElementById('confetti');
+    const ctx = c.getContext('2d');
+    function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+    resize(); window.addEventListener('resize',resize);
+    let bits=[]; function puff(){
+      for(let i=0;i<120;i++) bits.push({x:Math.random()*c.width,y:-20,vy:2+Math.random()*3,vx:(Math.random()-.5)*4,rot:Math.random()*6,s:6+Math.random()*8});
+    }
+    function step(){
+      ctx.clearRect(0,0,c.width,c.height);
+      bits.forEach(b=>{b.y+=b.vy;b.x+=b.vx;b.rot+=.1;ctx.save();ctx.translate(b.x,b.y);ctx.rotate(b.rot);ctx.fillStyle=['#a78bfa','#06b6d4','#f472b6','#f59e0b','#22c55e'][b.s%5];ctx.fillRect(-b.s/2,-b.s/2,b.s,b.s);ctx.restore();});
+      bits = bits.filter(b=>b.y<c.height+30);
+      requestAnimationFrame(step);
+    } step();
+
+    /* -------------- Exercises -------------- */
+    const exercises=[
+      {t:'Hello, name', c:"name=\"Ashkam\"
+print(\"Hello, \"+name+\"!\")"},
+      {t:'age + 1', c:"age=20
+print(age+1)"},
+      {t:'3*"ha"', c:"print(3*\"ha\")"},
+      {t:'\"5\"+\"7\" vs 5+7', c:"print(\"5\"+\"7\")
+print(5+7)"},
+      {t:'Area circle r=5', c:"pi=3.14
+r=5
+print(pi*r*r)"},
+      {t:'Double input', c:"n=int(input('Number: '))
+print(n*2)"},
+      {t:'Sum two inputs', c:"a=int(input('a: '))
+b=int(input('b: '))
+print(a+b)"},
+      {t:'int(\"42\") + 8', c:"print(int(\"42\")+8)"},
+      {t:'types: 10, "10", 10.0', c:"print(type(10))
+print(type(\"10\"))
+print(type(10.0))"},
+      {t:'greeting → Hi, Ashkam!', c:"greeting=\"Hi\"
+target=\"Ashkam\"
+print(greeting+\", \"+target+\"!\")"},
+      {t:'last char of Python', c:"print(\"Python\"[-1])"},
+      {t:'first 3 of Elephant', c:"print(\"Elephant\"[:3])"},
+      {t:'x = x + 3', c:"x=7
+x=x+3
+print(x)"},
+      {t:'len(name)', c:"name=input('Name: ')
+print(len(name))"},
+      {t:'"AIS"*4', c:"print(\"AIS\"*4)"},
+      {t:'quotient & remainder', c:"a=10;b=3
+print(a//b,a%b)"},
+      {t:'even?', c:"n=int(input('n: '))
+print(n%2==0)"},
+      {t:'join with -', c:"print('-'.join(['A','I','S']))"},
+      {t:'strip spaces', c:"s=' hello '
+print(s.strip())"},
+      {t:'upper()', c:"print(\"Python is fun\".upper())"}
+    ];
+    const done = new Set();
+    const exList=document.getElementById('ex-list');
+    const badge=document.getElementById('doneBadge');
+    function renderEx(){
+      exList.innerHTML='';
+      exercises.forEach((ex,i)=>{
+        const d=document.createElement('div');
+        d.className='item';
+        d.innerHTML=`<strong>${i+1}. ${ex.t}</strong><div class='sub'>click to load</div>`;
+        d.onclick=()=>{document.getElementById('editor').value=ex.c};
+        exList.appendChild(d);
+      });
+    } renderEx();
+
+    function markDone(title){
+      done.add(title);badge.textContent=`${done.size}/20`;
+      document.getElementById('progbar').style.width=Math.min(100, (done.size/20)*100)+"%";
+      if(done.size>=20){puff();}
+    }
+
+    /* -------------- Skulpt runner -------------- */
+    function outf(text){document.getElementById('console').textContent+=text}
+    function builtinRead(x){
+      if(Sk.builtinFiles===undefined||Sk.builtinFiles['files'][x]===undefined) throw `File not found: ${x}`;
+      return Sk.builtinFiles['files'][x];
+    }
+    function runCode(){
+      const code=document.getElementById('editor').value; clearConsole();
+      Sk.configure({output:outf, read:builtinRead, inputfun:(p)=>window.prompt(p||"Input:")||""});
+  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody('<stdin>',false,code,true))
+   .then(()=>{markDone(guessTitle(code));})
+   .catch(err=>outf('\n'+err.toString()));
+    }
+    function clearConsole(){document.getElementById('console').textContent=''}
+
+    function guessTitle(code){
+      // crude recognizer to mark items complete
+      for(const ex of exercises){
+        // compare first non-empty line of the example code
+        const firstLine = ex.c.split('\n').find(l=>l.trim()!=='') || '';
+        if(code.trim().startsWith(firstLine)) return ex.t;
+      }
+      return 'custom';
+    }
+
+    /* Packs */
+    const packs = {
+      warmups: exercises.map(e => '# ' + e.t + '\n' + e.c).join('\n\n'),
+      strings: `# Strings pack
+s = "Elephant"
+print(s[:3])
+print(s[-1])
+print(s.upper())
+print(3*"ha")
+print("-".join(["A","I","S"]))
+`,
+      inputs: `# Inputs pack
+a = int(input("a: "))
+b = int(input("b: "))
+print("sum:", a+b)
+print("avg:", (a+b)/2)
+print("both even?", (a%2==0) and (b%2==0))
+`
+    };
+    function loadPack(k){ document.getElementById('editor').value = packs[k] || '' }
+
+    function injectThinking(){
+      const t=`# THINK prompts
+# 1) Predict: What will each line print?
+# 2) Why? Write a one-line reason in a comment.
+# 3) Change one value and predict again.
+name = "Ashkam"
+print("Hello, "+name+"!") # Your prediction: __
+print(3*"ha") # __
+print("5"+"7") # __ vs print(5+7) # __
+`;
+      document.getElementById('editor').value=t;
+    }
+
+    function downloadPy(){
+      const content=document.getElementById('editor').value;
+      const blob=new Blob([content],{type:'text/x-python'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a');
+      a.href=url; a.download='python_think_mode.py'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    function downloadTemplate(kind){
+      const map={
+        functions:`def greet(name):
+    return "Hello, "+name+"!"
+
+def is_even(n):
+    return n%2==0
+
+# quick tests
+assert greet("Ashkam")=="Hello, Ashkam!"
+assert is_even(10) and not is_even(7)
+print("OK")
+`,
+        inputs:`a=int(input("a: "))
+b=int(input("b: "))
+print("sum:",a+b)
+print("product:",a*b)
+print("even_a?",a%2==0)
+`,
+        strings:`s=input("word: ")
+print("first:",s[0])
+print("last:",s[-1])
+print("upper:",s.upper())
+print("tripled:",s*3)
+`
+      };
+      const content=map[kind]||""; const blob=new Blob([content],{type:'text/x-python'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`${kind}_pack.py`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    /* -------------- Quiz -------------- */
+    const bank=[
+      {q:'What does print() do?', a:'prints to output'},
+      {q:'input() returns which type by default?', a:'str'},
+      {q:'Concatenate: "Hi" and name variable.', a:'"Hi"+name'},
+      {q:'Repeat string "ha" 3 times.', a:'"ha"*3'},
+      {q:'Slice first 3 of s.', a:'s[:3]'},
+      {q:'Last char of s.', a:'s[-1]'},
+      {q:'Convert text t to integer.', a:'int(t)'},
+      {q:'Type of 10.0?', a:'float'},
+      {q:'Compute area of circle with pi, r.', a:'pi*r*r'},
+      {q:'Join ["A","I","S"] with "-".', a:'"-".join(["A","I","S"])'}
+    ];
+    function newQuiz(){
+      const qs=[...bank].sort(()=>Math.random()-0.5).slice(0,6);
+      const ol=document.getElementById('quizList'); ol.innerHTML='';
+      qs.forEach((it,i)=>{
+        const li=document.createElement('li');
+        li.innerHTML=`<div><strong>${it.q}</strong></div><input data-ans="${it.a.toLowerCase()}" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:8px" placeholder="Type your answer (pseudo-code ok)">`;
+        ol.appendChild(li);
+      });
+      document.getElementById('quizResult').style.display='none';
+    }
+    newQuiz();
+    function gradeQuiz(){
+      const inputs=[...document.querySelectorAll('#quizList input')];
+      let score=0; inputs.forEach(inp=>{ if(inp.value.trim().toLowerCase()==inp.dataset.ans) score++ });
+      const pct=Math.round(100*score/inputs.length);
+      const res=document.getElementById('quizResult');
+      res.style.display='inline-block'; res.textContent=`Score: ${pct}% (${score}/${inputs.length})`;
+      if(pct>=80){puff();}
+    }
+  </script>
+</body>
+</html>
