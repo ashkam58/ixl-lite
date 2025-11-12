@@ -260,5 +260,15 @@
     "title": "🎯 Grade 7 \u2022 Negative Integers and Powers",
     "tags": ["grade7", "chapterone","numbers", "negative-integers", "powers", "interactive", "visual", "yuvan"],
     "level": "Medium"
+  },{
+    "slug": "python/basicPython",
+    "title": "🐍 Python First Class — Cartoon Practice",
+    "tags": ["python", "basic", "cartoon", "practice", "interactive"],
+    "level": "Easy"
+  },{
+    "slug": "python/variableInputPrint",
+    "title": "🐍 Python Variables, Input, and Print",
+    "tags": ["python", "variables", "input", "print", "interactive", "practice"],
+    "level": "Easy"
   }
 ]

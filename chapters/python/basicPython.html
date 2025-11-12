@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python First Class — Cartoon Practice</title>
+  <style>
+    :root{
+      --bg:#fff7ff; --card:#ffffff; --accent1:#ff7ab6; --accent2:#7ad3ff; --muted:#6b6b6b;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(135deg,var(--accent2),#fbe8ff 60%);}
+    .wrap{max-width:980px;margin:28px auto;padding:18px}
+    header{display:flex;align-items:center;gap:16px}
+    .logo{width:92px;height:92px;border-radius:18px;background:linear-gradient(135deg,var(--accent1),#ffd86b);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.12);}
+    .logo span{font-size:44px}
+    h1{margin:0;font-size:26px}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
+    .controls{display:flex;gap:8px;margin:18px 0}
+    .btn{background:var(--card);border:none;padding:8px 12px;border-radius:12px;box-shadow:0 6px 16px rgba(12,20,60,0.06);cursor:pointer}
+    .btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white;font-weight:600}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    .card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 8px 20px rgba(11,20,40,0.06)}
+    .exercise{padding:10px;border-radius:10px;margin-bottom:10px;border:2px dashed rgba(0,0,0,0.04)}
+    .code{background:#0f1724;color:#e6f3ff;padding:10px;border-radius:8px;font-family:monospace;font-size:13px}
+    label{display:block;font-size:13px;margin-bottom:6px}
+    input[type=text], input[type=number], select{width:100%;padding:8px;border-radius:8px;border:1px solid #eee}
+    .small{font-size:13px;color:var(--muted)}
+    .result{margin-top:8px;padding:8px;border-radius:8px}
+    .correct{background:#ecfff0;border:1px solid #b6f0c8;color:#1a6b2c}
+    .wrong{background:#fff0f3;border:1px solid #ffb6c6;color:#7b1630}
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+    /* confetti sparkle */
+    .sparkle{position:fixed;right:18px;top:18px;pointer-events:none}
+    .sparkle div{width:12px;height:12px;border-radius:50%;opacity:0.9;margin:6px 0;animation:float 6s linear infinite}
+    @keyframes float{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(180deg)}100%{transform:translateY(0) rotate(360deg)}}
+    /* responsive */
+    @media (max-width:920px){.grid{grid-template-columns:1fr}
+      .logo{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="sparkle" aria-hidden>
+    <div style="background:#ffd86b"></div>
+    <div style="background:#ff7ab6;animation-delay:0.5s"></div>
+    <div style="background:#7ad3ff;animation-delay:1s"></div>
+  </div>
+  <div class="wrap">
+    <header>
+      <div class="logo"><span>🐍</span></div>
+      <div>
+        <h1>Python First Class — Cartoon Practice</h1>
+        <p class="lead">Interactive, kid-friendly practice page to teach `print`, `input`, variables and logic. Easy → Medium → Hard levels. Paste into Replit or save as <code>index.html</code>.</p>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="btn" id="hintToggle">💡 Show teacher hints</div>
+      <div class="btn" id="resetAll">🔁 Reset all</div>
+      <div style="flex:1"></div>
+      <select id="levelSel" class="btn">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <button class="btn primary" id="startBtn">Start Level</button>
+    </div>
+
+    <div class="grid">
+      <main>
+        <section class="card">
+          <h3>Exercises</h3>
+
+          <div id="exercisesContainer">
+            <!-- JS will inject exercises here -->
+          </div>
+
+          <div style="margin-top:12px" class="small">Tip: ask students to predict output before checking — encourage reasoning, not guesswork.</div>
+        </section>
+
+        <section class="card" style="margin-top:12px">
+          <h4>Mini live simulator</h4>
+          <p class="small">This sim lets students try a simple input/print flow — it doesn't run Python but models the behavior so beginners build intuition.</p>
+          <label>Enter your name</label>
+          <input id="simName" type="text" placeholder="Type here..." />
+          <label>Enter a number</label>
+          <input id="simNum" type="number" placeholder="e.g. 7" />
+          <button class="btn primary" id="runSim">Run simulator</button>
+          <div id="simOutput" class="result" style="display:none"></div>
+        </section>
+
+      </main>
+
+      <aside>
+        <div class="card">
+          <h4>Teacher panel</h4>
+          <p class="small">Use these quick checks and reveal answers to save time.</p>
+          <div style="margin-top:8px">
+            <button class="btn" id="revealAll">Reveal answers</button>
+            <button class="btn" id="hideAnswers">Hide answers</button>
+          </div>
+
+          <hr style="margin:12px 0" />
+          <div id="hintBox" class="small" style="display:none">
+            <strong>Hints</strong>
+            <ul>
+              <li>Remember <code>input()</code> returns text — convert with <code>int()</code> for numbers.</li>
+              <li>Indentation matters in Python — show how spaces create blocks.</li>
+              <li>Encourage predicting output before running code — it's the best debugging skill.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h4>Progress</h4>
+          <div id="progress">Completed: 0 / 0</div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h4>Notes for parents</h4>
+          <p class="small">This page is a guided practice to pair with a live teacher or as in-class activity. It intentionally uses "predict & check" and small tasks to build confidence.</p>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      Quick: save as <code>index.html</code> and open in a browser or paste into Replit. Works offline.
+    </footer>
+  </div>
+
+  <script>
+    // Exercises data per level
+    const levels = {
+      easy: [
+        {id:'e1',title:'Hello Twice',desc:'Write the printed output of the Python code below.',code:`print("Alice")\nprint("Alice")`,answer:'Alice\nAlice'},
+        {id:'e2',title:'Multiply jars',desc:'Given variables in Python: x=4, y=3. What does print(x*y) output?',code:`x = 4\ny = 3\nprint(x * y)`,answer:'12'}
+      ],
+      medium: [
+        {id:'m1',title:'Sum of two numbers (simulate)',desc:'Ask for two numbers and enter them in the boxes. Check the correct sum.',interactive:true,fields:[{id:'a',label:'First number',type:'number'},{id:'b',label:'Second number',type:'number'}],validator:(vals)=>String(Number(vals.a)+Number(vals.b)),answerHint:'Shows computed sum'},
+        {id:'m2',title:'Age to year',desc:'If current year is 2025, compute YEAR when the person turns 100. (type the year)',code:`name = input("Name: ")\nage = int(input("Age: "))\nprint(2025 - age + 100)`,answer:'2025 - age + 100 (student computes)'}
+      ],
+      hard: [
+        {id:'h1',title:'Number analyzer (hidden values)',desc:'A number is hidden. Identify whether it is even/odd and >10. (Some values hidden — student must reason.)',hidden:true,interactive:true,fields:[{id:'secret',label:'Try a guess (1-30)',type:'number'}],validator:(vals,secret)=>{const v=Number(vals.secret);let res=[];res.push(v%2===0? 'even':'odd');res.push(v>10?'>10':'<=10');return res.join(' | ');},answerHint:'Try different guesses; reveal real secret in teacher mode'},
+        {id:'h2',title:'Debug me',desc:'Spot the error: why does this code crash?\n\nfor i in range(5):\nprint(i)',code:`for i in range(5):\nprint(i)`,answer:'IndentationError — print must be indented'}
+      ]
+    }
+
+    let progressCount=0, totalCount=0, currentSecret = Math.floor(Math.random()*30)+1;
+    const container = document.getElementById('exercisesContainer');
+    const levelSel = document.getElementById('levelSel');
+    const progressDiv = document.getElementById('progress');
+
+    function renderLevel(level){
+      container.innerHTML=''; progressCount=0; totalCount=0;
+      const arr = levels[level]; totalCount = arr.length;
+      arr.forEach(ex=>{
+        const el = document.createElement('div'); el.className='exercise';
+        const title = document.createElement('h4'); title.textContent = ex.title; el.appendChild(title);
+        const desc = document.createElement('div'); desc.className='small'; desc.textContent = ex.desc; el.appendChild(desc);
+        if(ex.code){
+          const pre = document.createElement('pre'); pre.className='code'; pre.textContent = ex.code; el.appendChild(pre);
+        }
+        if(ex.interactive){
+          ex.fields.forEach(f=>{
+            const lab = document.createElement('label'); lab.textContent = f.label; el.appendChild(lab);
+            const input = document.createElement('input'); input.type = f.type; input.id = `${ex.id}_${f.id}`; el.appendChild(input);
+          })
+          const check = document.createElement('button'); check.className='btn'; check.textContent='Check'; check.onclick = ()=>handleCheck(ex); el.appendChild(check);
+          const out = document.createElement('div'); out.id = ex.id+'_out'; out.className='result'; out.style.display='none'; el.appendChild(out);
+        } else {
+          const answerBox = document.createElement('div'); answerBox.style.marginTop='8px';
+          const input = document.createElement('input'); input.type='text'; input.placeholder='Type predicted output here'; input.id = ex.id+'_pred'; answerBox.appendChild(input);
+          const btn = document.createElement('button'); btn.className='btn'; btn.textContent='Check'; btn.onclick = ()=>checkPred(ex); answerBox.appendChild(btn);
+          const out = document.createElement('div'); out.id = ex.id+'_out'; out.className='result'; out.style.display='none'; answerBox.appendChild(out);
+          el.appendChild(answerBox);
+        }
+
+        container.appendChild(el);
+      });
+      updateProgress();
+    }
+
+    function checkPred(ex){
+      const pred = document.getElementById(ex.id+'_pred').value.trim();
+      const out = document.getElementById(ex.id+'_out');
+      // normalize newlines
+      const expected = String(ex.answer).trim();
+      if(pred===expected){ out.style.display='block'; out.className='result correct'; out.textContent='Correct!'; progressCount++; updateProgress(); }
+      else{ out.style.display='block'; out.className='result wrong'; out.textContent='Not quite. Teacher reveal will show answer.' }
+    }
+
+    function handleCheck(ex){
+      const out = document.getElementById(ex.id+'_out');
+      const inputs = {};
+      ex.fields.forEach(f=>{inputs[f.id]=document.getElementById(ex.id+'_'+f.id).value});
+      if(ex.id==='m1'){ // sum
+        const res = Number(inputs.a)+Number(inputs.b);
+        out.style.display='block'; out.className='result correct'; out.textContent = `Sum = ${res}`; progressCount++; updateProgress();
+      } else if(ex.id==='h1'){
+        const guess = Number(inputs.secret);
+        const real = currentSecret;
+        const parity = real%2===0? 'even':'odd';
+        const size = real>10?'>10':'<=10';
+        // compare
+        if(guess===real){ out.style.display='block'; out.className='result correct'; out.textContent=`Bingo! The secret was ${real} — ${parity} | ${size}`; progressCount++; updateProgress(); }
+        else{ out.style.display='block'; out.className='result wrong'; out.textContent=`Nope — try again. Hint: ${guess<real? 'Higher':'Lower'}` }
+      }
+    }
+
+    function updateProgress(){ progressDiv.textContent = `Completed: ${progressCount} / ${totalCount}` }
+
+    document.getElementById('startBtn').addEventListener('click',()=>{renderLevel(levelSel.value);});
+    document.getElementById('revealAll').addEventListener('click',()=>{
+      // show answers for code-based ones
+      const all = document.querySelectorAll('.exercise');
+      Object.values(levels[levelSel.value]).forEach(ex=>{
+        const out = document.getElementById(ex.id+'_out');
+        if(out){ out.style.display='block'; out.className='result correct'; out.textContent = ex.answer ? ('Answer: ' + ex.answer) : 'See teacher note.' }
+      })
+    })
+    document.getElementById('hideAnswers').addEventListener('click',()=>{document.querySelectorAll('.result').forEach(r=>r.style.display='none')})
+    document.getElementById('hintToggle').addEventListener('click',()=>{const h=document.getElementById('hintBox'); h.style.display=h.style.display==='none'?'block':'none'})
+    document.getElementById('resetAll').addEventListener('click',()=>{renderLevel(levelSel.value); document.querySelectorAll('input').forEach(i=>i.value=''); currentSecret = Math.floor(Math.random()*30)+1; progressCount=0; updateProgress();})
+
+    document.getElementById('runSim').addEventListener('click',()=>{
+      const n=document.getElementById('simName').value || 'friend';
+      const x=Number(document.getElementById('simNum').value)||0;
+      const out = document.getElementById('simOutput'); out.style.display='block'; out.className='result'; out.innerHTML = `print(\"Nice to meet you, \" + name) would output: <br><strong>Nice to meet you, ${escapeHtml(n)}</strong><br>print(${x} + 5) would output: <strong>${x+5}</strong>`;
+    })
+
+    function escapeHtml(s){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+
+    // initial render
+    renderLevel('easy');
+  </script>
+</body>
+</html>
