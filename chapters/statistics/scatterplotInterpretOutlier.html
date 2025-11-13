@@ -1057,58 +1057,7 @@
       }
     ];
 
-    // --- additional match-r questions added below ---
-    matchRQuestions.push(
-      {
-        id: 6,
-        text: "Estimate r (fast food visits vs BMI).",
-        rTrue: -0.05,
-        options: [-0.9, -0.05, 0.5, 0.9],
-        correct: 1,
-        explain: "This example is noisy; there's almost no clear linear relationship, so r is near 0.",
-        makePoints: () => {
-          const pts = [];
-          for (let i = 0; i < 30; i++) {
-            const x = Math.random() * 12;
-            const y = 20 + Math.random() * 15;
-            pts.push({ x, y, outlier: false });
-          }
-          return pts;
-        }
-      },
-      {
-        id: 7,
-        text: "Estimate r (daily step count vs resting heart rate).",
-        rTrue: -0.82,
-        options: [-0.8, -0.4, 0.0, 0.8],
-        correct: 0,
-        explain: "More daily steps are often linked with lower resting heart rates ⇒ strong negative correlation (r ≈ −0.8).",
-        makePoints: () => {
-          const pts = [];
-          for (let s = 1000; s <= 10000; s += 900) {
-            const hr = 78 - 0.0035 * s + (Math.random() - 0.5) * 4;
-            pts.push({ x: s, y: hr, outlier: false });
-          }
-          return pts;
-        }
-      },
-      {
-        id: 8,
-        text: "Estimate r (years of schooling vs income).",
-        rTrue: 0.68,
-        options: [0.2, 0.7, -0.7, 0.0],
-        correct: 1,
-        explain: "Generally, more schooling tends to be associated with higher income with moderate-to-strong positive correlation.",
-        makePoints: () => {
-          const pts = [];
-          for (let y = 8; y <= 20; y++) {
-            const income = 20000 + 4200 * y + (Math.random() - 0.5) * 15000;
-            pts.push({ x: y, y: income, outlier: false });
-          }
-          return pts;
-        }
-      }
-    );
+    
 
     // --- additional interpret questions added below ---
     interpretQuestions.push(
@@ -1289,6 +1238,59 @@
         }
       }
     ];
+
+      // --- additional match-r questions appended here (moved after declaration) ---
+      matchRQuestions.push(
+        {
+          id: 6,
+          text: "Estimate r (fast food visits vs BMI).",
+          rTrue: -0.05,
+          options: [-0.9, -0.05, 0.5, 0.9],
+          correct: 1,
+          explain: "This example is noisy; there's almost no clear linear relationship, so r is near 0.",
+          makePoints: () => {
+            const pts = [];
+            for (let i = 0; i < 30; i++) {
+              const x = Math.random() * 12;
+              const y = 20 + Math.random() * 15;
+              pts.push({ x, y, outlier: false });
+            }
+            return pts;
+          }
+        },
+        {
+          id: 7,
+          text: "Estimate r (daily step count vs resting heart rate).",
+          rTrue: -0.82,
+          options: [-0.8, -0.4, 0.0, 0.8],
+          correct: 0,
+          explain: "More daily steps are often linked with lower resting heart rates ⇒ strong negative correlation (r ≈ −0.8).",
+          makePoints: () => {
+            const pts = [];
+            for (let s = 1000; s <= 10000; s += 900) {
+              const hr = 78 - 0.0035 * s + (Math.random() - 0.5) * 4;
+              pts.push({ x: s, y: hr, outlier: false });
+            }
+            return pts;
+          }
+        },
+        {
+          id: 8,
+          text: "Estimate r (years of schooling vs income).",
+          rTrue: 0.68,
+          options: [0.2, 0.7, -0.7, 0.0],
+          correct: 1,
+          explain: "Generally, more schooling tends to be associated with higher income with moderate-to-strong positive correlation.",
+          makePoints: () => {
+            const pts = [];
+            for (let y = 8; y <= 20; y++) {
+              const income = 20000 + 4200 * y + (Math.random() - 0.5) * 15000;
+              pts.push({ x: y, y: income, outlier: false });
+            }
+            return pts;
+          }
+        }
+      );
 
     /*******************************
      * MODE SWITCHING & UI BINDING *
