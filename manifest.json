@@ -280,5 +280,10 @@
     "title": "📊 Statistics • Interpret Scatter Plot",
     "tags": ["grade9","statistics", "scatter-plot", "interpretation", "interactive", "visual"],
     "level": "Medium"
+  },{
+    "slug": "statistics/scatterplotInterpretOutlier",
+    "title": "📊 Statistics • Scatter Plot Interpretation with Outliers",
+    "tags": ["grade9","statistics", "scatter-plot", "interpretation", "outliers", "interactive", "visual"],
+    "level": "Medium"
   }
 ]

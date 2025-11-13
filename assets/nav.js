@@ -286,6 +286,20 @@
     drawer.innerHTML = '';
     const inner = document.createElement('div');
     inner.innerHTML = sidebarEl.innerHTML;
+
+    const ensureUniqueIds = ()=>{
+      const clones = inner.querySelectorAll('input[type="checkbox"][data-filter]');
+      clones.forEach((input, idx)=>{
+        const originalId = input.getAttribute('id') || `filter-${idx}`;
+        input.dataset.sourceId = originalId;
+        const cloneId = `drawer-${originalId}-${idx}`;
+        input.id = cloneId;
+        const label = input.closest('label');
+        if(label){ label.setAttribute('for', cloneId); }
+      });
+    };
+    ensureUniqueIds();
+
     // Add actions
     const actions = document.createElement('div'); actions.className='filter-actions';
     const closeBtn = document.createElement('button'); closeBtn.className='btn'; closeBtn.textContent='Close';
@@ -293,22 +307,32 @@
     actions.appendChild(closeBtn); actions.appendChild(applyBtn);
     inner.appendChild(actions);
     drawer.appendChild(inner);
+    drawer.setAttribute('role','dialog');
+    drawer.setAttribute('aria-modal','true');
+    drawer.setAttribute('aria-label','Filters');
 
     const copyStatesFromSidebar = ()=>{
       const src = sidebarEl.querySelectorAll('input[type="checkbox"][data-filter]');
       const dst = drawer.querySelectorAll('input[type="checkbox"][data-filter]');
       const map = new Map(); src.forEach(s=> map.set(s.id, s.checked));
-      dst.forEach(d=>{ const id = d.id; if(map.has(id)) d.checked = map.get(id); });
+      dst.forEach(d=>{
+        const id = d.dataset.sourceId || d.id;
+        if(map.has(id)) d.checked = map.get(id);
+      });
     };
     const copyStatesToSidebar = ()=>{
       const src = drawer.querySelectorAll('input[type="checkbox"][data-filter]');
-      const map = new Map(); src.forEach(s=> map.set(s.id, s.checked));
+      const map = new Map(); src.forEach(s=> map.set(s.dataset.sourceId || s.id, s.checked));
       const dst = sidebarEl.querySelectorAll('input[type="checkbox"][data-filter]');
-      dst.forEach(d=>{ if(map.has(d.id)) d.checked = map.get(d.id); });
+      dst.forEach(d=>{
+        const id = d.id;
+        if(map.has(id)) d.checked = map.get(id);
+      });
     };
 
     copyStatesFromSidebar();
     drawer.hidden = false;
+    drawer.setAttribute('aria-hidden','false');
 
     const emitFromDrawer = ()=>{
       const inputs = drawer.querySelectorAll('input[type="checkbox"][data-filter]');
@@ -317,20 +341,34 @@
       document.dispatchEvent(new CustomEvent('ixl:filters', {detail: out}));
     };
 
+    const cloneClear = inner.querySelector('.clear-filters');
+    if(cloneClear){
+      cloneClear.addEventListener('click', ()=>{
+        drawer.querySelectorAll('input[type="checkbox"][data-filter]').forEach(i=> i.checked = false);
+        copyStatesToSidebar();
+        emitFromDrawer();
+      });
+    }
+
+    const closeDrawer = ()=>{
+      drawer.hidden = true;
+      drawer.setAttribute('aria-hidden','true');
+    };
+
     // Auto-apply and close the drawer when a filter is selected on mobile
-    drawer.addEventListener('change', (e)=>{
+    drawer.onchange = (e)=>{
       const t = e.target;
       if(t && t.matches('input[type="checkbox"][data-filter]')){
         copyStatesToSidebar();
         emitFromDrawer();
-        drawer.hidden = true;
+        closeDrawer();
       }
-    });
+    };
     // Explicit controls
-    closeBtn.addEventListener('click', ()=>{ drawer.hidden = true; });
-    applyBtn.addEventListener('click', ()=>{ copyStatesToSidebar(); emitFromDrawer(); drawer.hidden = true; });
+    closeBtn.addEventListener('click', closeDrawer);
+    applyBtn.addEventListener('click', ()=>{ copyStatesToSidebar(); emitFromDrawer(); closeDrawer(); });
     // Escape to close
-    drawer.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ drawer.hidden = true; } });
+    drawer.onkeydown = (e)=>{ if(e.key==='Escape'){ closeDrawer(); } };
   }
 
   function buildBreadcrumb(model){
