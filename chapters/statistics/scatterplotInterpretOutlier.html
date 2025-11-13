@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scatter City 🐾 | Cartoon Stats Lab (Grade 9)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffe6ff, #e0f7ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #222;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      background: #ffffffd9;
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+      padding: 20px 24px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Cartoon bubbles in the background */
+    .bubble {
+      position: absolute;
+      border-radius: 999px;
+      opacity: 0.25;
+      filter: blur(1px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .bubble.b1 { width: 180px; height: 180px; background:#ffb3c6; top:-60px; left:-40px; }
+    .bubble.b2 { width: 220px; height: 220px; background:#b3e5ff; bottom:-90px; right:-60px; }
+    .bubble.b3 { width: 140px; height: 140px; background:#fce38a; top:60%; left:-40px; }
+
+    .app-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 span.icon {
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #444;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #222;
+      color: #fff;
+      font-size: 0.8rem;
+    }
+
+    .mode-bar {
+      margin: 10px 0 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #f5f5ff;
+      color: #444;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #ff80ab, #7c4dff);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .mode-btn span.emoji {
+      font-size: 1.2rem;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 880px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: #ffffffee;
+      border-radius: 18px;
+      padding: 12px 12px 14px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h2 span {
+      font-size: 1.3rem;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      border-radius: 16px;
+      background: radial-gradient(circle at top left, #fff7ff, #eff6ff);
+      border: 2px dashed #ffd1ff;
+      padding: 10px;
+    }
+
+    #plotCanvas {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 2px solid #e0e0ff;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .plot-footer {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #444;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #f1f1ff;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill strong {
+      font-weight: 600;
+    }
+
+    .xp-pill {
+      background: #ffe082;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    .control-group {
+      background: #fafafa;
+      border-radius: 12px;
+      padding: 6px 8px;
+    }
+
+    .control-label {
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .control-label span.note {
+      font-weight: 400;
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+      flex-wrap: wrap;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    select, button, input[type="number"] {
+      font-size: 0.85rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff80ab, #7c4dff);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      padding: 6px 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: #fff;
+      border: 1px dashed #aaa;
+    }
+
+    .quiz-panel {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .quiz-panel.active {
+      display: flex;
+    }
+
+    .quiz-question {
+      background: #fdf8ff;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border-left: 4px solid #ce93d8;
+    }
+
+    .quiz-question strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .quiz-meta {
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .option-btn {
+      text-align: left;
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+      transition: background 0.1s, transform 0.1s, border 0.1s;
+      font-size: 0.85rem;
+    }
+
+    .option-btn:hover {
+      background: #f1f1ff;
+      transform: translateY(-1px);
+    }
+
+    .option-btn.selected {
+      border-color: #7c4dff;
+      background: #ede7ff;
+    }
+
+    .feedback {
+      font-size: 0.85rem;
+      margin-top: 4px;
+      min-height: 18px;
+    }
+
+    .feedback.correct {
+      color: #2e7d32;
+    }
+
+    .feedback.incorrect {
+      color: #c62828;
+    }
+
+    .explanation {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      background: #f8f8ff;
+      border-radius: 10px;
+      padding: 6px 8px;
+      border-left: 3px solid #9fa8da;
+    }
+
+    .quiz-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .scorebar {
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+
+    .hint-tag {
+      font-size: 0.75rem;
+      background: #fce4ec;
+      border-radius: 999px;
+      padding: 2px 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tiny {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 3px;
+    }
+
+    .legend-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      font-size: 0.8rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot-demo {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #7c4dff;
+    }
+
+    .dot-demo.outlier {
+      background: #ff1744;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="bubble b1"></div>
+    <div class="bubble b2"></div>
+    <div class="bubble b3"></div>
+
+    <div class="app-inner">
+      <header>
+        <div class="title-block">
+          <h1>
+            <span class="icon">🦊</span>
+            Scatter City &mdash; Cartoon Stats Lab
+          </h1>
+          <div class="subtitle">
+            Interpreting scatter plots • Outliers • Correlation &amp; r &mdash; Grade 9
+          </div>
+        </div>
+        <div class="badge">Stats Mode: ON 🎧</div>
+      </header>
+
+      <div class="mode-bar">
+        <button class="mode-btn active" data-mode="free">
+          <span class="emoji">🎨</span> Free Play Lab
+        </button>
+        <button class="mode-btn" data-mode="interpret">
+          <span class="emoji">🧠</span> Interpret the Plot
+        </button>
+        <button class="mode-btn" data-mode="matchR">
+          <span class="emoji">🎯</span> Match the r-value
+        </button>
+      </div>
+
+      <div class="main-layout">
+        <!-- LEFT: PLOT -->
+        <div class="card">
+          <h2><span>📊</span> Scatter Playground</h2>
+          <div class="canvas-wrapper">
+            <canvas id="plotCanvas" width="430" height="430"></canvas>
+            <div class="plot-footer">
+              <div class="pill">
+                Trend: <strong id="trendLabel">–</strong>
+              </div>
+              <div class="pill">
+                Approx r: <strong id="rLabel">–</strong>
+              </div>
+              <div class="pill xp-pill">
+                Brain XP: <strong id="xpLabel">0</strong> ⭐
+              </div>
+            </div>
+            <div class="legend-row">
+              <span class="legend-item">
+                <span class="dot-demo"></span> normal points
+              </span>
+              <span class="legend-item">
+                <span class="dot-demo outlier"></span> outlier
+              </span>
+            </div>
+            <div class="tiny">
+              Tip: imagine a cartoon ruler sliding to draw the best-fit line. How close do the dots cuddle around it?
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: CONTROLS + QUIZZES -->
+        <div class="card">
+          <h2><span>🎮</span> Control Panel &amp; Quizzes</h2>
+          <!-- FREE PLAY CONTROLS -->
+          <div id="freePanel" class="controls">
+            <div class="control-group">
+              <div class="control-label">
+                Free Play Lab <span class="note">Design your own scatter scene</span>
+              </div>
+              <div class="control-row">
+                <label style="flex:1;">
+                  <span style="font-size:0.8rem;">Number of points</span>
+                  <input type="range" id="pointsSlider" min="6" max="40" value="18" />
+                </label>
+                <label style="flex:1;">
+                  <span style="font-size:0.8rem;">Correlation strength</span>
+                  <input type="range" id="strengthSlider" min="0" max="100" value="70" />
+                </label>
+              </div>
+              <div class="control-row">
+                <label>
+                  Direction:
+                  <select id="directionSelect">
+                    <option value="positive">Positive</option>
+                    <option value="negative">Negative</option>
+                    <option value="none">No clear trend</option>
+                  </select>
+                </label>
+                <label style="display:inline-flex;align-items:center;gap:4px;">
+                  <input type="checkbox" id="outlierCheckbox" />
+                  Add outlier
+                </label>
+              </div>
+              <div class="control-row">
+                <button class="btn-primary" id="regenBtn">🎲 Generate Plot</button>
+                <button class="btn-ghost" id="toggleLineBtn">Show/Hide Best-Fit Line</button>
+              </div>
+            </div>
+            <div class="tiny">
+              Challenge: Try to make a plot with r close to +1, then close to 0, then close to -1. Watch the r label.
+            </div>
+          </div>
+
+          <!-- INTERPRETATION QUIZ -->
+          <div id="interpretPanel" class="quiz-panel">
+            <div class="quiz-question">
+              <div class="quiz-meta" id="interpretMeta"></div>
+              <strong id="interpretText"></strong>
+              <div class="tiny">
+                Use the plot on the left. Imagine you are explaining this to a friend in class.
+              </div>
+              <div class="options" id="interpretOptions"></div>
+            </div>
+            <div class="feedback" id="interpretFeedback"></div>
+            <div class="explanation" id="interpretExplanation" style="display:none;"></div>
+            <div class="quiz-actions">
+              <button class="btn-primary" id="interpretCheckBtn">Check</button>
+              <button class="btn-ghost" id="interpretNextBtn">Next Question</button>
+              <button class="btn-ghost" id="interpretHintBtn">
+                💡 Hint
+              </button>
+            </div>
+            <div class="scorebar">
+              <span>Score: <strong id="interpretScore">0</strong></span>
+              <span>Question <span id="interpretIndex">1</span>/<span id="interpretTotal">0</span></span>
+            </div>
+            <div class="tiny">
+              <span class="hint-tag">Remember: Outliers = rebel dots that don't follow the group trend.</span>
+            </div>
+          </div>
+
+          <!-- MATCH-R QUIZ -->
+          <div id="matchRPanel" class="quiz-panel">
+            <div class="quiz-question">
+              <div class="quiz-meta" id="matchRMeta"></div>
+              <strong id="matchRText"></strong>
+              <div class="tiny">
+                Look at the cloud of dots. Is it tightly hugging a line or just vibing randomly?
+              </div>
+              <div class="options" id="matchROptions"></div>
+            </div>
+            <div class="feedback" id="matchRFeedback"></div>
+            <div class="explanation" id="matchRExplanation" style="display:none;"></div>
+            <div class="quiz-actions">
+              <button class="btn-primary" id="matchRCheckBtn">Check</button>
+              <button class="btn-ghost" id="matchRNextBtn">Next Plot</button>
+            </div>
+            <div class="scorebar">
+              <span>Score: <strong id="matchRScore">0</strong></span>
+              <span>Question <span id="matchRIndex">1</span>/<span id="matchRTotal">0</span></span>
+            </div>
+            <div class="tiny">
+              Rule of thumb: |r| close to 1 ⇒ strong relationship, close to 0 ⇒ almost no straight-line pattern.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*******************
+     * GLOBALS & SETUP *
+     *******************/
+    const canvas = document.getElementById("plotCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const trendLabel = document.getElementById("trendLabel");
+    const rLabel = document.getElementById("rLabel");
+    const xpLabel = document.getElementById("xpLabel");
+
+    let currentPoints = [];
+    let showLine = false;
+    let xp = 0;
+
+    const modes = {
+      FREE: "free",
+      INTERPRET: "interpret",
+      MATCHR: "matchR"
+    };
+    let currentMode = modes.FREE;
+
+    /**********************
+     * COORDINATE HELPERS *
+     **********************/
+    function getBounds(points) {
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const p of points) {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+      }
+      if (!isFinite(minX)) {
+        minX = 0; maxX = 10; minY = 0; maxY = 10;
+      }
+      // Add padding
+      const padX = (maxX - minX || 1) * 0.1;
+      const padY = (maxY - minY || 1) * 0.1;
+      return {
+        minX: minX - padX,
+        maxX: maxX + padX,
+        minY: minY - padY,
+        maxY: maxY + padY
+      };
+    }
+
+    function mapToCanvas(point, bounds) {
+      const { minX, maxX, minY, maxY } = bounds;
+      const plotPadding = 35;
+      const w = canvas.width - 2 * plotPadding;
+      const h = canvas.height - 2 * plotPadding;
+
+      const xNorm = (point.x - minX) / (maxX - minX || 1);
+      const yNorm = (point.y - minY) / (maxY - minY || 1);
+
+      const cx = plotPadding + xNorm * w;
+      const cy = canvas.height - plotPadding - yNorm * h;
+      return { cx, cy };
+    }
+
+    /*****************************
+     * BASIC STATS (r & REG LINE)
+     *****************************/
+    function computeRegression(points) {
+      const n = points.length;
+      if (n === 0) return { m: 0, b: 0 };
+
+      let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+      for (const p of points) {
+        sumX += p.x;
+        sumY += p.y;
+        sumXY += p.x * p.y;
+        sumX2 += p.x * p.x;
+      }
+      const meanX = sumX / n;
+      const meanY = sumY / n;
+
+      const numerator = sumXY - n * meanX * meanY;
+      const denominator = sumX2 - n * meanX * meanX;
+      const m = denominator === 0 ? 0 : numerator / denominator;
+      const b = meanY - m * meanX;
+
+      return { m, b };
+    }
+
+    function computeCorrelation(points) {
+      const n = points.length;
+      if (n < 2) return 0;
+      let sumX = 0, sumY = 0;
+      for (const p of points) {
+        sumX += p.x;
+        sumY += p.y;
+      }
+      const meanX = sumX / n;
+      const meanY = sumY / n;
+
+      let num = 0, denomX = 0, denomY = 0;
+      for (const p of points) {
+        const dx = p.x - meanX;
+        const dy = p.y - meanY;
+        num += dx * dy;
+        denomX += dx * dx;
+        denomY += dy * dy;
+      }
+      const denom = Math.sqrt(denomX * denomY);
+      if (denom === 0) return 0;
+      return num / denom;
+    }
+
+    /******************
+     * DRAWING LOGIC  *
+     ******************/
+    function drawPlot(points, highlightOutlier = true) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // background
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (!points || points.length === 0) return;
+
+      const bounds = getBounds(points);
+
+      // axes
+      const pad = 35;
+      ctx.strokeStyle = "#ccccff";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      // x-axis
+      ctx.moveTo(pad, canvas.height - pad);
+      ctx.lineTo(canvas.width - pad, canvas.height - pad);
+      // y-axis
+      ctx.moveTo(pad, pad);
+      ctx.lineTo(pad, canvas.height - pad);
+      ctx.stroke();
+
+      // axis labels (generic)
+      ctx.fillStyle = "#555";
+      ctx.font = "12px system-ui";
+      ctx.fillText("x", canvas.width - pad + 10, canvas.height - pad + 4);
+      ctx.fillText("y", pad - 10, pad - 8);
+
+      // grid (light)
+      ctx.strokeStyle = "#f3f3ff";
+      ctx.lineWidth = 1;
+      const gridLines = 4;
+      for (let i = 1; i <= gridLines; i++) {
+        const gx = pad + (i / (gridLines + 1)) * (canvas.width - 2 * pad);
+        const gy = pad + (i / (gridLines + 1)) * (canvas.height - 2 * pad);
+        ctx.beginPath();
+        // vertical
+        ctx.moveTo(gx, pad);
+        ctx.lineTo(gx, canvas.height - pad);
+        // horizontal
+        ctx.moveTo(pad, gy);
+        ctx.lineTo(canvas.width - pad, gy);
+        ctx.stroke();
+      }
+
+      // best-fit line if toggled
+      if (showLine && points.length >= 2) {
+        const { m, b } = computeRegression(points);
+        const xs = [bounds.minX, bounds.maxX];
+        const linePoints = xs.map(x => ({
+          x,
+          y: m * x + b
+        }));
+        ctx.strokeStyle = "#7c4dff";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        const p0 = mapToCanvas(linePoints[0], bounds);
+        ctx.moveTo(p0.cx, p0.cy);
+        for (let i = 1; i < linePoints.length; i++) {
+          const pCanvas = mapToCanvas(linePoints[i], bounds);
+          ctx.lineTo(pCanvas.cx, pCanvas.cy);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // points
+      for (const p of points) {
+        const { cx, cy } = mapToCanvas(p, bounds);
+        ctx.beginPath();
+        const radius = p.outlier && highlightOutlier ? 6 : 4;
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        if (p.outlier && highlightOutlier) {
+          ctx.fillStyle = "#ff1744";
+          ctx.strokeStyle = "#c51162";
+          ctx.lineWidth = 1.5;
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = "#7c4dff";
+          ctx.strokeStyle = "#5c6bc0";
+          ctx.lineWidth = 1;
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+    }
+
+    function describeTrend(r) {
+      if (isNaN(r)) return "–";
+      const absR = Math.abs(r);
+      if (absR < 0.15) return "No clear linear trend";
+      const strength = absR > 0.85 ? "very strong" :
+                       absR > 0.65 ? "strong" :
+                       absR > 0.4  ? "moderate" :
+                                     "weak";
+      const direction = r > 0 ? "positive" : "negative";
+      return `${strength} ${direction} correlation`;
+    }
+
+    /***********************
+     * FREE PLAY GENERATOR *
+     ***********************/
+    function generateFreePlayPoints() {
+      const n = parseInt(document.getElementById("pointsSlider").value, 10);
+      const strength = parseInt(document.getElementById("strengthSlider").value, 10) / 100;
+      const direction = document.getElementById("directionSelect").value;
+      const addOutlier = document.getElementById("outlierCheckbox").checked;
+
+      const points = [];
+      // base line
+      const baseSlope = direction === "positive" ? 0.8 : direction === "negative" ? -0.8 : 0;
+      const baseIntercept = 5;
+
+      for (let i = 0; i < n; i++) {
+        const x = 2 + Math.random() * 16; // [2,18]
+        let y;
+        if (direction === "none") {
+          // random-ish cloud
+          y = 2 + Math.random() * 16;
+        } else {
+          const ideal = baseSlope * x + baseIntercept;
+          const noiseScale = (1 - strength) * 10 + 1;
+          const noise = (Math.random() - 0.5) * noiseScale;
+          y = ideal + noise;
+        }
+        points.push({ x, y, outlier: false });
+      }
+
+      if (addOutlier) {
+        // put outlier far away from main cloud
+        const weird = { x: 25 + Math.random() * 10, y: 2 + Math.random() * 22, outlier: true };
+        points.push(weird);
+      }
+
+      currentPoints = points;
+      const r = computeCorrelation(points.filter(p => !p.outlier));
+      trendLabel.textContent = direction === "none" ? "random-ish cloud" : describeTrend(r);
+      rLabel.textContent = r.toFixed(2);
+      drawPlot(points);
+    }
+
+    /*************************
+     * QUIZ DATA: INTERPRET  *
+     *************************/
+    // Each question will also have its own points array generator.
+    const interpretQuestions = [
+      {
+        id: 1,
+        context: "Hours studied vs test score",
+        text: "What kind of correlation is shown between hours studied and test score?",
+        options: [
+          "Strong positive correlation",
+          "Strong negative correlation",
+          "No correlation",
+          "Perfect negative correlation"
+        ],
+        correct: 0,
+        difficulty: "Easy",
+        explain: "As hours studied increase, test scores tend to go up. The points are fairly close to an upward sloping line ⇒ strong positive correlation.",
+        makePoints: () => {
+          const pts = [];
+          for (let h = 1; h <= 10; h++) {
+            const score = 40 + 5 * h + (Math.random() - 0.5) * 6;
+            pts.push({ x: h, y: score, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 2,
+        context: "Temperature vs hot chocolate sales",
+        text: "As temperature increases, what happens to hot chocolate sales?",
+        options: [
+          "They clearly increase (strong positive correlation)",
+          "They clearly decrease (negative correlation)",
+          "They stay perfect constant",
+          "There is no relationship at all"
+        ],
+        correct: 1,
+        difficulty: "Easy",
+        explain: "On hotter days, people usually buy less hot chocolate. The plot slopes down ⇒ negative correlation.",
+        makePoints: () => {
+          const pts = [];
+          for (let t = 5; t <= 25; t += 2) {
+            const sales = 90 - 3 * t + (Math.random() - 0.5) * 8;
+            pts.push({ x: t, y: sales, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 3,
+        context: "Height vs shoe size",
+        text: "Describe the relationship between height and shoe size.",
+        options: [
+          "Strong positive correlation",
+          "Weak positive correlation",
+          "Strong negative correlation",
+          "No correlation"
+        ],
+        correct: 1,
+        difficulty: "Medium",
+        explain: "Taller people tend to have bigger shoe sizes, but it isn't perfectly tight, so 'weak to moderate positive correlation' is best.",
+        makePoints: () => {
+          const pts = [];
+          for (let h = 140; h <= 190; h += 5) {
+            const shoe = 3 + 0.1 * (h - 140) + (Math.random() - 0.5) * 1.1;
+            pts.push({ x: h, y: shoe, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 4,
+        context: "Video game hours vs math test score",
+        text: "Most dots show that more gaming hours are linked with slightly lower math scores, but one point is far above the others (a student who plays a lot and still scores very high). That far-away point is:",
+        options: [
+          "A cluster",
+          "An outlier",
+          "A line of best fit",
+          "The mean of the data"
+        ],
+        correct: 1,
+        difficulty: "Medium",
+        explain: "A point that does not follow the overall pattern and is far from the others is called an outlier.",
+        makePoints: () => {
+          const pts = [];
+          for (let h = 0; h <= 7; h++) {
+            const score = 95 - 5 * h + (Math.random() - 0.5) * 8;
+            pts.push({ x: h, y: score, outlier: false });
+          }
+          // outlier: plays 7 hours but still scores 95
+          pts.push({ x: 7, y: 95, outlier: true });
+          return pts;
+        }
+      },
+      {
+        id: 5,
+        context: "Study hours vs score (prediction)",
+        text: "The line of best fit suggests that studying 6 hours gives about 78 marks. What would be a reasonable prediction for 7 hours of study?",
+        options: [
+          "About 10 marks (no pattern)",
+          "About 80–82 marks",
+          "About 40 marks (half of 80)",
+          "Impossible to tell from a scatter plot"
+        ],
+        correct: 1,
+        difficulty: "Medium",
+        explain: "If each extra hour adds a few marks, 7 hours should give slightly more than 78, around 80–82.",
+        makePoints: () => {
+          const pts = [];
+          for (let h = 2; h <= 8; h++) {
+            const score = 55 + 4 * h + (Math.random() - 0.5) * 5;
+            pts.push({ x: h, y: score, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 6,
+        context: "Class quiz attempts vs score",
+        text: "The scatter plot shows a very weak upward trend between attempts and score. Which statement is most accurate?",
+        options: [
+          "More attempts guarantee a perfect score.",
+          "More attempts are slightly linked with higher scores, but the relationship is weak.",
+          "There is a strong negative correlation.",
+          "There is no possible line of best fit."
+        ],
+        correct: 1,
+        difficulty: "Medium",
+        explain: "The dots rise slightly overall but are quite spread out ⇒ weak positive correlation.",
+        makePoints: () => {
+          const pts = [];
+          for (let a = 1; a <= 10; a++) {
+            const score = 50 + 1.5 * a + (Math.random() - 0.5) * 20;
+            pts.push({ x: a, y: score, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 7,
+        context: "Height vs test score",
+        text: "The scatter plot of height vs math test score looks like a random cloud with no clear trend. What does this suggest?",
+        options: [
+          "Taller students always score higher.",
+          "Shorter students always score higher.",
+          "Height and math score have almost no linear relationship.",
+          "The data must be wrong."
+        ],
+        correct: 2,
+        difficulty: "Easy",
+        explain: "When dots form a random cloud with no upward/downward pattern, there is almost no linear relationship.",
+        makePoints: () => {
+          const pts = [];
+          for (let i = 0; i < 25; i++) {
+            const h = 140 + Math.random() * 40;
+            const score = 40 + Math.random() * 60;
+            pts.push({ x: h, y: score, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 8,
+        context: "Outlier effect",
+        text: "If we remove a single extreme outlier from the data, what usually happens to the correlation coefficient r?",
+        options: [
+          "It always becomes 0.",
+          "It usually moves closer to −1.",
+          "It often moves closer to +1 or −1 (stronger correlation).",
+          "It never changes."
+        ],
+        correct: 2,
+        difficulty: "Hard",
+        explain: "An extreme outlier often pulls the line and weakens the correlation. Removing it often makes |r| larger, indicating a stronger linear relationship among the remaining points.",
+        makePoints: () => {
+          const pts = [];
+          for (let i = 0; i < 15; i++) {
+            const x = i + 1;
+            const y = 30 + 3 * x + (Math.random() - 0.5) * 5;
+            pts.push({ x, y, outlier: false });
+          }
+          pts.push({ x: 25, y: 10, outlier: true }); // extreme
+          return pts;
+        }
+      },
+      {
+        id: 9,
+        context: "Causation reminder",
+        text: "A scatter plot shows a strong positive correlation between number of ice creams sold and number of people at the beach. Which is the safest conclusion?",
+        options: [
+          "Buying ice cream causes people to appear at the beach.",
+          "Going to the beach causes ice cream to exist.",
+          "A third factor (like hot weather) affects both variables.",
+          "There is actually no relationship at all."
+        ],
+        correct: 2,
+        difficulty: "Hard",
+        explain: "Correlation does not imply causation. Hot weather is a lurking variable that increases both beach visitors and ice cream sales.",
+        makePoints: () => {
+          const pts = [];
+          for (let temp = 20; temp <= 35; temp += 1.5) {
+            const ice = 30 + 4 * (temp - 20) + (Math.random() - 0.5) * 10;
+            pts.push({ x: temp, y: ice, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 10,
+        context: "Extrapolation",
+        text: "The data shows students using up to 5 hours of tutoring per week. You use the line of best fit to predict the score for 15 hours. This is an example of:",
+        options: [
+          "Interpolation",
+          "Exact measurement",
+          "Extrapolation",
+          "Outlier detection"
+        ],
+        correct: 2,
+        difficulty: "Hard",
+        explain: "Predicting far outside the range of the data is called extrapolation and is usually less reliable.",
+        makePoints: () => {
+          const pts = [];
+          for (let h = 0; h <= 5; h++) {
+            const score = 50 + 7 * h + (Math.random() - 0.5) * 7;
+            pts.push({ x: h, y: score, outlier: false });
+          }
+          return pts;
+        }
+      }
+    ];
+
+    // --- additional match-r questions added below ---
+    matchRQuestions.push(
+      {
+        id: 6,
+        text: "Estimate r (fast food visits vs BMI).",
+        rTrue: -0.05,
+        options: [-0.9, -0.05, 0.5, 0.9],
+        correct: 1,
+        explain: "This example is noisy; there's almost no clear linear relationship, so r is near 0.",
+        makePoints: () => {
+          const pts = [];
+          for (let i = 0; i < 30; i++) {
+            const x = Math.random() * 12;
+            const y = 20 + Math.random() * 15;
+            pts.push({ x, y, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 7,
+        text: "Estimate r (daily step count vs resting heart rate).",
+        rTrue: -0.82,
+        options: [-0.8, -0.4, 0.0, 0.8],
+        correct: 0,
+        explain: "More daily steps are often linked with lower resting heart rates ⇒ strong negative correlation (r ≈ −0.8).",
+        makePoints: () => {
+          const pts = [];
+          for (let s = 1000; s <= 10000; s += 900) {
+            const hr = 78 - 0.0035 * s + (Math.random() - 0.5) * 4;
+            pts.push({ x: s, y: hr, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 8,
+        text: "Estimate r (years of schooling vs income).",
+        rTrue: 0.68,
+        options: [0.2, 0.7, -0.7, 0.0],
+        correct: 1,
+        explain: "Generally, more schooling tends to be associated with higher income with moderate-to-strong positive correlation.",
+        makePoints: () => {
+          const pts = [];
+          for (let y = 8; y <= 20; y++) {
+            const income = 20000 + 4200 * y + (Math.random() - 0.5) * 15000;
+            pts.push({ x: y, y: income, outlier: false });
+          }
+          return pts;
+        }
+      }
+    );
+
+    // --- additional interpret questions added below ---
+    interpretQuestions.push(
+      {
+        id: 11,
+        context: "Advertising spend vs product sales",
+        text: "What does the scatter plot suggest about the relationship between advertising spend and product sales?",
+        options: [
+          "More advertising is linked with higher sales",
+          "More advertising causes fewer sales",
+          "There is no relationship",
+          "Exact causation is proven"
+        ],
+        correct: 0,
+        difficulty: "Medium",
+        explain: "If points rise as advertising increases, that suggests a positive relationship. Correlation doesn't prove causation though.",
+        makePoints: () => {
+          const pts = [];
+          for (let a = 1; a <= 12; a++) {
+            const sales = 20 + 6 * a + (Math.random() - 0.5) * 10;
+            pts.push({ x: a, y: sales, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 12,
+        context: "Hours of sleep vs reaction time",
+        text: "Which best describes the relationship between hours of sleep and reaction time?",
+        options: [
+          "More sleep → faster (lower) reaction times (negative correlation)",
+          "More sleep → slower reaction times (positive correlation)",
+          "Perfectly linear (r = ±1)",
+          "No relationship at all"
+        ],
+        correct: 0,
+        difficulty: "Medium",
+        explain: "Generally, more sleep is linked with quicker reactions (lower reaction times), so a negative correlation is expected.",
+        makePoints: () => {
+          const pts = [];
+          for (let h = 3; h <= 10; h++) {
+            const rt = 400 - 18 * h + (Math.random() - 0.5) * 40; // ms
+            pts.push({ x: h, y: rt, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 13,
+        context: "Class size vs average grade",
+        text: "A scatter plot shows mixed dots with no clear upward or downward trend. The best interpretation is:",
+        options: [
+          "Class size clearly causes higher grades",
+          "No linear relationship between class size and average grade",
+          "Perfect negative correlation",
+          "The data must be incorrect"
+        ],
+        correct: 1,
+        difficulty: "Easy",
+        explain: "When dots are scattered with no pattern, we conclude there is little to no linear relationship between the variables.",
+        makePoints: () => {
+          const pts = [];
+          for (let i = 0; i < 22; i++) {
+            const size = 10 + Math.random() * 25;
+            const grade = 55 + Math.random() * 30;
+            pts.push({ x: size, y: grade, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 14,
+        context: "Exercise minutes per week vs resting heart rate",
+        text: "What pattern would you expect between weekly exercise minutes and resting heart rate?",
+        options: [
+          "More exercise → lower resting heart rate (negative correlation)",
+          "More exercise → higher resting heart rate (positive correlation)",
+          "No effect at all",
+          "Resting heart rate will be identical for all"
+        ],
+        correct: 0,
+        difficulty: "Medium",
+        explain: "People who exercise more often tend to have lower resting heart rates, which suggests a negative correlation.",
+        makePoints: () => {
+          const pts = [];
+          for (let m = 10; m <= 200; m += 15) {
+            const hr = 80 - 0.05 * m + (Math.random() - 0.5) * 6;
+            pts.push({ x: m, y: hr, outlier: false });
+          }
+          return pts;
+        }
+      }
+    );
+
+    /*************************
+     * QUIZ DATA: MATCH r    *
+     *************************/
+    const matchRQuestions = [
+      {
+        id: 1,
+        text: "Estimate the correlation coefficient r for this plot (study time vs score).",
+        rTrue: 0.92,
+        options: [0.1, 0.5, 0.9, -0.7],
+        correct: 2,
+        explain: "The points lie very close to an upward line ⇒ strong positive correlation ⇒ r close to +1, so 0.9 is the best choice.",
+        makePoints: () => {
+          const pts = [];
+          for (let h = 1; h <= 10; h++) {
+            const y = 40 + 5.5 * h + (Math.random() - 0.5) * 3;
+            pts.push({ x: h, y, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 2,
+        text: "Estimate r for this plot (time spent on social media vs homework score).",
+        rTrue: -0.78,
+        options: [-0.8, -0.2, 0.0, 0.8],
+        correct: 0,
+        explain: "As social media time increases, scores tend to decrease in a fairly clear way ⇒ strong negative correlation ⇒ r around −0.8.",
+        makePoints: () => {
+          const pts = [];
+          for (let t = 1; t <= 8; t++) {
+            const y = 95 - 6 * t + (Math.random() - 0.5) * 6;
+            pts.push({ x: t, y, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 3,
+        text: "Estimate r (shoe size vs favourite video game level).",
+        rTrue: 0.02,
+        options: [0.0, 0.2, 0.6, -0.5],
+        correct: 0,
+        explain: "The dots look random with no trend ⇒ r is close to 0.",
+        makePoints: () => {
+          const pts = [];
+          for (let i = 0; i < 25; i++) {
+            const x = 3 + Math.random() * 8;
+            const y = 1 + Math.random() * 50;
+            pts.push({ x, y, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 4,
+        text: "Estimate r (practice questions completed vs score).",
+        rTrue: 0.55,
+        options: [0.1, 0.5, 0.9, -0.3],
+        correct: 1,
+        explain: "The dots generally go up but with noticeable spread ⇒ moderate positive correlation ⇒ r around +0.5.",
+        makePoints: () => {
+          const pts = [];
+          for (let q = 0; q <= 25; q += 2) {
+            const y = 50 + 1.4 * q + (Math.random() - 0.5) * 15;
+            pts.push({ x: q, y, outlier: false });
+          }
+          return pts;
+        }
+      },
+      {
+        id: 5,
+        text: "Estimate r (distance from school vs arrival time).",
+        rTrue: 0.3,
+        options: [0.2, 0.8, -0.2, -0.9],
+        correct: 0,
+        explain: "There is a weak upward trend: students who live farther sometimes arrive later, but there is lots of scatter ⇒ weak positive correlation.",
+        makePoints: () => {
+          const pts = [];
+          for (let d = 1; d <= 15; d++) {
+            const time = 8 + 0.2 * d + (Math.random() - 0.5) * 4;
+            pts.push({ x: d, y: time, outlier: false });
+          }
+          return pts;
+        }
+      }
+    ];
+
+    /*******************************
+     * MODE SWITCHING & UI BINDING *
+     *******************************/
+    const modeButtons = document.querySelectorAll(".mode-btn");
+    const freePanel = document.getElementById("freePanel");
+    const interpretPanel = document.getElementById("interpretPanel");
+    const matchRPanel = document.getElementById("matchRPanel");
+
+    modeButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        modeButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const mode = btn.getAttribute("data-mode");
+        switchMode(mode);
+      });
+    });
+
+    function switchMode(mode) {
+      currentMode = mode;
+      freePanel.style.display = mode === modes.FREE ? "flex" : "none";
+      interpretPanel.classList.toggle("active", mode === modes.INTERPRET);
+      matchRPanel.classList.toggle("active", mode === modes.MATCHR);
+
+      if (mode === modes.FREE) {
+        generateFreePlayPoints();
+      } else if (mode === modes.INTERPRET) {
+        loadInterpretQuestion(currentInterpretIndex);
+      } else if (mode === modes.MATCHR) {
+        loadMatchRQuestion(currentMatchRIndex);
+      }
+    }
+
+    /************************
+     * INTERPRET QUIZ LOGIC *
+     ************************/
+    const interpretMeta = document.getElementById("interpretMeta");
+    const interpretText = document.getElementById("interpretText");
+    const interpretOptionsDiv = document.getElementById("interpretOptions");
+    const interpretFeedback = document.getElementById("interpretFeedback");
+    const interpretExplanation = document.getElementById("interpretExplanation");
+    const interpretCheckBtn = document.getElementById("interpretCheckBtn");
+    const interpretNextBtn = document.getElementById("interpretNextBtn");
+    const interpretHintBtn = document.getElementById("interpretHintBtn");
+    const interpretScoreSpan = document.getElementById("interpretScore");
+    const interpretIndexSpan = document.getElementById("interpretIndex");
+    const interpretTotalSpan = document.getElementById("interpretTotal");
+
+    let currentInterpretIndex = 0;
+    let interpretScore = 0;
+    let interpretSelected = null;
+
+    interpretTotalSpan.textContent = interpretQuestions.length;
+
+    function loadInterpretQuestion(index) {
+      if (index < 0 || index >= interpretQuestions.length) {
+        currentInterpretIndex = 0;
+        index = 0;
+      }
+      const q = interpretQuestions[index];
+      currentPoints = q.makePoints();
+      showLine = true; // helpful for interpretation
+      drawPlot(currentPoints);
+      // update r & trend
+      const r = computeCorrelation(currentPoints.filter(p => !p.outlier));
+      rLabel.textContent = r.toFixed(2);
+      trendLabel.textContent = describeTrend(r);
+
+      interpretMeta.textContent = `Context: ${q.context} • Difficulty: ${q.difficulty}`;
+      interpretText.textContent = q.text;
+      interpretOptionsDiv.innerHTML = "";
+      interpretSelected = null;
+      interpretFeedback.textContent = "";
+      interpretFeedback.className = "feedback";
+      interpretExplanation.style.display = "none";
+      interpretExplanation.textContent = "";
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => {
+          interpretSelected = idx;
+          Array.from(interpretOptionsDiv.children).forEach(child => child.classList.remove("selected"));
+          btn.classList.add("selected");
+        });
+        interpretOptionsDiv.appendChild(btn);
+      });
+
+      interpretIndexSpan.textContent = index + 1;
+    }
+
+    interpretCheckBtn.addEventListener("click", () => {
+      const q = interpretQuestions[currentInterpretIndex];
+      if (interpretSelected === null) {
+        interpretFeedback.textContent = "Pick an answer first 🙂";
+        interpretFeedback.className = "feedback";
+        return;
+      }
+      if (interpretSelected === q.correct) {
+        interpretFeedback.textContent = "Correct! Your stats brain just leveled up. 💥";
+        interpretFeedback.className = "feedback correct";
+        interpretExplanation.style.display = "block";
+        interpretExplanation.textContent = q.explain;
+        interpretScore++;
+        interpretScoreSpan.textContent = interpretScore;
+        xp += 5;
+        xpLabel.textContent = xp;
+      } else {
+        interpretFeedback.textContent = "Not quite. Look again at how the dots move overall.";
+        interpretFeedback.className = "feedback incorrect";
+        interpretExplanation.style.display = "block";
+        interpretExplanation.textContent = q.explain;
+      }
+    });
+
+    interpretNextBtn.addEventListener("click", () => {
+      currentInterpretIndex = (currentInterpretIndex + 1) % interpretQuestions.length;
+      loadInterpretQuestion(currentInterpretIndex);
+    });
+
+    interpretHintBtn.addEventListener("click", () => {
+      const q = interpretQuestions[currentInterpretIndex];
+      interpretExplanation.style.display = "block";
+      // Short hint derived from full explanation
+      interpretExplanation.textContent = "Hint: Focus on the overall direction and how close points are to an imaginary line.";
+    });
+
+    /***********************
+     * MATCH r QUIZ LOGIC  *
+     ***********************/
+    const matchRMeta = document.getElementById("matchRMeta");
+    const matchRText = document.getElementById("matchRText");
+    const matchROptionsDiv = document.getElementById("matchROptions");
+    const matchRFeedback = document.getElementById("matchRFeedback");
+    const matchRExplanation = document.getElementById("matchRExplanation");
+    const matchRCheckBtn = document.getElementById("matchRCheckBtn");
+    const matchRNextBtn = document.getElementById("matchRNextBtn");
+    const matchRScoreSpan = document.getElementById("matchRScore");
+    const matchRIndexSpan = document.getElementById("matchRIndex");
+    const matchRTotalSpan = document.getElementById("matchRTotal");
+
+    let currentMatchRIndex = 0;
+    let matchRScore = 0;
+    let matchRSelected = null;
+
+    matchRTotalSpan.textContent = matchRQuestions.length;
+
+    function loadMatchRQuestion(index) {
+      if (index < 0 || index >= matchRQuestions.length) {
+        currentMatchRIndex = 0;
+        index = 0;
+      }
+      const q = matchRQuestions[index];
+      currentPoints = q.makePoints();
+      showLine = false; // hide line to force visual judgment
+      drawPlot(currentPoints);
+      const rApprox = computeCorrelation(currentPoints);
+      rLabel.textContent = rApprox.toFixed(2);
+      trendLabel.textContent = describeTrend(rApprox);
+
+      matchRMeta.textContent = `Estimate r • Question ${index + 1}`;
+      matchRText.textContent = q.text;
+      matchROptionsDiv.innerHTML = "";
+      matchRSelected = null;
+      matchRFeedback.textContent = "";
+      matchRFeedback.className = "feedback";
+      matchRExplanation.style.display = "none";
+      matchRExplanation.textContent = "";
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = `r ≈ ${opt}`;
+        btn.addEventListener("click", () => {
+          matchRSelected = idx;
+          Array.from(matchROptionsDiv.children).forEach(child => child.classList.remove("selected"));
+          btn.classList.add("selected");
+        });
+        matchROptionsDiv.appendChild(btn);
+      });
+
+      matchRIndexSpan.textContent = index + 1;
+    }
+
+    matchRCheckBtn.addEventListener("click", () => {
+      const q = matchRQuestions[currentMatchRIndex];
+      if (matchRSelected === null) {
+        matchRFeedback.textContent = "Choose an r-value first 🙂";
+        matchRFeedback.className = "feedback";
+        return;
+      }
+      if (matchRSelected === q.correct) {
+        matchRFeedback.textContent = "Nice! Your r-radar is locked on. 🎯";
+        matchRFeedback.className = "feedback correct";
+        matchRExplanation.style.display = "block";
+        matchRExplanation.textContent = q.explain;
+        matchRScore++;
+        matchRScoreSpan.textContent = matchRScore;
+        xp += 5;
+        xpLabel.textContent = xp;
+      } else {
+        matchRFeedback.textContent = "Close. Think about how tight the dots are around an imaginary line.";
+        matchRFeedback.className = "feedback incorrect";
+        matchRExplanation.style.display = "block";
+        matchRExplanation.textContent = q.explain;
+      }
+    });
+
+    matchRNextBtn.addEventListener("click", () => {
+      currentMatchRIndex = (currentMatchRIndex + 1) % matchRQuestions.length;
+      loadMatchRQuestion(currentMatchRIndex);
+    });
+
+    /*******************
+     * FREE PLAY HOOKS *
+     *******************/
+    document.getElementById("regenBtn").addEventListener("click", generateFreePlayPoints);
+    document.getElementById("pointsSlider").addEventListener("input", generateFreePlayPoints);
+    document.getElementById("strengthSlider").addEventListener("input", generateFreePlayPoints);
+    document.getElementById("directionSelect").addEventListener("change", generateFreePlayPoints);
+    document.getElementById("outlierCheckbox").addEventListener("change", generateFreePlayPoints);
+
+    document.getElementById("toggleLineBtn").addEventListener("click", () => {
+      showLine = !showLine;
+      drawPlot(currentPoints);
+    });
+
+    /*************
+     * INIT APP  *
+     *************/
+    // start in free play
+    generateFreePlayPoints();
+  </script>
+</body>
+</html>
