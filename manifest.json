@@ -270,5 +270,15 @@
     "title": "🐍 Python Variables, Input, and Print",
     "tags": ["python", "variables", "input", "print", "interactive", "practice"],
     "level": "Easy"
+  },{
+    "slug": "python/String",
+    "title": "🐍 Python Strings Adventure",
+    "tags": ["python", "strings", "interactive", "practice"],
+    "level": "Easy"
+  },{
+    "slug": "statistics/interpretScatterPlot",
+    "title": "📊 Statistics • Interpret Scatter Plot",
+    "tags": ["grade9","statistics", "scatter-plot", "interpretation", "interactive", "visual"],
+    "level": "Medium"
   }
 ]

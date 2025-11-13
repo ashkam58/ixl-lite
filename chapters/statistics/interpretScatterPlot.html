@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scatter Plot & Best-Fit Line Lab</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #dff3ff, #fff7ff);
+      margin: 0;
+      padding: 0;
+    }
+    .app {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #ffffffcc;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      color: #144b7d;
+    }
+    .subtitle {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #555;
+    }
+    .main {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .graph-panel {
+      flex: 1 1 420px;
+      position: relative;
+    }
+    canvas {
+      background: #f9fcff;
+      border-radius: 10px;
+      box-shadow: inset 0 0 4px rgba(0,0,0,0.08);
+    }
+    .axis-label {
+      position: absolute;
+      font-weight: 600;
+      color: #333;
+    }
+    .axis-label.x {
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .axis-label.y {
+      top: 50%;
+      left: 5px;
+      transform: translateY(-50%) rotate(-90deg);
+    }
+
+    .control-panel {
+      flex: 1 1 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #questionText {
+      background: #f1f7ff;
+      border-left: 4px solid #3b82f6;
+      padding: 10px;
+      border-radius: 8px;
+      min-height: 60px;
+    }
+    .step-buttons, .options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    button {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+      background: #ffffff;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 9px rgba(0,0,0,0.12);
+    }
+    button:active {
+      transform: translateY(0px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    }
+    .primary {
+      background: #22c55e;
+      color: white;
+      font-weight: 600;
+    }
+    .secondary {
+      background: #3b82f6;
+      color: white;
+    }
+    .danger {
+      background: #ef4444;
+      color: white;
+    }
+    #feedback {
+      min-height: 24px;
+      font-weight: 600;
+    }
+    #feedback.correct {
+      color: #16a34a;
+    }
+    #feedback.incorrect {
+      color: #b91c1c;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #e0f2fe;
+      color: #075985;
+      margin-left: 6px;
+    }
+    @media (max-width: 800px) {
+      .main {
+        flex-direction: column;
+      }
+      .graph-panel, .control-panel {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>Scatter Plot & Best-Fit Line Lab</h1>
+  <p class="subtitle">Grade 9 • Explore trends, draw lines of best fit, and predict values.</p>
+
+  <div class="main">
+    <div class="graph-panel">
+      <canvas id="graph" width="420" height="420"></canvas>
+      <div class="axis-label x">x</div>
+      <div class="axis-label y">y</div>
+    </div>
+
+    <div class="control-panel">
+      <div id="questionText"></div>
+
+      <div class="step-buttons">
+        <button id="showPointsBtn" class="secondary">1. Show data</button>
+        <button id="showLineBtn" class="secondary">2. Show best-fit line</button>
+        <button id="animateBtn" class="primary">3. Animate prediction</button>
+      </div>
+
+      <div class="options" id="options"></div>
+
+      <div class="step-buttons">
+        <button id="resetViewBtn">Reset view</button>
+        <button id="nextQuestionBtn" class="primary">Next question</button>
+      </div>
+
+      <div id="feedback"></div>
+      <small>Tip: Use this in class like a **storyboard** – click the buttons slowly and talk through every step.</small>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- DATA SETS / QUESTIONS ------------------------------------
+  // All x,y roughly between 0 and 10
+  const questions = [
+  {
+    "id": 1,
+    "type": "trend",
+    "prompt": "Does this scatter plot show a positive trend, a negative trend, or no trend?",
+    "points": [
+      {"x":1,"y":8},{"x":2,"y":7},{"x":3,"y":6},{"x":4,"y":5},{"x":5,"y":4}
+    ],
+    "answer": "negative",
+    "options": [
+      {"label":"Positive trend","value":"positive"},
+      {"label":"Negative trend","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+  {
+    "id": 2,
+    "type": "trend",
+    "prompt": "What trend is shown by the plot?",
+    "points": [
+      {"x":1,"y":2},{"x":2,"y":3.5},{"x":3,"y":5},{"x":4,"y":6},{"x":5,"y":7}
+    ],
+    "answer": "positive",
+    "options": [
+      {"label":"Positive trend","value":"positive"},
+      {"label":"Negative trend","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+  {
+    "id": 3,
+    "type": "trend",
+    "prompt": "Identify the trend.",
+    "points": [
+      {"x":1,"y":4},{"x":3,"y":8},{"x":5,"y":3},{"x":7,"y":9},{"x":9,"y":5}
+    ],
+    "answer": "none",
+    "options": [
+      {"label":"Positive trend","value":"positive"},
+      {"label":"Negative trend","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 4,
+    "type": "trend",
+    "prompt": "Does this graph show positive, negative, or no trend?",
+    "points": [
+      {"x":1,"y":10},{"x":2,"y":8},{"x":3,"y":6},{"x":4,"y":5},{"x":6,"y":3}
+    ],
+    "answer": "negative",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 5,
+    "type": "trend",
+    "prompt": "Identify the trend in this scatter plot.",
+    "points": [
+      {"x":2,"y":2},{"x":3,"y":2.2},{"x":4,"y":2.1},{"x":5,"y":2.3},{"x":6,"y":2.0}
+    ],
+    "answer": "none",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 6,
+    "type": "trend",
+    "prompt": "What trend appears here?",
+    "points": [
+      {"x":1,"y":3},{"x":2,"y":4},{"x":3,"y":5},{"x":4,"y":5.5},{"x":5,"y":6.5}
+    ],
+    "answer": "positive",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 7,
+    "type": "trend",
+    "prompt": "Is the trend positive, negative, or none?",
+    "points": [
+      {"x":1,"y":9},{"x":2,"y":5},{"x":3,"y":3},{"x":4,"y":2},{"x":5,"y":1}
+    ],
+    "answer": "negative",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 8,
+    "type": "trend",
+    "prompt": "What trend do you observe?",
+    "points": [
+      {"x":0.5,"y":1},{"x":2,"y":4},{"x":4,"y":6},{"x":6,"y":7.5},{"x":8,"y":9}
+    ],
+    "answer": "positive",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 9,
+    "type": "trend",
+    "prompt": "Find the trend.",
+    "points": [
+      {"x":1,"y":6},{"x":3,"y":4},{"x":5,"y":6},{"x":7,"y":4},{"x":9,"y":6}
+    ],
+    "answer": "none",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 10,
+    "type": "trend",
+    "prompt": "Identify the trend in the data.",
+    "points": [
+      {"x":1,"y":9},{"x":2,"y":8},{"x":3,"y":6},{"x":4,"y":4},{"x":6,"y":3}
+    ],
+    "answer": "negative",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 11,
+    "type": "predict",
+    "prompt": "Predict y when x = 10.",
+    "points": [
+      {"x":2,"y":4},{"x":4,"y":6},{"x":6,"y":8},{"x":8,"y":9}
+    ],
+    "xPredict": 10,
+    "optionValues": [10, 6],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 12,
+    "type": "predict",
+    "prompt": "Which is a better prediction for y when x = 10?",
+    "points": [
+      {"x":1,"y":9},{"x":2,"y":7},{"x":3,"y":6},{"x":4,"y":5},{"x":6,"y":4}
+    ],
+    "xPredict": 10,
+    "optionValues": [2, 6],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 13,
+    "type": "predict",
+    "prompt": "Which y-value fits the line best at x = 9?",
+    "points": [
+      {"x":1,"y":3},{"x":2,"y":4},{"x":4,"y":6},{"x":6,"y":8}
+    ],
+    "xPredict": 9,
+    "optionValues": [10, 6],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 14,
+    "type": "predict",
+    "prompt": "Predict y at x = 7.",
+    "points": [
+      {"x":2,"y":8},{"x":4,"y":6},{"x":6,"y":4}
+    ],
+    "xPredict": 7,
+    "optionValues": [3, 6],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 15,
+    "type": "predict",
+    "prompt": "Which is closer to the best-fit line for x = 10?",
+    "points": [
+      {"x":1,"y":1},{"x":3,"y":3},{"x":5,"y":5},{"x":7,"y":7}
+    ],
+    "xPredict": 10,
+    "optionValues": [10, 6],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 16,
+    "type": "predict",
+    "prompt": "Estimate y for x = 10 using the line of best fit.",
+    "points": [
+      {"x":2,"y":5},{"x":4,"y":6},{"x":6,"y":7},{"x":8,"y":7.5}
+    ],
+    "xPredict": 10,
+    "optionValues": [8, 4],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 17,
+    "type": "predict",
+    "prompt": "Predict y for x = 9.",
+    "points": [
+      {"x":2,"y":9},{"x":4,"y":7},{"x":6,"y":5},{"x":8,"y":3}
+    ],
+    "xPredict": 9,
+    "optionValues": [2, 5],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 18,
+    "type": "predict",
+    "prompt": "Which is the better predicted y-value when x = 10?",
+    "points": [
+      {"x":1,"y":6},{"x":3,"y":8},{"x":5,"y":9},{"x":7,"y":9.5}
+    ],
+    "xPredict": 10,
+    "optionValues": [11, 7],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 19,
+    "type": "predict",
+    "prompt": "Using the scatter plot, predict y at x = 10.",
+    "points": [
+      {"x":2,"y":3},{"x":4,"y":5},{"x":6,"y":6},{"x":8,"y":6.8}
+    ],
+    "xPredict": 10,
+    "optionValues": [7.5, 4],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 20,
+    "type": "predict",
+    "prompt": "Estimate y at x = 10 from the trend.",
+    "points": [
+      {"x":1,"y":10},{"x":2,"y":8},{"x":4,"y":6},{"x":6,"y":5},{"x":8,"y":4}
+    ],
+    "xPredict": 10,
+    "optionValues": [3, 8],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 21,
+    "type": "trend",
+    "prompt": "Identify the trend.",
+    "points": [
+      {"x":1,"y":5},{"x":2,"y":5},{"x":3,"y":5},{"x":4,"y":5}
+    ],
+    "answer": "none",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 22,
+    "type": "trend",
+    "prompt": "Does this show a positive trend?",
+    "points": [
+      {"x":1,"y":2},{"x":2,"y":4},{"x":3,"y":8},{"x":4,"y":9},{"x":5,"y":9.5}
+    ],
+    "answer": "positive",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 23,
+    "type": "trend",
+    "prompt": "What trend is this?",
+    "points": [
+      {"x":1,"y":10},{"x":3,"y":7},{"x":4,"y":4},{"x":6,"y":3},{"x":9,"y":1}
+    ],
+    "answer": "negative",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 24,
+    "type": "trend",
+    "prompt": "Identify the relationship.",
+    "points": [
+      {"x":1,"y":3},{"x":2,"y":7},{"x":3,"y":2},{"x":4,"y":9},{"x":5,"y":5}
+    ],
+    "answer": "none",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 25,
+    "type": "predict",
+    "prompt": "Estimate y for x = 9.",
+    "points": [
+      {"x":1,"y":3},{"x":3,"y":4},{"x":5,"y":6},{"x":7,"y":8}
+    ],
+    "xPredict": 9,
+    "optionValues": [9, 5],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 26,
+    "type": "predict",
+    "prompt": "Which is better predicted value for x = 10?",
+    "points": [
+      {"x":2,"y":8},{"x":4,"y":6},{"x":6,"y":5},{"x":8,"y":4}
+    ],
+    "xPredict": 10,
+    "optionValues": [3, 7],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 27,
+    "type": "predict",
+    "prompt": "Predict y when x = 8.",
+    "points": [
+      {"x":1,"y":4},{"x":3,"y":6},{"x":5,"y":8}
+    ],
+    "xPredict": 8,
+    "optionValues": [9.5, 5],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 28,
+    "type": "predict",
+    "prompt": "Based on the line trend, estimate y at x = 9.",
+    "points": [
+      {"x":2,"y":7},{"x":4,"y":8},{"x":6,"y":9}
+    ],
+    "xPredict": 9,
+    "optionValues": [10.5, 8],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 29,
+    "type": "predict",
+    "prompt": "Which number is closer to the regression prediction when x = 10?",
+    "points": [
+      {"x":1,"y":9},{"x":3,"y":8},{"x":5,"y":7},{"x":7,"y":6}
+    ],
+    "xPredict": 10,
+    "optionValues": [5, 10],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 30,
+    "type": "predict",
+    "prompt": "Predict y-value from trend at x = 10.",
+    "points": [
+      {"x":1,"y":5},{"x":2,"y":7},{"x":4,"y":9},{"x":6,"y":10}
+    ],
+    "xPredict": 10,
+    "optionValues": [12, 8],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 31,
+    "type": "trend",
+    "prompt": "Describe the trend.",
+    "points": [
+      {"x":1,"y":8},{"x":2,"y":9},{"x":3,"y":5},{"x":4,"y":8},{"x":5,"y":6}
+    ],
+    "answer": "none",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 32,
+    "type": "trend",
+    "prompt": "What relationship does the plot show?",
+    "points": [
+      {"x":1,"y":3},{"x":3,"y":2},{"x":5,"y":1},{"x":7,"y":0.5},{"x":9,"y":0.2}
+    ],
+    "answer": "negative",
+    "options": [
+      {"label":"Positive","value":"positive"},
+      {"label":"Negative","value":"negative"},
+      {"label":"No trend","value":"none"}
+    ]
+  },
+
+  {
+    "id": 33,
+    "type": "predict",
+    "prompt": "Estimate y when x = 10 from the scatter plot.",
+    "points": [
+      {"x":2,"y":2},{"x":4,"y":4},{"x":6,"y":7},{"x":8,"y":9}
+    ],
+    "xPredict": 10,
+    "optionValues": [11, 8],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 34,
+    "type": "predict",
+    "prompt": "Which option gives the better predicted value when x = 8?",
+    "points": [
+      {"x":2,"y":10},{"x":3,"y":8},{"x":5,"y":6},{"x":7,"y":4}
+    ],
+    "xPredict": 8,
+    "optionValues": [3, 7],
+    "correctIndex": 0
+  },
+
+  {
+    "id": 35,
+    "type": "predict",
+    "prompt": "Predict y when x = 10 for this decreasing trend.",
+    "points": [
+      {"x":1,"y":10},{"x":3,"y":8},{"x":5,"y":6},{"x":7,"y":4},{"x":9,"y":3}
+    ],
+    "xPredict": 10,
+    "optionValues": [2, 6],
+    "correctIndex": 0
+  }
+]
+
+
+  // --- GRAPH SETUP ----------------------------------------------
+  const canvas = document.getElementById('graph');
+  const ctx = canvas.getContext('2d');
+  const padding = 45;
+  const maxVal = 10; // assumes 0..10 for both axes
+
+  function xToCanvas(x){
+    return padding + (x / maxVal) * (canvas.width - 2 * padding);
+  }
+  function yToCanvas(y){
+    return canvas.height - padding - (y / maxVal) * (canvas.height - 2 * padding);
+  }
+
+  function drawAxes(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#444";
+    // x-axis
+    ctx.beginPath();
+    ctx.moveTo(padding, canvas.height - padding);
+    ctx.lineTo(canvas.width - padding + 5, canvas.height - padding);
+    ctx.stroke();
+    // y-axis
+    ctx.beginPath();
+    ctx.moveTo(padding, canvas.height - padding + 5);
+    ctx.lineTo(padding, padding - 5);
+    ctx.stroke();
+
+    // grid + ticks
+    ctx.font = "11px system-ui";
+    ctx.fillStyle = "#666";
+    ctx.strokeStyle = "#ddd";
+    ctx.lineWidth = 1;
+    for(let i=0;i<=maxVal;i++){
+      const x = xToCanvas(i);
+      const y = yToCanvas(i);
+
+      // vertical grid
+      ctx.beginPath();
+      ctx.moveTo(x, canvas.height - padding);
+      ctx.lineTo(x, padding);
+      ctx.stroke();
+
+      // horizontal grid
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(canvas.width - padding, y);
+      ctx.stroke();
+
+      // x ticks
+      ctx.fillText(i, x-3, canvas.height - padding + 15);
+      // y ticks
+      ctx.fillText(i, padding - 18, y+3);
+    }
+  }
+
+  function drawPoints(points, color="#2563eb"){
+    ctx.fillStyle = color;
+    for(const p of points){
+      const cx = xToCanvas(p.x);
+      const cy = yToCanvas(p.y);
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // Simple linear regression: returns {m, b}
+  function regression(points){
+    const n = points.length;
+    let sumX=0,sumY=0,sumXY=0,sumX2=0;
+    for(const p of points){
+      sumX += p.x;
+      sumY += p.y;
+      sumXY += p.x*p.y;
+      sumX2 += p.x*p.x;
+    }
+    const m = (n*sumXY - sumX*sumY)/(n*sumX2 - sumX*sumX);
+    const b = (sumY - m*sumX)/n;
+    return {m,b};
+  }
+
+  function drawLine(m,b,color="#dc2626"){
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+
+    const x1 = 0;
+    const y1 = m*x1 + b;
+    const x2 = maxVal;
+    const y2 = m*x2 + b;
+
+    ctx.beginPath();
+    ctx.moveTo(xToCanvas(x1), yToCanvas(y1));
+    ctx.lineTo(xToCanvas(x2), yToCanvas(y2));
+    ctx.stroke();
+  }
+
+  // ===== DENSIFY / AUGMENT POINTS FOR RICHER PLOTS =====
+  // Replace each question.points with a denser, kid-friendly set derived
+  // from the original points: follows trend for trend/predict questions,
+  // or produces gentle scatter for 'none'. This runs at page load.
+  function densifyQuestions(targetCount = 12){
+    questions.forEach(q => {
+      try{
+        const orig = Array.isArray(q.points) ? q.points.slice() : [];
+        if(orig.length === 0) return;
+        const xs = orig.map(p=>p.x);
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+
+        // compute regression for trend/predict to guide point placement
+        const r = regression(orig);
+        const ys = orig.map(p=>p.y);
+        const yRange = Math.max(...ys) - Math.min(...ys) || 1;
+
+        const out = [];
+        for(let i=0;i<targetCount;i++){
+          // spread x evenly across the original x-range with a little jitter
+          const t = targetCount === 1 ? 0.5 : i/(targetCount-1);
+          let x = minX + (maxX - minX) * t + (Math.random()*2-1)*0.08*(maxX-minX);
+          if(x < 0) x = 0; if(x > 10) x = 10;
+
+          let y;
+          if(q.type === 'trend' || q.type === 'predict'){
+            // follow regression line + small noise proportional to yRange
+            y = r.m * x + r.b + (Math.random()*2-1) * (0.12 * yRange + 0.3);
+          } else {
+            // 'none' or other: scatter around mean with larger spread
+            const meanY = ys.reduce((s,v)=>s+v,0)/ys.length;
+            y = meanY + (Math.random()*2-1) * Math.max(0.6, 0.25 * yRange + 0.6);
+          }
+
+          // clamp and round to 1 decimal
+          y = Math.max(0, Math.min(10, y));
+          out.push({ x: Math.round(x*10)/10, y: Math.round(y*10)/10 });
+        }
+
+        // shuffle a little so points don't look too grid-like
+        for(let k=0;k<out.length;k++){
+          const j = Math.floor(Math.random()*out.length);
+          const tmp = out[k]; out[k] = out[j]; out[j] = tmp;
+        }
+
+        q.points = out;
+      }catch(e){ console.warn('densify error for question', q.id, e); }
+    });
+  }
+
+  // run densify to replace original points with richer sets
+  densifyQuestions(14);
+
+  // --- ANIMATION -------------------------------------------------
+  let currentRegression = null;
+  let animationId = null;
+
+  function animatePrediction(xPredict){
+    if(!currentRegression) return;
+    cancelAnimationFrame(animationId);
+
+    const {m,b} = currentRegression;
+    const yOnLine = m * xPredict + b;
+
+    const startX = xToCanvas(xPredict);
+    const endY = yToCanvas(yOnLine);
+    const axisY = canvas.height - padding;
+    const axisX = padding;
+
+    let t = 0;
+    const speed = 0.015;
+
+    function step(){
+      drawAxes();
+      if(showPoints) drawPoints(currentQuestion.points);
+      if(showLineFlag) drawLine(m,b);
+
+      // Stage 1: go up from x-axis to line
+      let curY = axisY;
+      let curX = startX;
+      if(t <= 0.5){
+        const localT = t / 0.5;
+        curY = axisY + (endY - axisY)*localT;
+      } else {
+        curY = endY;
+      }
+
+      // draw vertical part
+      ctx.strokeStyle = "#10b981";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6,4]);
+      ctx.beginPath();
+      ctx.moveTo(startX, axisY);
+      ctx.lineTo(startX, curY);
+      ctx.stroke();
+
+      // Stage 2: slide left to y-axis
+      if(t > 0.5){
+        const localT = (t-0.5)/0.5;
+        curX = startX + (axisX - startX)*localT;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(startX, endY);
+      ctx.lineTo(curX, endY);
+      ctx.stroke();
+
+      ctx.setLineDash([]);
+
+      // dot on the line
+      ctx.fillStyle = "#0f766e";
+      ctx.beginPath();
+      ctx.arc(startX, endY, 5, 0, Math.PI*2);
+      ctx.fill();
+
+      // label approx y
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "13px system-ui";
+      ctx.fillText("≈ y = " + yOnLine.toFixed(1), axisX + 5, endY - 6);
+
+      t += speed;
+      if(t <= 1){
+        animationId = requestAnimationFrame(step);
+      }
+    }
+    animationId = requestAnimationFrame(step);
+  }
+
+  // --- QUESTION / UI LOGIC --------------------------------------
+  const questionTextEl = document.getElementById("questionText");
+  const optionsEl = document.getElementById("options");
+  const feedbackEl = document.getElementById("feedback");
+
+  const showPointsBtn = document.getElementById("showPointsBtn");
+  const showLineBtn = document.getElementById("showLineBtn");
+  const animateBtn = document.getElementById("animateBtn");
+  const nextQuestionBtn = document.getElementById("nextQuestionBtn");
+  const resetViewBtn = document.getElementById("resetViewBtn");
+
+  let qIndex = 0;
+  let currentQuestion = questions[qIndex];
+  let showPoints = false;
+  let showLineFlag = false;
+
+  function loadQuestion(){
+    currentQuestion = questions[qIndex];
+    showPoints = false;
+    showLineFlag = false;
+    currentRegression = null;
+    feedbackEl.textContent = "";
+    feedbackEl.className = "";
+    animateBtn.disabled = currentQuestion.type !== "predict";
+
+    // Text
+    if(currentQuestion.type === "trend"){
+      questionTextEl.innerHTML =
+        currentQuestion.prompt +
+        '<span class="badge">Concept: trend</span>';
+    } else {
+      questionTextEl.innerHTML =
+        currentQuestion.prompt +
+        `<span class="badge">Concept: prediction on best-fit line</span>`;
+    }
+
+    // Options
+    optionsEl.innerHTML = "";
+    if(currentQuestion.type === "trend"){
+      currentQuestion.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt.label;
+        btn.onclick = () => checkTrendAnswer(opt.value);
+        optionsEl.appendChild(btn);
+      });
+    } else if(currentQuestion.type === "predict"){
+      currentQuestion.optionValues.forEach((val, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = val;
+        btn.onclick = () => checkPredictAnswer(idx);
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    drawAxes(); // start with clean axes only
+  }
+
+  function checkTrendAnswer(value){
+    if(value === currentQuestion.answer){
+      feedbackEl.textContent =
+        "✅ Correct! As x increases, y decreases – that’s a negative trend.";
+      feedbackEl.className = "correct";
+    } else {
+      feedbackEl.textContent =
+        "❌ Not quite. Watch the dots: as x values move right, the y values slide down. That’s a negative trend.";
+      feedbackEl.className = "incorrect";
+    }
+  }
+
+  function checkPredictAnswer(index){
+    const {m,b} = regression(currentQuestion.points);
+    const xPredict = currentQuestion.xPredict;
+    const yActual = m * xPredict + b;
+    const chosen = currentQuestion.optionValues[index];
+    const better = currentQuestion.optionValues[currentQuestion.correctIndex];
+
+    if(index === currentQuestion.correctIndex){
+      feedbackEl.textContent =
+        `✅ Correct! The regression line gives y ≈ ${yActual.toFixed(1)}, ` +
+        `${better} is the better prediction.`;
+      feedbackEl.className = "correct";
+    } else {
+      feedbackEl.textContent =
+        `❌ Close. The best-fit line gives y ≈ ${yActual.toFixed(1)}, ` +
+        `${better} is closer to this value.`;
+      feedbackEl.className = "incorrect";
+    }
+  }
+
+  // Step buttons
+  showPointsBtn.addEventListener("click", () => {
+    showPoints = true;
+    drawAxes();
+    drawPoints(currentQuestion.points);
+  });
+
+  showLineBtn.addEventListener("click", () => {
+    showPoints = true;
+    showLineFlag = true;
+    currentRegression = regression(currentQuestion.points);
+    drawAxes();
+    drawPoints(currentQuestion.points);
+    drawLine(currentRegression.m, currentRegression.b);
+  });
+
+  animateBtn.addEventListener("click", () => {
+    if(currentQuestion.type !== "predict") return;
+    if(!currentRegression) {
+      // automatically compute & draw line first for the animation
+      currentRegression = regression(currentQuestion.points);
+      showPoints = true;
+      showLineFlag = true;
+      drawAxes();
+      drawPoints(currentQuestion.points);
+      drawLine(currentRegression.m, currentRegression.b);
+    }
+    animatePrediction(currentQuestion.xPredict);
+  });
+
+  nextQuestionBtn.addEventListener("click", () => {
+    qIndex = (qIndex + 1) % questions.length;
+    loadQuestion();
+  });
+
+  resetViewBtn.addEventListener("click", () => {
+    cancelAnimationFrame(animationId);
+    showPoints = false;
+    showLineFlag = false;
+    currentRegression = null;
+    drawAxes();
+  });
+
+  // Initial load
+  loadQuestion();
+</script>
+</body>
+</html>
