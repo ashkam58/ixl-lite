@@ -298,9 +298,9 @@
     "tags": ["grade7", "place-value", "basics", "interactive", "visual", "Harsh", "harsh"],
     "level": "Medium"
   },{
-    "slug":"grade/fractionAsAPartOfWhole",
+    "slug":"grade3/fractionAsAPartOfWhole",
     "title": "Fraction as a part of whole",
-    "tags": ["grade", "fraction", "visual", "interactive", "practice"],
+    "tags": ["grade3", "fraction", "visual", "interactive", "practice"],
     "level": "Easy"
   }
 ]

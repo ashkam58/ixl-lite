@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fraction Emoji Lab – Part of a Whole</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f, #a1c4fd, #c2e9fb);
+      background-size: 300% 300%;
+      animation: bgMove 12s ease-in-out infinite;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .app {
+      width: 95%;
+      max-width: 960px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      padding: 20px 24px 24px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+      border: 3px solid #ffd166;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #444;
+    }
+
+    h1 span.icon {
+      font-size: 2rem;
+    }
+
+    .mode-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s;
+    }
+
+    button:active {
+      transform: scale(0.96);
+      box-shadow: none;
+    }
+
+    .btn-mode {
+      background: #f1f5f9;
+      color: #111827;
+      box-shadow: 0 4px 12px rgba(15,23,42,0.15);
+    }
+
+    .btn-mode.active {
+      background: linear-gradient(135deg, #ff9a9e, #fecfef);
+      color: #111827;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      color: #064e3b;
+      box-shadow: 0 6px 18px rgba(34,197,94,0.4);
+    }
+
+    .btn-secondary {
+      background: #e0f2fe;
+      color: #0369a1;
+      box-shadow: 0 6px 18px rgba(37,99,235,0.3);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: 12px;
+      font-size: 0.95rem;
+      flex-wrap: wrap;
+    }
+
+    .score-chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .score-chip span.icon {
+      font-size: 1.1rem;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      margin: 6px 0 10px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .question-text span.highlight {
+      background: #fee2e2;
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+    .canvas-wrapper {
+      background: #f9fafb;
+      border-radius: 20px;
+      padding: 10px;
+      border: 2px dashed #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    canvas {
+      background: white;
+      border-radius: 16px;
+      border: 2px solid #e5e7eb;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .fraction-box {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: #eef2ff;
+      box-shadow: inset 0 0 0 1px #c7d2fe;
+    }
+
+    .fraction-box input {
+      width: 50px;
+      text-align: center;
+      font-size: 1.1rem;
+      padding: 4px 4px;
+      border-radius: 8px;
+      border: 2px solid #c7d2fe;
+      outline: none;
+      font-weight: 600;
+      background: white;
+    }
+
+    .fraction-line {
+      width: 100%;
+      height: 2px;
+      background: #4f46e5;
+      margin: 2px 0;
+    }
+
+    .feedback {
+      margin-top: 8px;
+      font-size: 1rem;
+      min-height: 1.5em;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .feedback.correct {
+      color: #16a34a;
+    }
+    .feedback.wrong {
+      color: #dc2626;
+    }
+
+    .tiny-note {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    @media (max-width: 640px) {
+      .title-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+      canvas {
+        width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title-row">
+      <h1><span class="icon">🍕</span> Fraction Lab: Part of a Whole</h1>
+      <div class="mode-buttons">
+        <button id="emojiModeBtn" class="btn-mode active">🍎 Emoji Mode</button>
+        <button id="shapeModeBtn" class="btn-mode">🟣 Shape Mode</button>
+      </div>
+    </div>
+
+    <div class="top-row">
+      <div class="scoreboard">
+        <div class="score-chip"><span class="icon">⭐</span>Correct: <span id="correctCount">0</span></div>
+        <div class="score-chip"><span class="icon">🔥</span>Streak: <span id="streakCount">0</span></div>
+        <div class="score-chip"><span class="icon">🎯</span>Questions: <span id="questionCount">0</span></div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button id="newQuestionBtn" class="btn-secondary">🔁 New Picture</button>
+        <button id="resetBtn" class="btn-secondary">🧹 Reset Score</button>
+      </div>
+    </div>
+
+    <p class="question-text">
+      Look at the <span class="highlight">colored part</span>.  
+      Type the fraction of the whole that is colored.
+    </p>
+
+    <div class="canvas-wrapper">
+      <canvas id="fractionCanvas" width="600" height="260"></canvas>
+
+      <div class="input-row">
+        <span style="font-weight:600;">Colored part =</span>
+        <div class="fraction-box">
+          <input id="numeratorInput" type="number" min="0" placeholder="a" />
+          <div class="fraction-line"></div>
+          <input id="denominatorInput" type="number" min="1" placeholder="b" />
+        </div>
+        <span style="font-weight:600;">of the whole</span>
+        <button id="checkBtn" class="btn-primary">✅ Check</button>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+      <div class="tiny-note">
+        Tip: You can also write an equivalent fraction (for example, 2/4 = 1/2).
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Canvas setup
+    const canvas = document.getElementById('fractionCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // UI elements
+    const emojiModeBtn = document.getElementById('emojiModeBtn');
+    const shapeModeBtn = document.getElementById('shapeModeBtn');
+    const newQuestionBtn = document.getElementById('newQuestionBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const numeratorInput = document.getElementById('numeratorInput');
+    const denominatorInput = document.getElementById('denominatorInput');
+    const feedbackEl = document.getElementById('feedback');
+    const correctCountEl = document.getElementById('correctCount');
+    const streakCountEl = document.getElementById('streakCount');
+    const questionCountEl = document.getElementById('questionCount');
+
+    // State
+    let mode = 'emoji'; // "emoji" or "shape"
+    let totalParts = 5; // total items/segments
+    let coloredParts = 3; // colored count
+    let correctCount = 0;
+    let streak = 0;
+    let questionCount = 0;
+
+    // Utility: gcd for fraction comparison
+    function gcd(a, b) {
+      a = Math.abs(a);
+      b = Math.abs(b);
+      while (b !== 0) {
+        const t = b;
+        b = a % b;
+        a = t;
+      }
+      return a;
+    }
+
+    function areFractionsEqual(a, b, c, d) {
+      if (b === 0 || d === 0) return false;
+      return a * d === b * c;
+    }
+
+    // Draw helpers
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // cute title inside canvas
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '16px Poppins';
+      ctx.textAlign = 'center';
+      ctx.fillText('Find the fraction of the colored part', canvas.width / 2, 24);
+    }
+
+    // EMOJI MODE: 5 emojis, some colored (🍎), some colorless (⚪)
+    function drawEmojiQuestion() {
+      clearCanvas();
+      const total = totalParts; // should be 5 here
+      const colored = coloredParts;
+
+      const coloredEmoji = '🍎';
+      const emptyEmoji = '⚪';
+
+      const centerY = canvas.height / 2 + 20;
+      const spacing = canvas.width / (total + 1);
+
+      ctx.font = '48px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      for (let i = 0; i < total; i++) {
+        const x = spacing * (i + 1);
+        const emojiChar = i < colored ? coloredEmoji : emptyEmoji;
+        ctx.fillText(emojiChar, x, centerY);
+      }
+
+      // label for total
+      ctx.fillStyle = '#374151';
+      ctx.font = '16px Poppins';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Total emojis = ${total}`, canvas.width / 2, canvas.height - 28);
+    }
+
+    // SHAPE MODE: circle or rectangle divided into parts, some colored
+    function drawShapeQuestion() {
+      clearCanvas();
+
+      const segments = totalParts;
+      const colored = coloredParts;
+
+      // randomly choose circle or bar
+      const isCircle = Math.random() < 0.5;
+
+      if (isCircle) {
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2 + 10;
+        const radius = 80;
+        const fullAngle = Math.PI * 2;
+        const anglePer = fullAngle / segments;
+
+        for (let i = 0; i < segments; i++) {
+          const start = i * anglePer - Math.PI / 2;
+          const end = start + anglePer;
+
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, radius, start, end);
+          ctx.closePath();
+
+          // decide color
+          if (i < colored) {
+            ctx.fillStyle = '#f97316'; // colored slice
+          } else {
+            ctx.fillStyle = '#e5e7eb'; // uncolored slice
+          }
+          ctx.fill();
+          ctx.strokeStyle = '#111827';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      } else {
+        // rectangle bar
+        const barWidth = 400;
+        const barHeight = 80;
+        const startX = (canvas.width - barWidth) / 2;
+        const startY = canvas.height / 2 - barHeight / 2 + 15;
+        const partWidth = barWidth / segments;
+
+        for (let i = 0; i < segments; i++) {
+          const x = startX + i * partWidth;
+          ctx.beginPath();
+          ctx.rect(x, startY, partWidth, barHeight);
+          ctx.fillStyle = i < colored ? '#22c55e' : '#e5e7eb';
+          ctx.fill();
+          ctx.strokeStyle = '#111827';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+
+      ctx.fillStyle = '#374151';
+      ctx.font = '16px Poppins';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Total equal parts = ${segments}`, canvas.width / 2, canvas.height - 28);
+    }
+
+    function drawQuestion() {
+      if (mode === 'emoji') {
+        drawEmojiQuestion();
+      } else {
+        drawShapeQuestion();
+      }
+    }
+
+    // Generate new random question
+    function generateQuestion() {
+      questionCount++;
+      questionCountEl.textContent = questionCount;
+
+      if (mode === 'emoji') {
+        totalParts = 5; // fixed 5 emojis
+        // colored between 1 and 5
+        coloredParts = Math.floor(Math.random() * 5) + 1;
+      } else {
+        // shape mode: between 2 and 8 equal parts
+        totalParts = Math.floor(Math.random() * 4) + 4; // 4 to 7 etc.
+        if (totalParts < 2) totalParts = 2;
+        coloredParts = Math.floor(Math.random() * (totalParts - 1)) + 1; // 1 to totalParts-1
+      }
+
+      numeratorInput.value = '';
+      denominatorInput.value = '';
+      denominatorInput.placeholder = totalParts; // hint
+      feedbackEl.textContent = '';
+      feedbackEl.className = 'feedback';
+
+      drawQuestion();
+    }
+
+    // Check answer
+    function checkAnswer() {
+      const num = parseInt(numeratorInput.value, 10);
+      const den = parseInt(denominatorInput.value, 10);
+
+      if (isNaN(num) || isNaN(den) || den === 0) {
+        feedbackEl.textContent = '✋ Type both numbers to make a fraction.';
+        feedbackEl.className = 'feedback wrong';
+        return;
+      }
+
+      const correctNum = coloredParts;
+      const correctDen = totalParts;
+
+      if (areFractionsEqual(num, den, correctNum, correctDen)) {
+        correctCount++;
+        streak++;
+        feedbackEl.textContent = `🎉 Correct! ${num}/${den} is the same as ${correctNum}/${correctDen}. New puzzle!`;
+        feedbackEl.className = 'feedback correct';
+        correctCountEl.textContent = correctCount;
+        streakCountEl.textContent = streak;
+
+        // auto next question after a short delay
+        setTimeout(generateQuestion, 900);
+      } else {
+        streak = 0;
+        feedbackEl.textContent = `❌ Not yet. The colored part is ${correctNum}/${correctDen} of the whole. Try the next one!`;
+        feedbackEl.className = 'feedback wrong';
+        streakCountEl.textContent = streak;
+
+        // still move to next so it stays fast & practice-heavy
+        setTimeout(generateQuestion, 1200);
+      }
+    }
+
+    // Reset scores
+    function resetScores() {
+      correctCount = 0;
+      streak = 0;
+      questionCount = 0;
+      correctCountEl.textContent = '0';
+      streakCountEl.textContent = '0';
+      questionCountEl.textContent = '0';
+      feedbackEl.textContent = '';
+      feedbackEl.className = 'feedback';
+      generateQuestion();
+    }
+
+    // Mode switching
+    emojiModeBtn.addEventListener('click', () => {
+      mode = 'emoji';
+      emojiModeBtn.classList.add('active');
+      shapeModeBtn.classList.remove('active');
+      generateQuestion();
+    });
+
+    shapeModeBtn.addEventListener('click', () => {
+      mode = 'shape';
+      shapeModeBtn.classList.add('active');
+      emojiModeBtn.classList.remove('active');
+      generateQuestion();
+    });
+
+    newQuestionBtn.addEventListener('click', generateQuestion);
+    resetBtn.addEventListener('click', resetScores);
+    checkBtn.addEventListener('click', checkAnswer);
+
+    // Enter key for quick checking
+    denominatorInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        checkAnswer();
+      }
+    });
+    numeratorInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        checkAnswer();
+      }
+    });
+
+    // First question
+    generateQuestion();
+  </script>
+</body>
+</html>
