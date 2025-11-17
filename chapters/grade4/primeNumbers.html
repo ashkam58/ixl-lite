@@ -1,466 +1,686 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Satvik's Prime Adventure</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom styles */
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        /* Style for highlighted prime numbers */
-        .prime-highlight {
-            background-color: #FBBF24; /* Tailwind yellow-500 */
-            color: #1F2937; /* Tailwind gray-800 */
-            transform: scale(1.1);
-            border-width: 2px;
-            border-color: #FDE68A; /* Tailwind yellow-200 */
-        }
-        /* Style for correctly guessed primes in quiz */
-        .prime-correct {
-            background-color: #10B981; /* Tailwind green-500 */
-            color: white;
-            transform: scale(1.1);
-        }
-        /* Style for incorrectly guessed numbers in quiz */
-        .prime-wrong {
-            background-color: #EF4444; /* Tailwind red-500 */
-            color: white;
-            opacity: 0.7;
-        }
-        /* Style for missed primes in quiz */
-        .prime-missed {
-            background-color: #FBBF24; /* Tailwind yellow-500 */
-            opacity: 0.6;
-            border: 2px dashed #B45309; /* Tailwind yellow-700 */
-        }
-        /* Simple transition for all grid items */
-        .number-cell {
-            transition: all 0.2s ease-in-out;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prime Sieve Playground</title>
+  <style>
+    :root {
+      --midnight: #1d1f3b;
+      --aqua: #4be3ff;
+      --lime: #8df27f;
+      --magenta: #ff6fd8;
+      --sunny: #ffd966;
+      --sky: #62a4ff;
+      --peach: #ffb26b;
+      --bg: radial-gradient(circle at top, #3d2df5 0%, #2b1c6f 28%, #140b33 70%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Nunito', 'Poppins', sans-serif;
+      background: var(--bg);
+      color: #fff;
+      min-height: 100vh;
+      padding: 30px 20px 80px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .playground-shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(20, 11, 51, 0.92);
+      border-radius: 36px;
+      padding: 32px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+      border: 3px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+      filter: blur(8px);
+      animation: float 6s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .sparkle.one {
+      top: -20px;
+      right: 60px;
+    }
+
+    .sparkle.two {
+      bottom: -40px;
+      left: 30px;
+      animation-duration: 8s;
+    }
+
+    @keyframes float {
+      to {
+        transform: translateY(30px) scale(1.1);
+      }
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      color: var(--sunny);
+      text-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+    }
+
+    .subheading {
+      font-size: 1.1rem;
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.86);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .mode-btn {
+      border: none;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #13092f;
+      background: var(--sunny);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 12px 25px rgba(255, 217, 102, 0.35);
+    }
+
+    .mode-btn[data-mode="multiples"] {
+      background: var(--aqua);
+      box-shadow: 0 12px 25px rgba(75, 227, 255, 0.3);
+    }
+
+    .mode-btn[data-mode="factors"] {
+      background: var(--magenta);
+      box-shadow: 0 12px 25px rgba(255, 111, 216, 0.35);
+    }
+
+    .mode-btn.active {
+      transform: translateY(-4px);
+      outline: 3px solid rgba(255, 255, 255, 0.65);
+    }
+
+    .mode-description {
+      text-align: center;
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 22px;
+    }
+
+    .status-board {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .status-card {
+      flex: 1;
+      min-width: 220px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      padding: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(6px);
+    }
+
+    .status-card h3 {
+      font-size: 1.1rem;
+      color: var(--aqua);
+      margin-bottom: 6px;
+    }
+
+    .status-card p {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .number-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+      gap: 10px;
+      background: rgba(8, 4, 23, 0.65);
+      padding: 20px;
+      border-radius: 26px;
+      border: 2px solid rgba(255, 255, 255, 0.05);
+      min-height: 420px;
+    }
+
+    .number-cell {
+      position: relative;
+      border: none;
+      padding: 12px 8px;
+      border-radius: 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #120b2d;
+      background: #feeefe;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .number-cell:hover {
+      transform: translateY(-4px);
+    }
+
+    .number-cell.selected {
+      background: var(--sunny);
+      transform: translateY(-5px) scale(1.05);
+    }
+
+    .number-cell.related {
+      background: var(--aqua);
+      color: #0b1331;
+      animation: shimmer 0.8s linear infinite;
+    }
+
+    .number-cell.crossed {
+      background: #ff99a8;
+      color: #4d1222;
+    }
+
+    .number-cell.crossed::after {
+      content: "";
+      position: absolute;
+      width: 80%;
+      height: 3px;
+      background: #80213e;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-18deg);
+      border-radius: 999px;
+      animation: strike 0.25s ease forwards;
+    }
+
+    .number-cell.factor {
+      background: var(--lime);
+      color: #043412;
+      box-shadow: 0 0 12px rgba(141, 242, 127, 0.6);
+    }
+
+    .number-cell.prime-hint::before {
+      content: "★";
+      position: absolute;
+      font-size: 0.7rem;
+      top: 6px;
+      left: 8px;
+      color: #ff499e;
+      opacity: 0.75;
+    }
+
+    .number-cell.quiz-correct {
+      border: 3px solid #00ffa3;
+      animation: pop 0.45s ease;
+    }
+
+    .number-cell.quiz-wrong {
+      border: 3px solid #ff3569;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes strike {
+      from { width: 0; opacity: 0; }
+      to { width: 80%; opacity: 1; }
+    }
+
+    @keyframes shimmer {
+      0% { box-shadow: 0 0 0 rgba(75, 227, 255, 0.2); }
+      50% { box-shadow: 0 0 15px rgba(75, 227, 255, 0.8); }
+      100% { box-shadow: 0 0 0 rgba(75, 227, 255, 0.2); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.7); }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-2px); }
+    }
+
+    .quiz-panel {
+      margin-top: 32px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 28px;
+      padding: 24px;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .quiz-panel h2 {
+      font-size: 1.8rem;
+      color: var(--lime);
+      margin-bottom: 8px;
+    }
+
+    .quiz-panel p {
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 18px;
+    }
+
+    .quiz-stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .quiz-stat {
+      flex: 1;
+      min-width: 140px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 18px;
+      padding: 12px 18px;
+    }
+
+    .quiz-stat span {
+      display: block;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .quiz-stat strong {
+      font-size: 1.5rem;
+      display: block;
+      margin-top: 6px;
+    }
+
+    #start-quiz {
+      border: none;
+      background: var(--sky);
+      color: #041033;
+      border-radius: 999px;
+      padding: 14px 26px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(98, 164, 255, 0.4);
+      transition: transform 0.2s ease;
+    }
+
+    #start-quiz:hover {
+      transform: translateY(-3px);
+    }
+
+    #quiz-message {
+      margin-top: 16px;
+      font-size: 1.1rem;
+      min-height: 26px;
+    }
+
+    .celebration-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .celebration-piece {
+      position: absolute;
+      width: 12px;
+      height: 26px;
+      border-radius: 8px;
+      opacity: 0;
+      animation: confetti 1.8s ease-out forwards;
+    }
+
+    @keyframes confetti {
+      0% {
+        opacity: 1;
+        transform: translateY(-10vh) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(90vh) rotate(360deg);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+
+      .playground-shell {
+        padding: 20px;
+      }
+
+      header h1 {
+        font-size: 2.2rem;
+      }
+
+      .number-grid {
+        grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+        padding: 14px;
+      }
+
+      .number-cell {
+        min-height: 46px;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-900 to-purple-900 text-white min-h-screen p-4 md:p-8">
+<body>
+  <div class="playground-shell">
+    <div class="sparkle one"></div>
+    <div class="sparkle two"></div>
 
-    <div class="max-w-4xl mx-auto">
+    <header>
+      <h1>Prime Sieve Playground</h1>
+      <p class="subheading">Click a number, sweep away multiples, and become a prime detective!</p>
+    </header>
 
-        <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-yellow-300">
-                Satvik's Prime Adventure!
-            </h1>
-            <p class="text-indigo-200 text-lg mt-2">Learn Primes & Master Factorization</p>
-        </header>
+    <section class="controls">
+      <button class="mode-btn active" data-mode="prime">Find Prime Numbers</button>
+      <button class="mode-btn" data-mode="multiples">Find Multiples</button>
+      <button class="mode-btn" data-mode="factors">Find Factors</button>
+    </section>
 
-        <!-- Navigation -->
-        <nav class="flex justify-center gap-4 mb-8">
-            <button onclick="showView('homeView')" class="nav-button bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Home</button>
-            <button onclick="showView('learnView')" class="nav-button bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Learn Primes</button>
-            <button onclick="showView('factorView')" class="nav-button bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Factor Practice</button>
-        </nav>
-
-        <!-- Main Content Area -->
-        <main id="main-content">
-
-            <!-- View 1: Home Screen -->
-            <div id="homeView" class="app-view text-center bg-white/10 p-8 rounded-2xl shadow-xl backdrop-blur-md">
-                <h2 class="text-3xl font-bold text-yellow-300 mb-4">Welcome, Satvik!</h2>
-                <p class="text-xl text-indigo-100 mb-8">
-                    Let's go on an adventure to learn all about prime numbers.
-                </p>
-                <div class="flex flex-col md:flex-row justify-center gap-6">
-                    <button onclick="showView('learnView')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-lg text-lg shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
-                        🚀 Start Learning Primes
-                    </button>
-                    <button onclick="showView('factorView')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-lg text-lg shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
-                        🧩 Practice Prime Factorization
-                    </button>
-                </div>
-            </div>
-
-            <!-- View 2: Learn Primes -->
-            <div id="learnView" class="app-view hidden bg-white/10 p-6 md:p-8 rounded-2xl shadow-xl backdrop-blur-md">
-                <h2 class="text-3xl font-bold text-yellow-300 mb-6 text-center">Prime Number Grid (1-100)</h2>
-                
-                <!-- Controls for Learn View -->
-                <div class="flex flex-wrap justify-center gap-4 mb-6">
-                    <button id="togglePrimesBtn" onclick="togglePrimes()" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-5 rounded-full shadow-md transition duration-300">Show/Hide All Primes</button>
-                    <button id="startQuizBtn" onclick="startPrimeQuiz()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-300">Start Practice Quiz</button>
-                    <button id="showAnswersBtn" onclick="showQuizAnswers()" class="hidden bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-300">Show Answers</button>
-                    <button id="resetGridBtn" onclick="resetGrid()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-5 rounded-full shadow-md transition duration-300">Reset Grid</button>
-                </div>
-
-                <!-- Quiz Score Area -->
-                <div id="quizScoreArea" class="text-center mb-4 hidden">
-                    <p class="text-2xl font-bold">Score: <span id="quizScore" class="text-yellow-300">0</span> / 25</p>
-                    <p id="quizMessage" class="text-lg text-indigo-200 h-6"></p>
-                </div>
-
-                <!-- 1-100 Grid -->
-                <div id="primeGrid" class="grid grid-cols-10 gap-2 md:gap-3">
-                    <!-- Numbers 1-100 will be generated by JS -->
-                </div>
-            </div>
-
-            <!-- View 3: Practice Factorization -->
-            <div id="factorView" class="app-view hidden bg-white/10 p-6 md:p-8 rounded-2xl shadow-xl backdrop-blur-md">
-                <h2 class="text-3xl font-bold text-yellow-300 mb-6 text-center">Prime Factorization Practice</h2>
-                
-                <div class="bg-indigo-800 p-8 rounded-xl shadow-inner text-center">
-                    <p class="text-lg text-indigo-200 mb-4">Find all the prime factors of this number:</p>
-                    <h3 id="factorNumber" class="text-7xl font-bold text-yellow-300 mb-6">60</h3>
-                    
-                    <p class="text-indigo-200 mb-2">Type the prime factors, separated by a comma or star (e.g., 2, 5, 5)</p>
-                    <input id="factorInput" type="text" class="text-center text-2xl font-bold text-gray-900 w-full max-w-sm p-3 rounded-lg shadow-md border-4 border-transparent focus:border-yellow-400 focus:outline-none" placeholder="e.g. 2, 3, 3">
-                    
-                    <div class="flex flex-wrap justify-center gap-4 mt-6">
-                        <button onclick="checkFactorAnswer()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transition duration-300 transform hover:scale-105">Check Answer</button>
-                        <button onclick="generateFactorProblem()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg transition duration-300 transform hover:scale-105">New Number</button>
-                    </div>
-                </div>
-
-                <!-- Message area for factorization -->
-                <div id="factorMessage" class="text-center text-2xl font-bold mt-6 h-10">
-                    <!-- Feedback appears here -->
-                </div>
-
-            </div>
-
-        </main>
-
+    <div class="mode-description" id="mode-description">
+      Tap a starting number to cross out its multiples. Watch the sieve reveal primes!
     </div>
 
-    <script>
-        // --- Global State and Constants ---
-        const primesList = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97];
-        const primeGrid = document.getElementById('primeGrid');
-        const views = document.querySelectorAll('.app-view');
-        
-        // Navigation buttons
-        const navButtons = document.querySelectorAll('.nav-button');
+    <section class="status-board">
+      <div class="status-card">
+        <h3>Selected Number</h3>
+        <p id="selected-number">None</p>
+      </div>
+      <div class="status-card">
+        <h3>Mode Insight</h3>
+        <p id="mode-insight">Choose a mode and tap a number to explore.</p>
+      </div>
+    </section>
 
-        // Learn Primes state
-        let quizModeActive = false;
-        let quizScore = 0;
-        let guessedPrimes = new Set();
-        
-        // Factorization state
-        let currentFactorProblem = { number: 0, factors: [] };
+    <section class="grid-section">
+      <div class="number-grid" id="number-grid" aria-label="Numbers 1 through 200"></div>
+    </section>
 
-        // --- Utility Functions ---
+    <section class="quiz-panel">
+      <h2>Prime Sieve Quiz Blitz</h2>
+      <p>Click all prime numbers between 50 and 100 before the slime timer runs out.</p>
+      <div class="quiz-stats">
+        <div class="quiz-stat">
+          <span>Score</span>
+          <strong id="quiz-score">0</strong>
+        </div>
+        <div class="quiz-stat">
+          <span>Timer</span>
+          <strong id="quiz-timer">--</strong>
+        </div>
+        <div class="quiz-stat">
+          <span>Primes to find</span>
+          <strong>10</strong>
+        </div>
+      </div>
+      <button id="start-quiz">Start Quiz</button>
+      <div id="quiz-message"></div>
+    </section>
+  </div>
 
-        /**
-         * Hides all views and shows the one with the specified ID.
-         * Also updates the active state of navigation buttons.
-         * @param {string} viewId - The ID of the view to show.
-         */
-        function showView(viewId) {
-            views.forEach(view => {
-                if (view.id === viewId) {
-                    view.classList.remove('hidden');
-                } else {
-                    view.classList.add('hidden');
-                }
-            });
+  <div class="celebration-layer" id="celebration-layer"></div>
 
-            // Update nav button active state
-            navButtons.forEach(button => {
-                if (button.onclick.toString().includes(viewId)) {
-                    button.classList.add('ring-4', 'ring-yellow-300');
-                } else {
-                    button.classList.remove('ring-4', 'ring-yellow-300');
-                }
-            });
+  <script>
+    const grid = document.getElementById('number-grid');
+    const selectedNumberDisplay = document.getElementById('selected-number');
+    const modeInsight = document.getElementById('mode-insight');
+    const modeDescription = document.getElementById('mode-description');
+    const celebrationLayer = document.getElementById('celebration-layer');
 
-            // Initialize views when shown
-            if (viewId === 'learnView') {
-                resetGrid();
-            } else if (viewId === 'factorView') {
-                generateFactorProblem();
-            } else if (viewId === 'homeView') {
-                // Set home button as active
-                navButtons[0].classList.add('ring-4', 'ring-yellow-300');
-            }
+    const modeButtons = [...document.querySelectorAll('.mode-btn')];
+    const modeDescriptions = {
+      prime: 'Tap a starting number to cross out its multiples. Watch the sieve reveal primes!',
+      multiples: 'Tap a number to light up every multiple it has up to 200.',
+      factors: 'Tap a number to highlight every factor hiding inside it.'
+    };
+
+    let activeMode = 'prime';
+    const limit = 200;
+    const numberCells = [];
+
+    const primeList = generatePrimes(limit);
+    const primeSet = new Set(primeList);
+
+    // Quiz data
+    const quizPrimeNumbers = [53, 59, 61, 67, 71, 73, 79, 83, 89, 97];
+    const quizPrimeSet = new Set(quizPrimeNumbers);
+    let quizActive = false;
+    let quizScore = 0;
+    let quizTimerId = null;
+    let timeLeft = 40;
+    const foundQuizPrimes = new Set();
+    const quizScoreDisplay = document.getElementById('quiz-score');
+    const quizTimerDisplay = document.getElementById('quiz-timer');
+    const quizMessage = document.getElementById('quiz-message');
+    const startQuizBtn = document.getElementById('start-quiz');
+
+    // Build grid
+    for (let i = 1; i <= limit; i++) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'number-cell';
+      cell.textContent = i;
+      cell.dataset.value = i;
+      if (primeSet.has(i)) {
+        cell.classList.add('prime-hint');
+      }
+      cell.addEventListener('click', () => handleNumberClick(i, cell));
+      grid.appendChild(cell);
+      numberCells.push(cell);
+    }
+
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newMode = btn.dataset.mode;
+        if (newMode === activeMode) return;
+        activeMode = newMode;
+        modeButtons.forEach(b => b.classList.toggle('active', b === btn));
+        modeDescription.textContent = modeDescriptions[activeMode];
+        modeInsight.textContent = 'Mode switched! Tap a number to see what happens.';
+        clearHighlights();
+      });
+    });
+
+    function handleNumberClick(number, cell) {
+      selectedNumberDisplay.textContent = number;
+      clearHighlights();
+      cell.classList.add('selected');
+
+      if (activeMode === 'prime') {
+        runPrimeMode(number);
+      } else if (activeMode === 'multiples') {
+        runMultiplesMode(number);
+      } else {
+        runFactorsMode(number);
+      }
+
+      if (quizActive) {
+        handleQuizClick(number, cell);
+      }
+    }
+
+    function runPrimeMode(number) {
+      if (number < 2) {
+        modeInsight.textContent = 'Start with 2 or above. Ones never help in prime sieves!';
+        return;
+      }
+      let crossCount = 0;
+      for (let multiple = number * 2; multiple <= limit; multiple += number) {
+        const targetCell = numberCells[multiple - 1];
+        targetCell.classList.add('crossed', 'related');
+        crossCount++;
+      }
+      modeInsight.textContent = crossCount === 0
+        ? 'No multiples left to cross! This number might be prime.'
+        : `Crossed out ${crossCount} multiples of ${number}.`;
+    }
+
+    function runMultiplesMode(number) {
+      let hits = 0;
+      for (let multiple = number; multiple <= limit; multiple += number) {
+        const targetCell = numberCells[multiple - 1];
+        targetCell.classList.add('related');
+        hits++;
+      }
+      modeInsight.textContent = `There are ${hits} multiples of ${number} from 1 to ${limit}.`;
+    }
+
+    function runFactorsMode(number) {
+      let factors = [];
+      for (let suspect = 1; suspect <= number; suspect++) {
+        if (number % suspect === 0) {
+          const targetCell = numberCells[suspect - 1];
+          targetCell.classList.add('factor');
+          factors.push(suspect);
         }
+      }
+      modeInsight.textContent = `${number} has ${factors.length} factors: ${factors.join(', ')}.`;
+    }
 
-        /**
-         * Checks if a number is prime (up to 100).
-         * @param {number} num - The number to check.
-         * @returns {boolean} - True if the number is in the primesList.
-         */
-        function isPrime(num) {
-            return primesList.includes(num);
+    function clearHighlights() {
+      numberCells.forEach(cell => {
+        cell.classList.remove('selected', 'related', 'crossed', 'factor');
+      });
+    }
+
+    function generatePrimes(max) {
+      const sieve = Array(max + 1).fill(true);
+      sieve[0] = sieve[1] = false;
+      for (let i = 2; i * i <= max; i++) {
+        if (sieve[i]) {
+          for (let j = i * i; j <= max; j += i) {
+            sieve[j] = false;
+          }
         }
+      }
+      const primes = [];
+      sieve.forEach((isPrime, index) => {
+        if (isPrime) primes.push(index);
+      });
+      return primes;
+    }
 
-        // --- Learn Primes (View 2) Functions ---
+    // Quiz logic
+    startQuizBtn.addEventListener('click', startQuiz);
 
-        /**
-         * Populates the 1-100 grid with number cells.
-         */
-        function generatePrimeGrid() {
-            primeGrid.innerHTML = ''; // Clear existing grid
-            for (let i = 1; i <= 100; i++) {
-                const cell = document.createElement('div');
-                cell.textContent = i;
-                cell.dataset.number = i;
-                cell.className = 'number-cell cursor-pointer flex items-center justify-center h-12 md:h-16 bg-white/10 hover:bg-white/20 rounded-lg text-lg md:text-xl font-bold shadow-md';
-                
-                // Add click listener for quiz mode
-                cell.addEventListener('click', () => handleGridClick(i, cell));
-                
-                // Special case for 1 (neither prime nor composite)
-                if (i === 1) {
-                    cell.classList.add('opacity-50', 'cursor-not-allowed');
-                }
-                
-                primeGrid.appendChild(cell);
-            }
+    function startQuiz() {
+      quizActive = true;
+      foundQuizPrimes.clear();
+      quizScore = 0;
+      timeLeft = 40;
+      updateQuizDisplays();
+      quizMessage.textContent = 'Timer started! Click every prime from 50 to 100.';
+
+      numberCells.forEach(cell => cell.classList.remove('quiz-correct', 'quiz-wrong'));
+
+      clearInterval(quizTimerId);
+      quizTimerId = setInterval(() => {
+        timeLeft--;
+        updateQuizDisplays();
+        if (timeLeft <= 0) {
+          endQuiz(false);
         }
+      }, 1000);
+    }
 
-        /**
-         * Handles clicks on the grid cells.
-         * Behavior changes based on whether quiz mode is active.
-         * @param {number} num - The number of the clicked cell.
-         * @param {HTMLElement} cell - The clicked cell element.
-         */
-        function handleGridClick(num, cell) {
-            if (num === 1) return; // Ignore clicks on 1
+    function handleQuizClick(number, cell) {
+      if (number < 50 || number > 100) return;
+      if (foundQuizPrimes.has(number)) return;
 
-            if (quizModeActive) {
-                // --- Quiz Mode Logic ---
-                if (cell.classList.contains('prime-correct') || cell.classList.contains('prime-wrong')) {
-                    return; // Already guessed
-                }
+      if (quizPrimeSet.has(number)) {
+        foundQuizPrimes.add(number);
+        quizScore += 5;
+        cell.classList.add('quiz-correct');
+        quizMessage.textContent = `Great! ${number} is prime. ${quizPrimeSet.size - foundQuizPrimes.size} left.`;
 
-                const quizMessage = document.getElementById('quizMessage');
-                if (isPrime(num)) {
-                    cell.classList.add('prime-correct');
-                    quizScore++;
-                    guessedPrimes.add(num);
-                    document.getElementById('quizScore').textContent = quizScore;
-                    quizMessage.textContent = "Correct! " + num + " is prime.";
-                    quizMessage.className = 'text-lg text-green-400 h-6';
-
-                    // Check for win
-                    if (quizScore === primesList.length) {
-                        quizMessage.textContent = "Wow! You found all 25 primes! 🎉";
-                        quizMessage.className = 'text-lg text-yellow-300 h-6';
-                        endPrimeQuiz();
-                    }
-                } else {
-                    cell.classList.add('prime-wrong');
-                    quizMessage.textContent = "Oops! " + num + " is not prime.";
-                    quizMessage.className = 'text-lg text-red-400 h-6';
-                }
-            } else {
-                // --- Learning Mode Logic ---
-                // Toggle a single cell's highlight
-                if (isPrime(num)) {
-                    cell.classList.toggle('prime-highlight');
-                }
-            }
+        if (foundQuizPrimes.size === quizPrimeSet.size) {
+          endQuiz(true);
         }
+      } else {
+        quizScore = Math.max(0, quizScore - 2);
+        cell.classList.add('quiz-wrong');
+        quizMessage.textContent = `${number} is not prime. Try again!`;
+        setTimeout(() => cell.classList.remove('quiz-wrong'), 800);
+      }
+      updateQuizDisplays();
+    }
 
-        /**
-         * Toggles the 'prime-highlight' class on all prime number cells.
-         */
-        function togglePrimes() {
-            if (quizModeActive) return; // Don't allow this in quiz mode
-            const cells = primeGrid.querySelectorAll('.number-cell');
-            cells.forEach(cell => {
-                const num = parseInt(cell.dataset.number);
-                if (isPrime(num)) {
-                    cell.classList.toggle('prime-highlight');
-                }
-            });
-        }
+    function endQuiz(won) {
+      if (!quizActive) return;
+      quizActive = false;
+      clearInterval(quizTimerId);
+      quizTimerDisplay.textContent = won ? 'YAY!' : '0';
+      if (won) {
+        quizMessage.textContent = 'All primes found! You rocked the sieve! 🎉';
+        launchCelebration();
+      } else {
+        quizMessage.textContent = 'Time ran out! Try chasing those primes again.';
+      }
+    }
 
-        /**
-         * Resets the grid to its initial state.
-         */
-        function resetGrid() {
-            quizModeActive = false;
-            quizScore = 0;
-            guessedPrimes.clear();
-            
-            generatePrimeGrid(); // Re-creates the grid and listeners
+    function updateQuizDisplays() {
+      quizScoreDisplay.textContent = quizScore;
+      quizTimerDisplay.textContent = quizActive ? `${timeLeft}s` : '--';
+    }
 
-            // Hide quiz elements
-            document.getElementById('quizScoreArea').classList.add('hidden');
-            document.getElementById('showAnswersBtn').classList.add('hidden');
-            document.getElementById('quizMessage').textContent = '';
-            
-            // Show non-quiz buttons
-            document.getElementById('togglePrimesBtn').classList.remove('hidden');
-            document.getElementById('startQuizBtn').classList.remove('hidden');
-            document.getElementById('startQuizBtn').disabled = false;
-            document.getElementById('togglePrimesBtn').disabled = false;
-        }
+    function launchCelebration() {
+      for (let i = 0; i < 28; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'celebration-piece';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = [varColor('--sunny'), varColor('--aqua'), varColor('--magenta'), varColor('--lime'), varColor('--peach')][Math.floor(Math.random() * 5)];
+        piece.style.animationDuration = `${1.2 + Math.random()}s`;
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        celebrationLayer.appendChild(piece);
+        setTimeout(() => piece.remove(), 1800);
+      }
+    }
 
-        /**
-         * Starts the prime number practice quiz.
-         */
-        function startPrimeQuiz() {
-            resetGrid(); // Start with a clean grid
-            quizModeActive = true;
-            
-            // Show quiz elements
-            document.getElementById('quizScoreArea').classList.remove('hidden');
-            document.getElementById('showAnswersBtn').classList.remove('hidden');
-            document.getElementById('quizScore').textContent = '0';
-            document.getElementById('quizMessage').textContent = 'Click all the prime numbers!';
-            document.getElementById('quizMessage').className = 'text-lg text-indigo-200 h-6';
-            
-            // Hide non-quiz buttons
-            document.getElementById('togglePrimesBtn').classList.add('hidden');
-            
-            // Disable start button
-            document.getElementById('startQuizBtn').disabled = true;
-        }
-
-        /**
-         * Ends the prime quiz and shows the results.
-         */
-        function showQuizAnswers() {
-            if (!quizModeActive) return;
-            endPrimeQuiz();
-            
-            const cells = primeGrid.querySelectorAll('.number-cell');
-            let missedCount = 0;
-
-            cells.forEach(cell => {
-                const num = parseInt(cell.dataset.number);
-                if (isPrime(num)) {
-                    if (!guessedPrimes.has(num)) {
-                        // This prime was missed
-                        cell.classList.add('prime-missed');
-                        missedCount++;
-                    }
-                } else if (!cell.classList.contains('prime-wrong')) {
-                    // Dim non-primes that weren't clicked
-                    cell.classList.add('opacity-30');
-                }
-            });
-            
-            const quizMessage = document.getElementById('quizMessage');
-            if (missedCount > 0) {
-                quizMessage.textContent = `You found ${quizScore} and missed ${missedCount}. The missed ones are highlighted in yellow.`;
-                quizMessage.className = 'text-lg text-yellow-300 h-6';
-            } else if (quizScore === primesList.length) {
-                quizMessage.textContent = "Perfect score! You found all 25 primes! 🎉";
-                quizMessage.className = 'text-lg text-yellow-300 h-6';
-            } else {
-                 quizMessage.textContent = `Great job! You found all ${quizScore} primes you clicked on.`;
-                 quizMessage.className = 'text-lg text-green-400 h-6';
-            }
-        }
-        
-        /**
-         * Helper function to disable quiz functionality.
-         */
-        function endPrimeQuiz() {
-            quizModeActive = false;
-            document.getElementById('startQuizBtn').disabled = false;
-            document.getElementById('showAnswersBtn').classList.add('hidden');
-        }
-
-
-        // --- Practice Factorization (View 3) Functions ---
-
-        /**
-         * Calculates the prime factors of a given number.
-         * @param {number} n - The number to factorize.
-         * @returns {number[]} - An array of prime factors.
-         */
-        function getPrimeFactors(n) {
-            const factors = [];
-            let d = 2;
-            let num = n;
-
-            while (d * d <= num) {
-                if (num % d === 0) {
-                    factors.push(d);
-                    num /= d;
-                } else {
-                    d++;
-                }
-            }
-            if (num > 1) {
-                factors.push(num);
-            }
-            return factors.sort((a, b) => a - b);
-        }
-
-        /**
-         * Generates a new prime factorization problem.
-         */
-        function generateFactorProblem() {
-            let num = 0;
-            // Keep picking a number until it's composite
-            do {
-                num = Math.floor(Math.random() * 97) + 4; // Random number from 4 to 100
-            } while (isPrime(num));
-
-            currentFactorProblem.number = num;
-            currentFactorProblem.factors = getPrimeFactors(num);
-
-            document.getElementById('factorNumber').textContent = num;
-            document.getElementById('factorInput').value = '';
-            document.getElementById('factorMessage').textContent = '';
-        }
-
-        /**
-         * Checks the user's factorization answer.
-         */
-        function checkFactorAnswer() {
-            const input = document.getElementById('factorInput').value;
-            const messageEl = document.getElementById('factorMessage');
-
-            if (input.trim() === '') {
-                messageEl.textContent = "Please enter some factors!";
-                messageEl.className = 'text-center text-2xl font-bold mt-6 h-10 text-yellow-400';
-                return;
-            }
-
-            // Parse user input (handles commas, stars, and spaces)
-            const userFactors = input
-                .split(/[,* ]+/)
-                .filter(n => n.trim() !== '') // Remove empty strings
-                .map(n => parseInt(n))
-                .filter(n => !isNaN(n)); // Remove non-numeric entries
-
-            // Sort for comparison
-            userFactors.sort((a, b) => a - b);
-
-            // Convert arrays to strings for easy comparison
-            const userFactorsString = JSON.stringify(userFactors);
-            const correctFactorsString = JSON.stringify(currentFactorProblem.factors);
-
-            if (userFactorsString === correctFactorsString) {
-                messageEl.textContent = "Correct! 🎉";
-                messageEl.className = 'text-center text-2xl font-bold mt-6 h-10 text-green-400';
-                // Load a new problem after a short delay
-                setTimeout(generateFactorProblem, 1500);
-            } else {
-                messageEl.textContent = "Not quite. Try again!";
-                messageEl.className = 'text-center text-2xl font-bold mt-6 h-10 text-red-400';
-            }
-        }
-
-        // --- Initialization ---
-        
-        /**
-         * Runs when the page loads.
-         */
-        window.onload = () => {
-            generatePrimeGrid();
-            generateFactorProblem();
-            showView('homeView'); // Start on the home screen
-        };
-
-    </script>
+    function varColor(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+  </script>
 </body>
 </html>

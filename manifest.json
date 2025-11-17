@@ -292,5 +292,15 @@
     "title": "📊 Statistics • Scatter Plot Interpretation with Outliers",
     "tags": ["grade9","statistics", "scatter-plot", "interpretation", "outliers", "interactive", "visual"],
     "level": "Medium"
+  },{
+    "slug":"grade7Basics/grade7PlaceValueBasics",
+    "title": "🎯 Grade 7 • Place Value Basics",
+    "tags": ["grade7", "place-value", "basics", "interactive", "visual", "Harsh", "harsh"],
+    "level": "Medium"
+  },{
+    "slug":"grade/fractionAsAPartOfWhole",
+    "title": "Fraction as a part of whole",
+    "tags": ["grade", "fraction", "visual", "interactive", "practice"],
+    "level": "Easy"
   }
 ]
