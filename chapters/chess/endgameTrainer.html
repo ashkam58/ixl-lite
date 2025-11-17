@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chess Endgame Trainer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #070b18;
+      --card-bg: #101726;
+      --accent: #5eead4;
+      --accent-soft: rgba(94, 234, 212, 0.15);
+      --danger: #fb7185;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --board-light: #fefce8;
+      --board-dark: #0f172a;
+      --board-highlight: rgba(94, 234, 212, 0.4);
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.7);
+      --radius-xl: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 40%, #020617 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 1140px;
+      margin: auto;
+      background: linear-gradient(135deg, #020617, #020617 60%, #111827);
+      border-radius: 24px;
+      padding: 18px 18px 20px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: -120px;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(94, 234, 212, 0.15) 0, transparent 45%),
+        radial-gradient(circle at 90% 90%, rgba(129, 140, 248, 0.14) 0, transparent 45%),
+        radial-gradient(circle at 20% 80%, rgba(248, 250, 252, 0.04) 0, transparent 50%);
+      opacity: 0.9;
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-chip {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .title-chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #22c55e, #16a34a);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
+    }
+
+    .subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .subtitle span {
+      color: var(--accent);
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--text-muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: var(--radius-xl);
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.75);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.12), transparent 55%);
+      opacity: 0.65;
+      z-index: -1;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .panel-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.2);
+      font-size: 0.72rem;
+      color: var(--accent);
+      border: 1px solid rgba(45, 212, 191, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .stat-pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .stat-pill strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Board */
+    .board-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .board-scene {
+      position: relative;
+      margin: auto;
+      max-width: 420px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 20px;
+      padding: 10px;
+      background:
+        linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8)),
+        radial-gradient(circle at top, rgba(94, 234, 212, 0.4), transparent 55%);
+      box-shadow: 0 16px 35px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .board-border {
+      position: absolute;
+      inset: 6px;
+      pointer-events: none;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      opacity: 0.5;
+    }
+
+    .board {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9);
+    }
+
+    .square {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.05s ease-out, box-shadow 0.08s ease-out, background-color 0.12s ease-out;
+    }
+
+    .square.light {
+      background: radial-gradient(circle at 20% 20%, #fdfcf4, #e5e7eb);
+    }
+
+    .square.dark {
+      background: radial-gradient(circle at 80% 80%, #020617, #020617);
+    }
+
+    .square:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.85) inset;
+    }
+
+    .square.selected::after,
+    .square.target::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 10px;
+      border: 2px solid var(--board-highlight);
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.6), 0 0 25px rgba(94, 234, 212, 0.7);
+      pointer-events: none;
+    }
+
+    .square.possible::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: radial-gradient(circle, var(--board-highlight), transparent);
+      box-shadow: 0 0 15px rgba(94, 234, 212, 0.8);
+    }
+
+    .coord-file,
+    .coord-rank {
+      position: absolute;
+      font-size: 0.55rem;
+      color: rgba(15, 23, 42, 0.75);
+      text-shadow: 0 1px 0 rgba(248, 250, 252, 0.7);
+      pointer-events: none;
+    }
+
+    .coord-file {
+      bottom: 3px;
+      right: 4px;
+    }
+
+    .coord-rank {
+      top: 3px;
+      left: 4px;
+    }
+
+    .piece.white {
+      filter: drop-shadow(0 3px 3px rgba(15, 23, 42, 0.9));
+    }
+
+    .piece.black {
+      filter: drop-shadow(0 3px 3px rgba(15, 23, 42, 0.8));
+    }
+
+    .board-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .legend {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--board-highlight);
+    }
+
+    /* Right panel */
+    .puzzle-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .puzzle-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .difficulty-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(248, 250, 252, 0.6);
+    }
+
+    .difficulty-easy {
+      background: rgba(22, 163, 74, 0.16);
+      border-color: rgba(22, 163, 74, 0.6);
+      color: #bbf7d0;
+    }
+
+    .difficulty-medium {
+      background: rgba(234, 179, 8, 0.18);
+      border-color: rgba(234, 179, 8, 0.7);
+      color: #fef9c3;
+    }
+
+    .difficulty-hard {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+    }
+
+    .puzzle-description {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .side-section {
+      margin-top: 10px;
+    }
+
+    .side-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .info-card {
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .info-card strong {
+      color: var(--accent);
+    }
+
+    .move-list {
+      max-height: 110px;
+      overflow-y: auto;
+      margin-top: 4px;
+      font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.8rem;
+    }
+
+    .move-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      margin: 2px 3px;
+      color: #e5e7eb;
+    }
+
+    .move-pill.current {
+      border-color: rgba(94, 234, 212, 0.8);
+      box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.4);
+      background: rgba(15, 118, 110, 0.4);
+    }
+
+    .controls-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    button {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid transparent;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .btn span.icon {
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #0f766e);
+      color: #0b1120;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.6);
+      border-color: transparent;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(22, 163, 74, 0.7);
+    }
+
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text-muted);
+      border-color: rgba(148, 163, 184, 0.6);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(15, 23, 42, 1);
+      border-color: rgba(94, 234, 212, 0.8);
+      color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.4);
+    }
+
+    .btn-soft {
+      background: rgba(56, 189, 248, 0.15);
+      color: #e0f2fe;
+      border-color: rgba(56, 189, 248, 0.7);
+    }
+
+    .btn-soft:hover {
+      background: rgba(56, 189, 248, 0.22);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.7);
+    }
+
+    .btn-danger {
+      background: rgba(248, 113, 113, 0.1);
+      color: #fecaca;
+      border-color: rgba(248, 113, 113, 0.85);
+    }
+
+    .btn-danger:hover {
+      background: rgba(248, 113, 113, 0.18);
+      box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.85);
+    }
+
+    .status-banner {
+      margin-top: 10px;
+      padding: 7px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      border: 1px solid transparent;
+    }
+
+    .status-banner.success {
+      background: rgba(21, 128, 61, 0.12);
+      border-color: rgba(34, 197, 94, 0.8);
+      color: #bbf7d0;
+    }
+
+    .status-banner.error {
+      background: rgba(185, 28, 28, 0.18);
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+    }
+
+    .status-banner.neutral {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+    }
+
+    .status-banner .icon {
+      font-size: 1rem;
+      line-height: 1;
+      margin-top: 1px;
+    }
+
+    .status-text {
+      flex: 1;
+    }
+
+    .progress-bar-outer {
+      margin-top: 10px;
+      height: 6px;
+      width: 100%;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .progress-bar-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #0ea5e9, #6366f1);
+      transition: width 0.35s ease-out;
+    }
+
+    footer {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tiny-tip {
+      opacity: 0.9;
+    }
+
+    .credit {
+      opacity: 0.7;
+    }
+
+    .confetti {
+      position: fixed;
+      pointer-events: none;
+      inset: 0;
+      overflow: hidden;
+      z-index: 9999;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      border-radius: 3px;
+      background: white;
+      opacity: 0.9;
+      animation: fall 1s linear forwards;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-10vh) rotate(0deg);
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="title-block">
+        <div class="title-row">
+          <h1>Endgame Lab</h1>
+          <div class="title-chip">
+            <span class="title-chip-dot"></span>
+            LIVE TACTICS
+          </div>
+        </div>
+        <div class="subtitle">
+          Practice <span>classic chess endgames</span> with an interactive board and clean UI.
+        </div>
+      </div>
+      <div class="tag-row">
+        <div class="tag">♔ King &amp; Queen vs King</div>
+        <div class="tag">♖ Rook endgames</div>
+        <div class="tag">♙ Promotion tactics</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- Left: Board -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            Board
+            <span class="pill" id="sideToMoveLabel">White to move</span>
+          </div>
+          <div class="stats-row">
+            <div class="stat-pill">Solved: <strong id="statSolved">0</strong></div>
+            <div class="stat-pill">Streak: <strong id="statStreak">0</strong></div>
+            <div class="stat-pill">Best: <strong id="statBest">0</strong></div>
+          </div>
+        </div>
+
+        <div class="board-wrapper">
+          <div class="board-scene">
+            <div class="board-border"></div>
+            <div class="board" id="board"></div>
+          </div>
+
+          <div class="board-footer">
+            <div class="legend">
+              <div class="legend-item">
+                <span class="legend-dot"></span>
+                Solution squares
+              </div>
+              <div class="legend-item">
+                ♔ / ♚ = kings, ♕ / ♛ = queens, ♖ / ♜ = rooks, ♙ / ♟ = pawns
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Info / controls -->
+      <section class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            Puzzle
+            <span class="pill" id="puzzleIndexLabel">1 / 1</span>
+          </div>
+        </div>
+
+        <div class="puzzle-meta">
+          <div class="puzzle-title" id="puzzleTitle">Loading puzzle…</div>
+          <div>
+            <span class="difficulty-pill" id="difficultyPill">EASY</span>
+          </div>
+          <p class="puzzle-description" id="puzzleDescription"></p>
+        </div>
+
+        <div class="side-section">
+          <div class="side-label">Line to find</div>
+          <div class="info-card">
+            Play the moves for the winning side. Each puzzle is stored as a simple
+            “follow this line” exercise — you don’t need a full engine, just accuracy.
+            <div class="move-list" id="moveList"></div>
+          </div>
+        </div>
+
+        <div class="side-section">
+          <div class="side-label">Trainer controls</div>
+          <div class="controls-row">
+            <button class="btn btn-primary" id="btnNext">
+              <span class="icon">▶</span>
+              Next puzzle
+            </button>
+            <button class="btn btn-ghost" id="btnReset">
+              <span class="icon">⟲</span>
+              Reset
+            </button>
+            <button class="btn btn-soft" id="btnHint">
+              <span class="icon">💡</span>
+              Hint
+            </button>
+            <button class="btn btn-danger" id="btnShowSolution">
+              <span class="icon">👁</span>
+              Show solution
+            </button>
+          </div>
+        </div>
+
+        <div id="statusBanner" class="status-banner neutral">
+          <span class="icon" id="statusIcon">♟</span>
+          <div class="status-text" id="statusText">
+            Click your piece, then its destination square to play a move.
+          </div>
+        </div>
+
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" id="progressBar"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="tiny-tip">
+        Tip: Use this as an endgame “drill board” alongside your real games or teaching sessions.
+      </div>
+      <div class="credit">
+        Built with pure HTML, CSS &amp; JS — no frameworks.
+      </div>
+    </footer>
+
+    <div id="confettiRoot" class="confetti" aria-hidden="true"></div>
+  </div>
+
+  <script>
+    // --- Data model ---------------------------------------------------------
+
+    const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+    const ranks = [8, 7, 6, 5, 4, 3, 2, 1];
+
+    const pieceSymbols = {
+      w: { K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘", P: "♙" },
+      b: { K: "♚", Q: "♛", R: "♜", B: "♝", N: "♞", P: "♟" },
+    };
+
+    // Puzzles: we model as:
+    // pieces: [ { square: "g7", type: "Q", color: "w" }, ... ]
+    // sideToMove: "w" or "b"
+    // solution: [ { from: "g7", to: "g5", san: "Qg5#" }, ... ]
+    const puzzles = [
+      {
+        id: 1,
+        title: "Basic Mate: King & Queen vs Lone King",
+        difficulty: "easy",
+        description:
+          "White to move and deliver checkmate in one. Classic K+Q vs K pattern.",
+        sideToMove: "w",
+        pieces: [
+          { square: "d6", type: "K", color: "w" },
+          { square: "g7", type: "Q", color: "w" },
+          { square: "h5", type: "K", color: "b" },
+        ],
+        solution: [{ from: "g7", to: "g5", san: "Qg5#" }],
+      },
+      {
+        id: 2,
+        title: "Back Rank Net: King & Rook vs King",
+        difficulty: "easy",
+        description:
+          "White to move. Use your rook and king to box in the enemy king on the back rank.",
+        sideToMove: "w",
+        pieces: [
+          { square: "f6", type: "K", color: "w" },
+          { square: "a7", type: "R", color: "w" },
+          { square: "h8", type: "K", color: "b" },
+        ],
+        solution: [{ from: "a7", to: "a8", san: "Ra8#" }],
+      },
+      {
+        id: 3,
+        title: "Shoulder Check: Driving the King to the Corner",
+        difficulty: "medium",
+        description:
+          "White to move. Use your queen to restrict the black king and push it to the edge.",
+        sideToMove: "w",
+        pieces: [
+          { square: "e4", type: "K", color: "w" },
+          { square: "d6", type: "Q", color: "w" },
+          { square: "g7", type: "K", color: "b" },
+        ],
+        solution: [
+          { from: "d6", to: "e6", san: "Qe6" },
+          { from: "e4", to: "f5", san: "Kf5" },
+          { from: "e6", to: "g6", san: "Qg6#" },
+        ],
+      },
+      {
+        id: 4,
+        title: "Promotion Tactic: Push the Passed Pawn",
+        difficulty: "medium",
+        description:
+          "White to move. Convert the passed pawn into a queen with a simple technique.",
+        sideToMove: "w",
+        pieces: [
+          { square: "g6", type: "K", color: "w" },
+          { square: "f7", type: "P", color: "w" },
+          { square: "h8", type: "K", color: "b" },
+        ],
+        solution: [
+          { from: "f7", to: "f8", san: "f8=Q+" },
+          { from: "g6", to: "f7", san: "Kf7#" },
+        ],
+      },
+      {
+        id: 5,
+        title: "Rook Ladder Mate",
+        difficulty: "hard",
+        description:
+          "White to move. Perform a classic ladder mate pattern using rook and king.",
+        sideToMove: "w",
+        pieces: [
+          { square: "g4", type: "K", color: "w" },
+          { square: "a6", type: "R", color: "w" },
+          { square: "g8", type: "K", color: "b" },
+        ],
+        solution: [
+          { from: "a6", to: "a8", san: "Ra8+" },
+          { from: "g4", to: "f5", san: "Kf5" },
+          { from: "a8", to: "g8", san: "Rg8#" },
+        ],
+      },
+    ];
+
+    // --- State --------------------------------------------------------------
+
+    let currentPuzzleIndex = 0;
+    let boardState = {}; // { "e4": { type, color } }
+    let sideToMove = "w";
+    let selectedSquare = null;
+    let expectedMoveIndex = 0;
+
+    let solvedCount = 0;
+    let streak = 0;
+    let bestStreak = 0;
+
+    // --- Elements -----------------------------------------------------------
+
+    const boardEl = document.getElementById("board");
+    const sideToMoveLabel = document.getElementById("sideToMoveLabel");
+    const statSolved = document.getElementById("statSolved");
+    const statStreak = document.getElementById("statStreak");
+    const statBest = document.getElementById("statBest");
+    const puzzleIndexLabel = document.getElementById("puzzleIndexLabel");
+    const puzzleTitleEl = document.getElementById("puzzleTitle");
+    const puzzleDescriptionEl = document.getElementById("puzzleDescription");
+    const difficultyPill = document.getElementById("difficultyPill");
+    const moveListEl = document.getElementById("moveList");
+    const btnNext = document.getElementById("btnNext");
+    const btnReset = document.getElementById("btnReset");
+    const btnHint = document.getElementById("btnHint");
+    const btnShowSolution = document.getElementById("btnShowSolution");
+    const statusBanner = document.getElementById("statusBanner");
+    const statusIcon = document.getElementById("statusIcon");
+    const statusText = document.getElementById("statusText");
+    const progressBar = document.getElementById("progressBar");
+    const confettiRoot = document.getElementById("confettiRoot");
+
+    // --- Helpers ------------------------------------------------------------
+
+    function squareColor(fileIndex, rankIndex) {
+      // a8 is dark; so (0 + 0) % 2 === 0 -> dark
+      const sum = fileIndex + rankIndex;
+      return sum % 2 === 0 ? "dark" : "light";
+    }
+
+    function getPieceAt(square) {
+      return boardState[square] || null;
+    }
+
+    function setPieceAt(square, piece) {
+      if (piece) {
+        boardState[square] = piece;
+      } else {
+        delete boardState[square];
+      }
+    }
+
+    function clearSelection() {
+      selectedSquare = null;
+      updateBoardHighlights();
+    }
+
+    function setStatus(type, text) {
+      statusBanner.classList.remove("success", "error", "neutral");
+      statusBanner.classList.add(type);
+      statusText.textContent = text;
+      if (type === "success") {
+        statusIcon.textContent = "✔";
+      } else if (type === "error") {
+        statusIcon.textContent = "⚠";
+      } else {
+        statusIcon.textContent = "♟";
+      }
+    }
+
+    function difficultyLabel(diff) {
+      switch (diff) {
+        case "easy":
+          return "Easy • Warm-up";
+        case "medium":
+          return "Medium • Technique";
+        case "hard":
+          return "Hard • Calculation";
+        default:
+          return "Unrated";
+      }
+    }
+
+    function updateDifficultyPill(diff) {
+      difficultyPill.classList.remove(
+        "difficulty-easy",
+        "difficulty-medium",
+        "difficulty-hard"
+      );
+      if (diff === "easy") {
+        difficultyPill.classList.add("difficulty-easy");
+      } else if (diff === "medium") {
+        difficultyPill.classList.add("difficulty-medium");
+      } else if (diff === "hard") {
+        difficultyPill.classList.add("difficulty-hard");
+      }
+      difficultyPill.textContent = difficultyLabel(diff);
+    }
+
+    function updateProgressBar() {
+      const total = puzzles.length;
+      const solvedRatio = total === 0 ? 0 : (solvedCount / total) * 100;
+      progressBar.style.width = `${Math.min(100, solvedRatio)}%`;
+    }
+
+    function spawnConfettiBurst() {
+      const count = 80;
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.background =
+          Math.random() < 0.33
+            ? "#22c55e"
+            : Math.random() < 0.5
+              ? "#0ea5e9"
+              : "#f97316";
+        piece.style.animationDuration = 0.8 + Math.random() * 0.7 + "s";
+        piece.style.transform =
+          "translateY(-10vh) rotate(" + (Math.random() * 360) + "deg)";
+        confettiRoot.appendChild(piece);
+        setTimeout(() => {
+          piece.remove();
+        }, 1600);
+      }
+    }
+
+    // --- Board rendering ----------------------------------------------------
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+      ranks.forEach((rank, rankIndex) => {
+        files.forEach((file, fileIndex) => {
+          const square = file + rank;
+          const squareDiv = document.createElement("div");
+          squareDiv.className =
+            "square " + squareColor(fileIndex, rankIndex);
+          squareDiv.dataset.square = square;
+
+          const piece = getPieceAt(square);
+          if (piece) {
+            const span = document.createElement("span");
+            span.className = "piece " + (piece.color === "w" ? "white" : "black");
+            span.textContent = pieceSymbols[piece.color][piece.type];
+            squareDiv.appendChild(span);
+          }
+
+          // coordinates on bottom-left style
+          if (rank === 1) {
+            const coordFile = document.createElement("div");
+            coordFile.className = "coord-file";
+            coordFile.textContent = file;
+            squareDiv.appendChild(coordFile);
+          }
+          if (file === "a") {
+            const coordRank = document.createElement("div");
+            coordRank.className = "coord-rank";
+            coordRank.textContent = rank;
+            squareDiv.appendChild(coordRank);
+          }
+
+          squareDiv.addEventListener("click", () => handleSquareClick(square));
+          boardEl.appendChild(squareDiv);
+        });
+      });
+      updateBoardHighlights();
+    }
+
+    function updateBoardHighlights() {
+      const expectedMove =
+        puzzles[currentPuzzleIndex].solution[expectedMoveIndex];
+
+      const squares = boardEl.querySelectorAll(".square");
+      squares.forEach((sqDiv) => {
+        const sq = sqDiv.dataset.square;
+        sqDiv.classList.remove("selected", "possible", "target");
+
+        if (sq === selectedSquare) {
+          sqDiv.classList.add("selected");
+        }
+
+        // highlight "correct from-square" as a subtle clue
+        if (expectedMove && sq === expectedMove.from) {
+          sqDiv.classList.add("possible");
+        }
+        if (expectedMove && sq === expectedMove.to) {
+          sqDiv.classList.add("target");
+        }
+      });
+    }
+
+    // --- Move list rendering ------------------------------------------------
+
+    function renderMoveList() {
+      const puzzle = puzzles[currentPuzzleIndex];
+      moveListEl.innerHTML = "";
+      puzzle.solution.forEach((step, idx) => {
+        const pill = document.createElement("span");
+        pill.className = "move-pill";
+        if (idx === expectedMoveIndex) {
+          pill.classList.add("current");
+        }
+        pill.textContent = step.san || `${step.from}-${step.to}`;
+        moveListEl.appendChild(pill);
+      });
+    }
+
+    // --- Puzzle logic -------------------------------------------------------
+
+    function loadPuzzle(index) {
+      currentPuzzleIndex = (index + puzzles.length) % puzzles.length;
+      const puzzle = puzzles[currentPuzzleIndex];
+      boardState = {};
+      puzzle.pieces.forEach((p) => {
+        setPieceAt(p.square, { type: p.type, color: p.color });
+      });
+      sideToMove = puzzle.sideToMove;
+      expectedMoveIndex = 0;
+      selectedSquare = null;
+
+      // Metadata
+      sideToMoveLabel.textContent =
+        sideToMove === "w" ? "White to move" : "Black to move";
+      puzzleIndexLabel.textContent =
+        currentPuzzleIndex + 1 + " / " + puzzles.length;
+      puzzleTitleEl.textContent = puzzle.title;
+      puzzleDescriptionEl.textContent = puzzle.description;
+      updateDifficultyPill(puzzle.difficulty);
+      renderBoard();
+      renderMoveList();
+      setStatus(
+        "neutral",
+        `Puzzle loaded. ${sideToMove === "w" ? "White" : "Black"} to move and follow the line.`
+      );
+    }
+
+    function handleSquareClick(square) {
+      const puzzle = puzzles[currentPuzzleIndex];
+      const expectedMove = puzzle.solution[expectedMoveIndex];
+      if (!expectedMove) return;
+
+      const piece = getPieceAt(square);
+
+      if (!selectedSquare) {
+        // First click: choose your piece
+        if (piece && piece.color === sideToMove) {
+          selectedSquare = square;
+          updateBoardHighlights();
+          setStatus(
+            "neutral",
+            `Selected ${square}. Now click the destination square.`
+          );
+        } else if (piece) {
+          setStatus(
+            "error",
+            "That's not the side to move. Pick the correct color."
+          );
+        } else {
+          setStatus("neutral", "Choose a piece from the moving side first.");
+        }
+        return;
+      }
+
+      // Second click: we send piece from selectedSquare to this square
+      const from = selectedSquare;
+      const to = square;
+
+      // Check if this matches the expected solution step
+      if (from === expectedMove.from && to === expectedMove.to) {
+        // Make the move
+        const movingPiece = getPieceAt(from);
+        setPieceAt(from, null);
+        setPieceAt(to, movingPiece);
+
+        selectedSquare = null;
+        expectedMoveIndex++;
+        renderBoard();
+        renderMoveList();
+
+        if (expectedMoveIndex >= puzzle.solution.length) {
+          // Puzzle solved
+          solvedCount++;
+          streak++;
+          bestStreak = Math.max(bestStreak, streak);
+          statSolved.textContent = solvedCount;
+          statStreak.textContent = streak;
+          statBest.textContent = bestStreak;
+          updateProgressBar();
+          spawnConfettiBurst();
+          setStatus(
+            "success",
+            "Beautiful! Endgame converted. Click Next puzzle to continue the grind."
+          );
+        } else {
+          setStatus(
+            "success",
+            "Correct move. Continue with the next step of the line."
+          );
+        }
+      } else {
+        // Wrong attempt
+        setStatus(
+          "error",
+          `That move doesn't match the training line. Try again or tap Hint.`
+        );
+        streak = 0;
+        statStreak.textContent = streak;
+      }
+    }
+
+    // --- Controls -----------------------------------------------------------
+
+    btnNext.addEventListener("click", () => {
+      loadPuzzle(currentPuzzleIndex + 1);
+    });
+
+    btnReset.addEventListener("click", () => {
+      loadPuzzle(currentPuzzleIndex);
+      setStatus("neutral", "Position reset. Try the line again.");
+    });
+
+    btnHint.addEventListener("click", () => {
+      const puzzle = puzzles[currentPuzzleIndex];
+      const expectedMove = puzzle.solution[expectedMoveIndex];
+      if (!expectedMove) return;
+      setStatus(
+        "neutral",
+        `Hint: First move is from ${expectedMove.from} to ${expectedMove.to}.`
+      );
+    });
+
+    btnShowSolution.addEventListener("click", () => {
+      const puzzle = puzzles[currentPuzzleIndex];
+      const movesText = puzzle.solution
+        .map((s, idx) => `${idx + 1}. ${s.san || s.from + "-" + s.to}`)
+        .join(", ");
+      setStatus(
+        "neutral",
+        `Solution line: ${movesText}. Reset to play it yourself.`
+      );
+      streak = 0;
+      statStreak.textContent = streak;
+    });
+
+    // --- Init ---------------------------------------------------------------
+
+    renderBoard();
+    loadPuzzle(0);
+    updateProgressBar();
+  </script>
+</body>
+</html>

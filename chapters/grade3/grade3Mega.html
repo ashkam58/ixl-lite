@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Grade 3 Math Playground</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffecd2, #fcb3ff);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #333;
+    }
+
+    header {
+      text-align: center;
+      padding: 1rem 0.5rem;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #5b21b6;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    header p {
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    .app {
+      display: flex;
+      flex: 1;
+      padding: 0.5rem;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .app {
+        flex-direction: column;
+      }
+    }
+
+    .sidebar {
+      flex: 0 0 240px;
+      max-width: 260px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 16px;
+      padding: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        max-width: 100%;
+      }
+    }
+
+    .sidebar h2 {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+      color: #1f2933;
+    }
+
+    .topic-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .topic-buttons button {
+      border: none;
+      background: #e0e7ff;
+      padding: 0.6rem 0.4rem;
+      border-radius: 999px;
+      text-align: left;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .topic-buttons button span {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .topic-buttons button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .topic-buttons button.active {
+      background: #4f46e5;
+      color: white;
+    }
+
+    .main-panel {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      padding: 0.75rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      overflow: auto;
+    }
+
+    .topic-panel {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .topic-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .topic-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.25rem;
+      color: #111827;
+    }
+
+    .topic-subtitle {
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      color: #4b5563;
+    }
+
+    .card {
+      background: #f9fafb;
+      border-radius: 14px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      border: 1px solid #e5e7eb;
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .question-text {
+      margin-bottom: 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      margin: 0.4rem 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      padding: 0.3rem 0.4rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      min-width: 90px;
+      font-size: 0.9rem;
+    }
+
+    button.action {
+      border: none;
+      background: #f97316;
+      color: white;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
+    }
+
+    button.action:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+      background: #ea580c;
+    }
+
+    button.action.secondary {
+      background: #6366f1;
+    }
+
+    button.action.secondary:hover {
+      background: #4f46e5;
+    }
+
+    .feedback {
+      margin-top: 0.3rem;
+      font-size: 0.9rem;
+      min-height: 1.2em;
+    }
+
+    .feedback.correct {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .feedback.incorrect {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .little-note {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    /* Place value visual */
+    .pv-visual {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+    }
+
+    .pv-column {
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .pv-label {
+      font-size: 0.8rem;
+      margin-bottom: 0.2rem;
+      font-weight: 600;
+    }
+
+    .pv-blocks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.15rem;
+      justify-content: center;
+    }
+
+    .block {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: #7dd3fc;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .block.hundred {
+      background: #a7f3d0;
+    }
+
+    .block.ten {
+      background: #facc15;
+    }
+
+    .block.one {
+      background: #f97316;
+    }
+
+    /* Multiplication array */
+    .array-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 26px);
+      grid-auto-rows: 26px;
+      gap: 4px;
+      margin-top: 0.3rem;
+    }
+
+    .array-cell {
+      border-radius: 6px;
+      background: #bfdbfe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    }
+
+    .array-cell.active {
+      background: #4ade80;
+    }
+
+    /* Fraction bar */
+    .fraction-bar {
+      display: flex;
+      margin-top: 0.4rem;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #6366f1;
+    }
+
+    .fraction-part {
+      height: 24px;
+      flex: 1;
+      background: #e5e7eb;
+    }
+
+    .fraction-part.shaded {
+      background: #f97316;
+    }
+
+    /* Clock */
+    .clock-display {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    /* Shapes */
+    .shapes-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+    }
+
+    .shape-card {
+      width: 90px;
+      height: 90px;
+      background: #eff6ff;
+      border-radius: 16px;
+      position: relative;
+      cursor: pointer;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shape-card.selected {
+      border-color: #f97316;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+    }
+
+    .shape {
+      background: #22c55e;
+    }
+
+    .rect {
+      width: 60px;
+      height: 35px;
+      border-radius: 6px;
+    }
+
+    .square {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+    }
+
+    .triangle {
+      width: 0;
+      height: 0;
+      border-left: 22px solid transparent;
+      border-right: 22px solid transparent;
+      border-bottom: 40px solid #22c55e;
+    }
+
+    .circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+    }
+
+    .shape-name {
+      position: absolute;
+      bottom: 5px;
+      font-size: 0.7rem;
+      color: #111827;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+    /* Graph */
+    .graph {
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+      margin-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .bar {
+      width: 40px;
+      background: #6366f1;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: white;
+      font-size: 0.8rem;
+      position: relative;
+      transition: height 0.2s;
+    }
+
+    .bar-label {
+      text-align: center;
+      font-size: 0.8rem;
+      margin-top: 0.15rem;
+    }
+
+    .bar-controls {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.2rem;
+    }
+
+    .tiny-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.75rem;
+      background: #e5e7eb;
+      cursor: pointer;
+    }
+
+    .tiny-btn:hover {
+      background: #d1d5db;
+    }
+
+    .score-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: #ecfeff;
+      border: 1px solid #a5f3fc;
+      margin-bottom: 0.4rem;
+    }
+
+    .progress-hub {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 0.5rem;
+      padding: 0 0.75rem 0.5rem;
+    }
+
+    .progress-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 0.75rem;
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.15);
+    }
+
+    .progress-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .progress-top h2 {
+      font-size: 1.1rem;
+      margin: 0;
+      color: #312e81;
+    }
+
+    .xp-bar {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #e0e7ff;
+      overflow: hidden;
+      margin-bottom: 0.35rem;
+    }
+
+    .xp-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8, #6366f1);
+      transition: width 0.3s ease-out;
+    }
+
+    .xp-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #312e81;
+      margin-bottom: 0.2rem;
+    }
+
+    .badge-message {
+      font-size: 0.8rem;
+      color: #4c1d95;
+    }
+
+    #progress-log {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    #progress-log li {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 999px;
+      background: #eef2ff;
+    }
+
+    #progress-log li.win {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    #progress-log li.reset {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .quest-card .quest-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .quest-display {
+      margin-top: 0.3rem;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 0.5rem;
+    }
+
+    .quest-hints {
+      margin-top: 0.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .quest-meter-wrapper {
+      margin-top: 0.4rem;
+      background: #eef2ff;
+      padding: 0.5rem;
+      border-radius: 12px;
+    }
+
+    #quest-meter {
+      width: 100%;
+    }
+
+    .quest-meter-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+      color: #312e81;
+    }
+
+    .confetti-piece {
+      position: fixed;
+      width: 8px;
+      height: 12px;
+      top: -12px;
+      border-radius: 2px;
+      opacity: 0.9;
+      background: #facc15;
+      animation: confettiFall 1.4s linear forwards;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(var(--x-move, 0px), 110vh, 0) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .progress-hub {
+        grid-template-columns: 1fr;
+        padding-inline: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Grade 3 Math Playground 🦊✨</h1>
+    <p>Tap a topic on the left. Each mini-game lets kids play with the big ideas of Grade 3.</p>
+  </header>
+
+  <section class="progress-hub">
+    <div class="progress-card">
+      <div class="progress-top">
+        <h2>Quest Meter</h2>
+        <button class="action secondary" id="celebrate-btn">Celebrate</button>
+      </div>
+      <div class="xp-bar">
+        <div class="xp-fill" id="xp-fill"></div>
+      </div>
+      <div class="xp-stats">
+        <span><strong id="xp-count">0</strong> / <span id="xp-goal">0</span> XP</span>
+        <span>Streak 🔥 <strong id="streak-count">0</strong></span>
+      </div>
+      <p class="badge-message" id="badge-message">Earn XP by solving any challenge.</p>
+    </div>
+    <div class="progress-card">
+      <h3>Recent Wins</h3>
+      <ul id="progress-log">
+        <li data-placeholder="true">Answer a challenge to start your log.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="app">
+    <aside class="sidebar">
+      <h2>Topics</h2>
+      <div class="topic-buttons">
+        <button data-topic="placeValue" class="active">
+          Place Value
+          <span>Hundreds · Tens · Ones</span>
+        </button>
+        <button data-topic="addition">
+          Add & Subtract
+          <span>2-digit & 3-digit</span>
+        </button>
+        <button data-topic="multiplication">
+          Multiplication Arrays
+          <span>Equal groups</span>
+        </button>
+        <button data-topic="fractions">
+          Fractions
+          <span>Parts of a whole</span>
+        </button>
+        <button data-topic="time">
+          Time
+          <span>Hours & minutes</span>
+        </button>
+        <button data-topic="shapes">
+          Shapes & Properties
+          <span>Rectangles & more</span>
+        </button>
+        <button data-topic="graphs">
+          Graphs
+          <span>Bar graph builder</span>
+        </button>
+        <button data-topic="quest-lab">
+          Quest Lab
+          <span>Spin a surprise</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-panel">
+      <!-- PLACE VALUE -->
+      <section id="placeValue" class="topic-panel active">
+        <h2 class="topic-title">Place Value Lab</h2>
+        <p class="topic-subtitle">
+          Type a 3-digit number and watch it split into hundreds, tens and ones blocks.
+        </p>
+
+        <div class="card">
+          <h3>Build the Number</h3>
+          <p class="question-text">
+            Enter any number from <strong>100 to 999</strong>.
+          </p>
+          <div class="controls">
+            <input type="number" id="pv-input" placeholder="e.g. 348" />
+            <button class="action" id="pv-show">Show blocks</button>
+          </div>
+          <div class="feedback" id="pv-feedback"></div>
+          <div id="pv-breakdown" class="little-note"></div>
+          <div class="pv-visual" id="pv-visual"></div>
+        </div>
+      </section>
+
+      <!-- ADDITION / SUBTRACTION -->
+      <section id="addition" class="topic-panel">
+        <h2 class="topic-title">Addition & Subtraction Adventure</h2>
+        <p class="topic-subtitle">
+          Practice 2-digit and 3-digit addition and subtraction. New question each time!
+        </p>
+
+        <div class="card">
+          <div class="score-pill">
+            ⭐ Score: <span id="add-score">0</span>
+          </div>
+          <h3>Solve the problem</h3>
+          <p class="question-text" id="add-question"></p>
+          <div class="controls">
+            <input type="number" id="add-answer" placeholder="Your answer" />
+            <button class="action" id="add-check">Check</button>
+            <button class="action secondary" id="add-new">New Question</button>
+          </div>
+          <div class="feedback" id="add-feedback"></div>
+          <p class="little-note">
+            Tip: Ask the child to explain their strategy out loud (“I added tens first, then ones”).
+          </p>
+        </div>
+      </section>
+
+      <!-- MULTIPLICATION -->
+      <section id="multiplication" class="topic-panel">
+        <h2 class="topic-title">Multiplication Garden</h2>
+        <p class="topic-subtitle">
+          See multiplication as an array of boxes. Count rows and columns, then multiply.
+        </p>
+
+        <div class="card">
+          <div class="score-pill">
+            🌱 Score: <span id="mul-score">0</span>
+          </div>
+          <h3>Array Question</h3>
+          <p class="question-text" id="mul-question"></p>
+          <div class="array-grid" id="array-grid"></div>
+          <div class="controls">
+            <input type="number" id="mul-answer" placeholder="Product" />
+            <button class="action" id="mul-check">Check</button>
+            <button class="action secondary" id="mul-new">New Array</button>
+          </div>
+          <div class="feedback" id="mul-feedback"></div>
+          <p class="little-note">
+            You can ask: “How many rows? How many in each row? So what is rows × each?”
+          </p>
+        </div>
+      </section>
+
+      <!-- FRACTIONS -->
+      <section id="fractions" class="topic-panel">
+        <h2 class="topic-title">Fraction Pizza Bar</h2>
+        <p class="topic-subtitle">
+          Count the shaded parts and write the fraction of the whole.
+        </p>
+
+        <div class="card">
+          <div class="score-pill">
+            🍕 Score: <span id="frac-score">0</span>
+          </div>
+          <h3>What fraction is shaded?</h3>
+          <p class="question-text" id="frac-question"></p>
+          <div class="fraction-bar" id="fraction-bar"></div>
+          <div class="controls">
+            <input type="text" id="frac-answer" placeholder="e.g. 3/4" />
+            <button class="action" id="frac-check">Check</button>
+            <button class="action secondary" id="frac-new">New Fraction</button>
+          </div>
+          <div class="feedback" id="frac-feedback"></div>
+          <p class="little-note">
+            Later you can extend: “Is there an equivalent fraction? (e.g. 1/2 = 2/4)”
+          </p>
+        </div>
+      </section>
+
+      <!-- TIME -->
+      <section id="time" class="topic-panel">
+        <h2 class="topic-title">Time Traveler</h2>
+        <p class="topic-subtitle">
+          Read the clock and move forward or backward in time.
+        </p>
+
+        <div class="card">
+          <div class="score-pill">
+            ⏰ Score: <span id="time-score">0</span>
+          </div>
+          <h3>Change the time</h3>
+          <div class="clock-display" id="time-clock"></div>
+          <p class="question-text" id="time-question"></p>
+          <div class="controls">
+            <input type="text" id="time-answer" placeholder="e.g. 4:35" />
+            <button class="action" id="time-check">Check</button>
+            <button class="action secondary" id="time-new">New Time</button>
+          </div>
+          <div class="feedback" id="time-feedback"></div>
+          <p class="little-note">
+            Use only times ending in :00, :15, :30, :45 to keep it Grade-3 friendly.
+          </p>
+        </div>
+      </section>
+
+      <!-- SHAPES -->
+      <section id="shapes" class="topic-panel">
+        <h2 class="topic-title">Shape Detective</h2>
+        <p class="topic-subtitle">
+          Click all the rectangles. Then check your thinking.
+        </p>
+
+        <div class="card">
+          <div class="score-pill">
+            🔷 Score: <span id="shape-score">0</span>
+          </div>
+          <h3>Find all the rectangles</h3>
+          <p class="question-text">Tap the shapes that are rectangles (including squares).</p>
+          <div class="shapes-row" id="shapes-row">
+            <!-- Cards created in JS or static below -->
+            <div class="shape-card" data-shape="rect">
+              <div class="shape rect"></div>
+              <div class="shape-name">Rectangle</div>
+            </div>
+            <div class="shape-card" data-shape="square">
+              <div class="shape square"></div>
+              <div class="shape-name">Square</div>
+            </div>
+            <div class="shape-card" data-shape="triangle">
+              <div class="shape triangle"></div>
+              <div class="shape-name">Triangle</div>
+            </div>
+            <div class="shape-card" data-shape="circle">
+              <div class="shape circle"></div>
+              <div class="shape-name">Circle</div>
+            </div>
+          </div>
+          <div class="controls">
+            <button class="action" id="shape-check">Check</button>
+            <button class="action secondary" id="shape-reset">Reset</button>
+          </div>
+          <div class="feedback" id="shape-feedback"></div>
+          <p class="little-note">
+            Teacher talk: “A square is a special rectangle – all sides equal, four right angles.”
+          </p>
+        </div>
+      </section>
+
+      <!-- GRAPHS -->
+      <section id="graphs" class="topic-panel">
+        <h2 class="topic-title">Bar Graph Builder</h2>
+        <p class="topic-subtitle">
+          Make a graph to match the data table, then check if the bars are correct.
+        </p>
+
+        <div class="card">
+          <div class="score-pill">
+            📊 Score: <span id="graph-score">0</span>
+          </div>
+          <h3>Favorite Fruits Survey</h3>
+          <p class="question-text">
+            Data: Apples = 3, Bananas = 5, Grapes = 2.  
+            Use the + and − buttons to set the bar heights, then press “Check Graph”.
+          </p>
+
+          <div class="graph">
+            <div>
+              <div class="bar" id="bar-apples" data-count="0" style="height: 10px;">
+                <span id="label-apples-val">0</span>
+              </div>
+              <div class="bar-label">Apples</div>
+              <div class="bar-controls">
+                <button class="tiny-btn" data-bar="apples" data-delta="-1">−</button>
+                <button class="tiny-btn" data-bar="apples" data-delta="1">+</button>
+              </div>
+            </div>
+            <div>
+              <div class="bar" id="bar-bananas" data-count="0" style="height: 10px;">
+                <span id="label-bananas-val">0</span>
+              </div>
+              <div class="bar-label">Bananas</div>
+              <div class="bar-controls">
+                <button class="tiny-btn" data-bar="bananas" data-delta="-1">−</button>
+                <button class="tiny-btn" data-bar="bananas" data-delta="1">+</button>
+              </div>
+            </div>
+            <div>
+              <div class="bar" id="bar-grapes" data-count="0" style="height: 10px;">
+                <span id="label-grapes-val">0</span>
+              </div>
+              <div class="bar-label">Grapes</div>
+              <div class="bar-controls">
+                <button class="tiny-btn" data-bar="grapes" data-delta="-1">−</button>
+                <button class="tiny-btn" data-bar="grapes" data-delta="1">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="action" id="graph-check">Check Graph</button>
+            <button class="action secondary" id="graph-reset">Reset</button>
+          </div>
+          <div class="feedback" id="graph-feedback"></div>
+          <p class="little-note">
+            Once they’re fluent, ask comparison questions: “How many more bananas than grapes?”
+          </p>
+        </div>
+      </section>
+
+      <!-- QUEST LAB -->
+      <section id="quest-lab" class="topic-panel">
+        <h2 class="topic-title">Quest Lab Spinner</h2>
+        <p class="topic-subtitle">
+          Spin to reveal a surprise problem. Use the number dial to estimate before you lock in an answer.
+        </p>
+
+        <div class="card quest-card">
+          <div class="score-pill">
+            ⭐ Quest Score: <span id="quest-score">0</span>
+          </div>
+          <div class="quest-controls">
+            <button class="action" id="quest-spin">Spin Quest</button>
+            <button class="action secondary" id="quest-check">Check Answer</button>
+            <button class="action secondary" id="quest-skip">Skip</button>
+          </div>
+          <div class="quest-display">
+            <p class="question-text" id="quest-question">
+              Press "Spin Quest" to get a prompt.
+            </p>
+            <div class="controls">
+              <input type="text" id="quest-answer" placeholder="Type your answer" />
+            </div>
+            <div class="quest-hints">
+              <button class="action secondary" id="quest-hint">Need a hint?</button>
+              <p class="little-note" id="quest-hint-text"></p>
+            </div>
+          </div>
+          <div class="quest-meter-wrapper">
+            <p class="little-note">
+              Use the energy dial to make a quick guess, then tap the button to auto-fill it.
+            </p>
+            <input type="range" id="quest-meter" min="0" max="120" value="60" />
+            <div class="quest-meter-labels">
+              <span>0</span>
+              <span>Dial: <strong id="quest-meter-value">60</strong></span>
+              <span>120</span>
+            </div>
+            <button class="action" id="quest-use-meter">Use Dial Guess</button>
+          </div>
+          <div class="feedback" id="quest-feedback"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // ===== Topic switching =====
+    const topicButtons = document.querySelectorAll(".topic-buttons button");
+    const panels = document.querySelectorAll(".topic-panel");
+
+    topicButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const topic = btn.getAttribute("data-topic");
+
+        topicButtons.forEach((b) => b.classList.remove("active"));
+        panels.forEach((p) => p.classList.remove("active"));
+
+        btn.classList.add("active");
+        document.getElementById(topic).classList.add("active");
+      });
+    });
+
+    // ===== PROGRESS HUB =====
+    const xpFill = document.getElementById("xp-fill");
+    const xpCount = document.getElementById("xp-count");
+    const xpGoalSpan = document.getElementById("xp-goal");
+    const streakSpan = document.getElementById("streak-count");
+    const badgeMessage = document.getElementById("badge-message");
+    const progressLog = document.getElementById("progress-log");
+    const celebrateBtn = document.getElementById("celebrate-btn");
+    const XP_GOAL = 30;
+    const confettiColors = ["#fbbf24", "#34d399", "#60a5fa", "#f472b6", "#f87171"];
+
+    let totalXp = 0;
+    let streak = 0;
+
+    xpGoalSpan.textContent = XP_GOAL;
+
+    function updateProgressHub() {
+      xpCount.textContent = totalXp;
+      const percent = Math.min(100, (totalXp / XP_GOAL) * 100);
+      xpFill.style.width = percent + "%";
+      streakSpan.textContent = streak;
+      const remaining = Math.max(0, XP_GOAL - totalXp);
+      badgeMessage.textContent =
+        remaining === 0
+          ? "Level up! Keep answering to overflow the meter."
+          : remaining + " XP to the next badge.";
+    }
+
+    function pushProgress(message, type = "") {
+      if (!progressLog) return;
+      const placeholder = progressLog.querySelector("[data-placeholder='true']");
+      if (placeholder) {
+        progressLog.innerHTML = "";
+      }
+      const item = document.createElement("li");
+      item.textContent = message;
+      if (type) item.classList.add(type);
+      progressLog.prepend(item);
+      while (progressLog.children.length > 4) {
+        progressLog.removeChild(progressLog.lastElementChild);
+      }
+    }
+
+    function registerWin(topic, xpValue = 1) {
+      totalXp += xpValue;
+      streak += 1;
+      pushProgress(`${topic} +${xpValue} XP`, "win");
+      updateProgressHub();
+      if (totalXp !== 0 && totalXp % XP_GOAL === 0) {
+        launchConfetti();
+      }
+    }
+
+    function registerRetry(topic) {
+      if (streak > 0) {
+        pushProgress(`${topic} streak reset`, "reset");
+      }
+      streak = 0;
+      updateProgressHub();
+    }
+
+    function launchConfetti(count = 24) {
+      for (let i = 0; i < count; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background =
+          confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        piece.style.setProperty("--x-move", (Math.random() * 40 - 20) + "vw");
+        piece.style.animationDuration = 0.9 + Math.random() * 0.6 + "s";
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 1500);
+      }
+    }
+
+    if (celebrateBtn) {
+      celebrateBtn.addEventListener("click", () => launchConfetti());
+    }
+    updateProgressHub();
+
+    // ===== PLACE VALUE LAB =====
+    const pvInput = document.getElementById("pv-input");
+    const pvShow = document.getElementById("pv-show");
+    const pvFeedback = document.getElementById("pv-feedback");
+    const pvBreakdown = document.getElementById("pv-breakdown");
+    const pvVisual = document.getElementById("pv-visual");
+
+    pvShow.addEventListener("click", () => {
+      const value = parseInt(pvInput.value, 10);
+      if (isNaN(value) || value < 100 || value > 999) {
+        pvFeedback.textContent = "Please type a number from 100 to 999.";
+        pvFeedback.className = "feedback incorrect";
+        pvBreakdown.textContent = "";
+        pvVisual.innerHTML = "";
+        registerRetry("Place value lab");
+        return;
+      }
+      pvFeedback.textContent = "Nice! Look at how the number splits into parts.";
+      pvFeedback.className = "feedback correct";
+      registerWin("Place value lab");
+
+      const hundreds = Math.floor(value / 100);
+      const tens = Math.floor((value % 100) / 10);
+      const ones = value % 10;
+
+      pvBreakdown.textContent =
+        value +
+        " = " +
+        hundreds +
+        " hundreds + " +
+        tens +
+        " tens + " +
+        ones +
+        " ones";
+
+      pvVisual.innerHTML = "";
+      createPVColumn("Hundreds", hundreds, "hundred");
+      createPVColumn("Tens", tens, "ten");
+      createPVColumn("Ones", ones, "one");
+    });
+
+    function createPVColumn(label, count, type) {
+      const col = document.createElement("div");
+      col.className = "pv-column";
+
+      const lab = document.createElement("div");
+      lab.className = "pv-label";
+      lab.textContent = label;
+      col.appendChild(lab);
+
+      const blockWrap = document.createElement("div");
+      blockWrap.className = "pv-blocks";
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement("div");
+        b.className = "block " + type;
+        blockWrap.appendChild(b);
+      }
+      col.appendChild(blockWrap);
+
+      pvVisual.appendChild(col);
+    }
+
+    // ===== ADDITION / SUBTRACTION =====
+    const addQuestion = document.getElementById("add-question");
+    const addAnswer = document.getElementById("add-answer");
+    const addCheck = document.getElementById("add-check");
+    const addNew = document.getElementById("add-new");
+    const addFeedback = document.getElementById("add-feedback");
+    const addScoreSpan = document.getElementById("add-score");
+
+    let addScore = 0;
+    let currentAdd = { a: 0, b: 0, op: "+" };
+
+    function newAddQuestion() {
+      const a = Math.floor(Math.random() * 900) + 100; // 3-digit
+      const b = Math.floor(Math.random() * 90) + 10; // 2-digit
+      const op = Math.random() < 0.5 ? "+" : "-";
+
+      // ensure subtraction is not negative for grade 3
+      if (op === "-" && b > a) {
+        currentAdd = { a: b, b: a, op };
+      } else {
+        currentAdd = { a, b, op };
+      }
+
+      addQuestion.textContent =
+        currentAdd.a + " " + currentAdd.op + " " + currentAdd.b + " = ?";
+      addAnswer.value = "";
+      addFeedback.textContent = "";
+    }
+
+    addCheck.addEventListener("click", () => {
+      const user = parseInt(addAnswer.value, 10);
+      if (isNaN(user)) {
+        addFeedback.textContent = "Type a number first.";
+        addFeedback.className = "feedback incorrect";
+        registerRetry("Addition adventure");
+        return;
+      }
+      const right =
+        currentAdd.op === "+"
+          ? currentAdd.a + currentAdd.b
+          : currentAdd.a - currentAdd.b;
+
+      if (user === right) {
+        addScore++;
+        addScoreSpan.textContent = addScore;
+        addFeedback.textContent = "Correct! 🎉";
+        addFeedback.className = "feedback correct";
+        registerWin("Addition adventure", 2);
+      } else {
+        addFeedback.textContent = "Not yet. Try again or tap New Question.";
+        addFeedback.className = "feedback incorrect";
+        registerRetry("Addition adventure");
+      }
+    });
+
+    addNew.addEventListener("click", newAddQuestion);
+
+    // ===== MULTIPLICATION ARRAYS =====
+    const mulQuestion = document.getElementById("mul-question");
+    const arrayGrid = document.getElementById("array-grid");
+    const mulAnswer = document.getElementById("mul-answer");
+    const mulCheck = document.getElementById("mul-check");
+    const mulNew = document.getElementById("mul-new");
+    const mulFeedback = document.getElementById("mul-feedback");
+    const mulScoreSpan = document.getElementById("mul-score");
+
+    let mulScore = 0;
+    let currentMul = { rows: 0, cols: 0 };
+
+    function newMulQuestion() {
+      const rows = Math.floor(Math.random() * 4) + 2; // 2–5
+      const cols = Math.floor(Math.random() * 4) + 2; // 2–5
+      currentMul = { rows, cols };
+
+      mulQuestion.textContent =
+        "There are " + rows + " rows and " + cols + " in each row. What is " + rows + " × " + cols + "?";
+
+      arrayGrid.innerHTML = "";
+      const totalCells = rows * cols;
+
+      for (let i = 0; i < 25; i++) {
+        const cell = document.createElement("div");
+        cell.className = "array-cell";
+        if (i < totalCells) {
+          cell.classList.add("active");
+        }
+        arrayGrid.appendChild(cell);
+      }
+      mulAnswer.value = "";
+      mulFeedback.textContent = "";
+    }
+
+    mulCheck.addEventListener("click", () => {
+      const user = parseInt(mulAnswer.value, 10);
+      if (isNaN(user)) {
+        mulFeedback.textContent = "Type a number first.";
+        mulFeedback.className = "feedback incorrect";
+        registerRetry("Multiplication garden");
+        return;
+      }
+      const right = currentMul.rows * currentMul.cols;
+      if (user === right) {
+        mulScore++;
+        mulScoreSpan.textContent = mulScore;
+        mulFeedback.textContent = "Correct! Arrays for the win! 🌱";
+        mulFeedback.className = "feedback correct";
+        registerWin("Multiplication garden", 2);
+      } else {
+        mulFeedback.textContent = "Not yet. Count rows and columns again.";
+        mulFeedback.className = "feedback incorrect";
+        registerRetry("Multiplication garden");
+      }
+    });
+
+    mulNew.addEventListener("click", newMulQuestion);
+
+    // ===== FRACTIONS =====
+    const fracQuestion = document.getElementById("frac-question");
+    const fracBar = document.getElementById("fraction-bar");
+    const fracAnswer = document.getElementById("frac-answer");
+    const fracCheck = document.getElementById("frac-check");
+    const fracNew = document.getElementById("frac-new");
+    const fracFeedback = document.getElementById("frac-feedback");
+    const fracScoreSpan = document.getElementById("frac-score");
+
+    let fracScore = 0;
+    let currentFrac = { shaded: 0, total: 0 };
+
+    function newFraction() {
+      const possibleDenoms = [2, 3, 4, 5, 6];
+      const total =
+        possibleDenoms[Math.floor(Math.random() * possibleDenoms.length)];
+      let shaded = Math.floor(Math.random() * (total - 1)) + 1; // 1..total-1
+
+      currentFrac = { shaded, total };
+      fracQuestion.textContent =
+        "What fraction of the bar is shaded? (" + shaded + " out of " + total + ")";
+
+      fracBar.innerHTML = "";
+      for (let i = 0; i < total; i++) {
+        const part = document.createElement("div");
+        part.className = "fraction-part";
+        if (i < shaded) part.classList.add("shaded");
+        fracBar.appendChild(part);
+      }
+      fracAnswer.value = "";
+      fracFeedback.textContent = "";
+    }
+
+    fracCheck.addEventListener("click", () => {
+      const userInput = fracAnswer.value.trim();
+      const correct = currentFrac.shaded + "/" + currentFrac.total;
+      if (!userInput.includes("/")) {
+        fracFeedback.textContent = "Write it as a fraction like 3/4.";
+        fracFeedback.className = "feedback incorrect";
+        registerRetry("Fraction pizza bar");
+        return;
+      }
+      const [nStr, dStr] = userInput.split("/");
+      const n = parseInt(nStr, 10);
+      const d = parseInt(dStr, 10);
+      if (n === currentFrac.shaded && d === currentFrac.total) {
+        fracScore++;
+        fracScoreSpan.textContent = fracScore;
+        fracFeedback.textContent = "Correct! Yum, fraction pizza! 🍕";
+        fracFeedback.className = "feedback correct";
+        registerWin("Fraction pizza bar", 2);
+      } else {
+        fracFeedback.textContent =
+          "Not quite. Remember: shaded parts over total equal parts.";
+        fracFeedback.className = "feedback incorrect";
+        registerRetry("Fraction pizza bar");
+      }
+    });
+
+    fracNew.addEventListener("click", newFraction);
+
+    // ===== TIME =====
+    const timeClock = document.getElementById("time-clock");
+    const timeQuestion = document.getElementById("time-question");
+    const timeAnswer = document.getElementById("time-answer");
+    const timeCheck = document.getElementById("time-check");
+    const timeNew = document.getElementById("time-new");
+    const timeFeedback = document.getElementById("time-feedback");
+    const timeScoreSpan = document.getElementById("time-score");
+
+    let timeScore = 0;
+    let currentTime = { hour: 0, minute: 0, delta: 0 };
+
+    function newTimeQuestion() {
+      const hours = Math.floor(Math.random() * 12); // 0–11
+      const minutesOptions = [0, 15, 30, 45];
+      const mins =
+        minutesOptions[Math.floor(Math.random() * minutesOptions.length)];
+      const deltaOptions = [15, 30, 45, 60];
+      const delta =
+        deltaOptions[Math.floor(Math.random() * deltaOptions.length)];
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      currentTime = { hour: hours, minute: mins, delta: sign * delta };
+      timeClock.textContent = formatTime(hours, mins);
+      const word = sign > 0 ? "later" : "earlier";
+      timeQuestion.textContent =
+        "What time will it be " + Math.abs(delta) + " minutes " + word + "?";
+      timeAnswer.value = "";
+      timeFeedback.textContent = "";
+    }
+
+    function formatTime(h, m) {
+      // convert 0–11 to 1–12
+      let hour = ((h + 11) % 12) + 1;
+      const minute = m.toString().padStart(2, "0");
+      return hour + ":" + minute;
+    }
+
+    function addMinutes(h, m, delta) {
+      let total = h * 60 + m + delta;
+      while (total < 0) total += 12 * 60;
+      total = total % (12 * 60);
+      const newH = Math.floor(total / 60);
+      const newM = total % 60;
+      return { hour: newH, minute: newM };
+    }
+
+    timeCheck.addEventListener("click", () => {
+      const answer = timeAnswer.value.trim();
+      const match = answer.match(/^(\d{1,2}):(\d{2})$/);
+      if (!match) {
+        timeFeedback.textContent = "Write time like 4:30 or 9:05.";
+        timeFeedback.className = "feedback incorrect";
+        registerRetry("Time travel");
+        return;
+      }
+      const userH = parseInt(match[1], 10) % 12;
+      const userM = parseInt(match[2], 10);
+      const result = addMinutes(
+        currentTime.hour,
+        currentTime.minute,
+        currentTime.delta
+      );
+      const rightStr = formatTime(result.hour, result.minute);
+      const userStr = formatTime(userH, userM);
+      if (userStr === rightStr) {
+        timeScore++;
+        timeScoreSpan.textContent = timeScore;
+        timeFeedback.textContent = "Correct! Time traveled successfully ⏰🚀";
+        timeFeedback.className = "feedback correct";
+        registerWin("Time travel", 2);
+      } else {
+        timeFeedback.textContent = "Not yet. The correct answer is " + rightStr + ".";
+        timeFeedback.className = "feedback incorrect";
+        registerRetry("Time travel");
+      }
+    });
+
+    timeNew.addEventListener("click", newTimeQuestion);
+
+    // ===== SHAPES =====
+    const shapeCards = document.querySelectorAll(".shape-card");
+    const shapeCheck = document.getElementById("shape-check");
+    const shapeReset = document.getElementById("shape-reset");
+    const shapeFeedback = document.getElementById("shape-feedback");
+    const shapeScoreSpan = document.getElementById("shape-score");
+
+    let shapeScore = 0;
+
+    shapeCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        card.classList.toggle("selected");
+      });
+    });
+
+    shapeCheck.addEventListener("click", () => {
+      let allCorrect = true;
+      shapeCards.forEach((card) => {
+        const isRectType =
+          card.dataset.shape === "rect" || card.dataset.shape === "square";
+        const selected = card.classList.contains("selected");
+        if ((isRectType && !selected) || (!isRectType && selected)) {
+          allCorrect = false;
+        }
+      });
+      if (allCorrect) {
+        shapeScore++;
+        shapeScoreSpan.textContent = shapeScore;
+        shapeFeedback.textContent = "Yes! Squares are rectangles too. 🔷";
+        shapeFeedback.className = "feedback correct";
+        registerWin("Shape detective", 1);
+      } else {
+        shapeFeedback.textContent =
+          "Check again: rectangles have 4 sides and 4 right angles.";
+        shapeFeedback.className = "feedback incorrect";
+        registerRetry("Shape detective");
+      }
+    });
+
+    shapeReset.addEventListener("click", () => {
+      shapeCards.forEach((card) => card.classList.remove("selected"));
+      shapeFeedback.textContent = "";
+    });
+
+    // ===== GRAPHS =====
+    const barTargets = { apples: 3, bananas: 5, grapes: 2 };
+    const graphScoreSpan = document.getElementById("graph-score");
+    const graphFeedback = document.getElementById("graph-feedback");
+    const graphCheck = document.getElementById("graph-check");
+    const graphReset = document.getElementById("graph-reset");
+    const tinyBtns = document.querySelectorAll(".tiny-btn");
+
+    let graphScore = 0;
+
+    function updateBar(barName, delta) {
+      const bar = document.getElementById("bar-" + barName);
+      const labelSpan = document.getElementById("label-" + barName + "-val");
+      let count = parseInt(bar.getAttribute("data-count"), 10);
+      count = isNaN(count) ? 0 : count;
+      count += delta;
+      if (count < 0) count = 0;
+      if (count > 8) count = 8; // cap to keep display nice
+      bar.setAttribute("data-count", count);
+      labelSpan.textContent = count;
+      bar.style.height = 10 + count * 14 + "px"; // scale height
+    }
+
+    tinyBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const barName = btn.getAttribute("data-bar");
+        const delta = parseInt(btn.getAttribute("data-delta"), 10);
+        updateBar(barName, delta);
+      });
+    });
+
+    graphCheck.addEventListener("click", () => {
+      let allMatch = true;
+      for (const key in barTargets) {
+        const bar = document.getElementById("bar-" + key);
+        const count = parseInt(bar.getAttribute("data-count"), 10) || 0;
+        if (count !== barTargets[key]) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (allMatch) {
+        graphScore++;
+        graphScoreSpan.textContent = graphScore;
+        graphFeedback.textContent = "Graph matches the data! 📊👏";
+        graphFeedback.className = "feedback correct";
+        registerWin("Graph builder", 2);
+      } else {
+        graphFeedback.textContent =
+          "Something is off. Match each bar to the data exactly.";
+        graphFeedback.className = "feedback incorrect";
+        registerRetry("Graph builder");
+      }
+    });
+
+    graphReset.addEventListener("click", () => {
+      ["apples", "bananas", "grapes"].forEach((name) =>
+        updateBar(name, -100) // big negative to force down to 0
+      );
+      graphFeedback.textContent = "";
+    });
+
+    // ===== QUEST LAB =====
+    const questQuestion = document.getElementById("quest-question");
+    const questAnswer = document.getElementById("quest-answer");
+    const questSpin = document.getElementById("quest-spin");
+    const questCheck = document.getElementById("quest-check");
+    const questSkip = document.getElementById("quest-skip");
+    const questHintBtn = document.getElementById("quest-hint");
+    const questHintText = document.getElementById("quest-hint-text");
+    const questFeedback = document.getElementById("quest-feedback");
+    const questScoreSpan = document.getElementById("quest-score");
+    const questMeter = document.getElementById("quest-meter");
+    const questMeterValue = document.getElementById("quest-meter-value");
+    const questUseMeter = document.getElementById("quest-use-meter");
+
+    let questScore = 0;
+    let currentQuest = null;
+
+    function rand(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    const questBuilders = [
+      () => {
+        const a = rand(20, 70);
+        const b = rand(10, 60);
+        const c = rand(5, 30);
+        const answer = a + b + c;
+        return {
+          prompt: "Add " + a + " + " + b + " + " + c + ".",
+          hint:
+            "Add " + a + " + " + b + " = " + (a + b) + ", then add " + c + ".",
+          solution: answer.toString(),
+          xp: 3,
+          success: "Triple addition mastered!",
+          evaluate: (value) => parseInt(value, 10) === answer,
+        };
+      },
+      () => {
+        const left = { a: rand(2, 9), b: rand(2, 9) };
+        const right = { a: rand(2, 9), b: rand(2, 9) };
+        const leftVal = left.a * left.b;
+        const rightVal = right.a * right.b;
+        let solution = "=";
+        if (leftVal > rightVal) solution = ">";
+        if (leftVal < rightVal) solution = "<";
+        return {
+          prompt:
+            left.a +
+            " x " +
+            left.b +
+            " __ " +
+            right.a +
+            " x " +
+            right.b +
+            ". Type >, <, or =.",
+          hint: "Multiply each expression, then compare.",
+          solution,
+          xp: 3,
+          success: "Comparison complete!",
+          evaluate: (value) => {
+            const trimmed = value.trim();
+            const normalized = trimmed.toLowerCase();
+            if (solution === ">") {
+              return trimmed === ">" || normalized === "greater" || normalized === "more";
+            }
+            if (solution === "<") {
+              return trimmed === "<" || normalized === "less" || normalized === "smaller";
+            }
+            return trimmed === "=" || normalized === "equal";
+          },
+        };
+      },
+      () => {
+        const num = rand(120, 480);
+        const answer = Math.round(num / 10) * 10;
+        return {
+          prompt: "Round " + num + " to the nearest ten.",
+          hint:
+            "Look at the ones digit (" +
+            (num % 10) +
+            "). Five or more means round up.",
+          solution: answer.toString(),
+          xp: 2,
+          success: "Rounded like a pro!",
+          evaluate: (value) => parseInt(value, 10) === answer,
+        };
+      },
+      () => {
+        const factor = rand(2, 9);
+        const other = rand(4, 8);
+        const product = factor * other;
+        const hideFirst = Math.random() < 0.5;
+        if (hideFirst) {
+          return {
+            prompt: "? x " + other + " = " + product + ". What number fills the blank?",
+            hint: "Divide " + product + " by " + other + ".",
+            solution: factor.toString(),
+            xp: 3,
+            success: "Missing factor found!",
+            evaluate: (value) => parseInt(value, 10) === factor,
+          };
+        }
+        return {
+          prompt: factor + " x ? = " + product + ". What number fills the blank?",
+          hint: "Divide " + product + " by " + factor + ".",
+          solution: other.toString(),
+          xp: 3,
+          success: "Missing factor found!",
+          evaluate: (value) => parseInt(value, 10) === other,
+        };
+      },
+      () => {
+        const baseHour = Math.floor(Math.random() * 12);
+        const minuteChoices = [0, 5, 10, 15, 20, 30, 45];
+        const startMinute =
+          minuteChoices[Math.floor(Math.random() * minuteChoices.length)];
+        const shifts = [20, 25, 35, 40, 50];
+        const delta = shifts[Math.floor(Math.random() * shifts.length)];
+        const arrival = addMinutes(baseHour, startMinute, delta);
+        const solution = formatTime(arrival.hour, arrival.minute);
+        return {
+          prompt:
+            "Start at " +
+            formatTime(baseHour, startMinute) +
+            ". After " +
+            delta +
+            " minutes, what time is it?",
+          hint: "Add tens of minutes first, then the leftover minutes.",
+          solution,
+          xp: 3,
+          success: "Clock mission complete!",
+          evaluate: (value) => solution === value.trim(),
+        };
+      },
+    ];
+
+    function spinQuest() {
+      const builder =
+        questBuilders[Math.floor(Math.random() * questBuilders.length)];
+      currentQuest = builder();
+      questQuestion.textContent = currentQuest.prompt;
+      questAnswer.value = "";
+      questHintText.textContent = "";
+      questFeedback.textContent = "New quest unlocked! Solve it to earn XP.";
+      questFeedback.className = "feedback";
+    }
+
+    questSpin.addEventListener("click", spinQuest);
+
+    questSkip.addEventListener("click", () => {
+      spinQuest();
+      questFeedback.textContent = "Quest skipped. Try the new one!";
+      questFeedback.className = "feedback";
+      registerRetry("Quest lab");
+    });
+
+    questHintBtn.addEventListener("click", () => {
+      if (!currentQuest) {
+        questHintText.textContent = "Spin the quest wheel first.";
+        return;
+      }
+      questHintText.textContent = currentQuest.hint;
+    });
+
+    questCheck.addEventListener("click", () => {
+      if (!currentQuest) {
+        questFeedback.textContent = "Spin the quest wheel before checking.";
+        questFeedback.className = "feedback incorrect";
+        return;
+      }
+      const guess = questAnswer.value.trim();
+      if (!guess) {
+        questFeedback.textContent = "Type an answer first.";
+        questFeedback.className = "feedback incorrect";
+        registerRetry("Quest lab");
+        return;
+      }
+      const isRight = currentQuest.evaluate(guess);
+      if (isRight) {
+        questScore++;
+        questScoreSpan.textContent = questScore;
+        questFeedback.textContent =
+          currentQuest.success || "Quest cleared!";
+        questFeedback.className = "feedback correct";
+        registerWin("Quest lab", currentQuest.xp);
+      } else {
+        const solutionNote = currentQuest.solution
+          ? " Answer: " + currentQuest.solution + "."
+          : "";
+        questFeedback.textContent =
+          "Not yet. Use the hint or spin again." + solutionNote;
+        questFeedback.className = "feedback incorrect";
+        registerRetry("Quest lab");
+      }
+    });
+
+    questMeter.addEventListener("input", () => {
+      questMeterValue.textContent = questMeter.value;
+    });
+
+    questUseMeter.addEventListener("click", () => {
+      questAnswer.value = questMeter.value;
+      questAnswer.focus();
+    });
+
+    questMeterValue.textContent = questMeter.value;
+
+    // ===== INITIALIZE ALL GAMES ON LOAD =====
+    newAddQuestion();
+    newMulQuestion();
+    newFraction();
+    newTimeQuestion();
+    graphReset(); // reset bars to 0, nicely
+
+  </script>
+</body>
+</html>

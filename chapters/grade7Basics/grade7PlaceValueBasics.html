@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place Value Builder Lab</title>
+  <style>
+    :root {
+      --blue: #44c0ff;
+      --purple: #9d54ff;
+      --pink: #ff5bbd;
+      --yellow: #ffd447;
+      --green: #6fe08d;
+      --orange: #ff9944;
+      --bg: linear-gradient(135deg, #f8fbff 0%, #e8f1ff 45%, #ffe9f5 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Nunito', 'Trebuchet MS', sans-serif;
+      background: var(--bg);
+      color: #1f2150;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .lab-shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 32px;
+      padding: 32px;
+      box-shadow: 0 25px 50px rgba(31, 33, 80, 0.15);
+    }
+
+    .lab-header h1 {
+      font-size: 2.8rem;
+      margin-bottom: 8px;
+    }
+
+    .lab-header p {
+      margin-top: 0;
+      margin-bottom: 24px;
+      font-size: 1.1rem;
+    }
+
+    .total-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: #1f2150;
+      color: #fff;
+      border-radius: 20px;
+      font-size: 1.1rem;
+    }
+
+    .total-display strong {
+      font-size: 2.2rem;
+      letter-spacing: 1px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .controls-panel {
+      margin-top: 32px;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .block-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .block-btn {
+      border: none;
+      padding: 18px 12px;
+      border-radius: 18px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1f2150;
+      background: #f2f5ff;
+      box-shadow: inset 0 -4px rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .block-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 20px rgba(68, 192, 255, 0.3);
+    }
+
+    .block-btn span {
+      display: block;
+      font-size: 0.85rem;
+      color: #4a5180;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .practice-panel {
+      background: #fff4f8;
+      border-radius: 22px;
+      padding: 20px;
+      border: 2px dashed rgba(255, 91, 189, 0.4);
+    }
+
+    .practice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    #new-target {
+      border: none;
+      background: #1f2150;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 18px rgba(31, 33, 80, 0.25);
+      transition: transform 0.2s ease;
+    }
+
+    #new-target:hover {
+      transform: translateY(-2px);
+    }
+
+    .practice-target {
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    #practice-status {
+      min-height: 28px;
+      font-weight: 700;
+    }
+
+    .workspace-wrapper {
+      margin-top: 32px;
+      background: linear-gradient(145deg, #fff, #f7f8ff);
+      border-radius: 28px;
+      padding: 24px;
+      border: 3px solid rgba(68, 192, 255, 0.3);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+      position: relative;
+    }
+
+    .workspace-info {
+      font-size: 1rem;
+      color: #4a5180;
+      margin-bottom: 12px;
+    }
+
+    .workspace {
+      position: relative;
+      border-radius: 26px;
+      background: repeating-linear-gradient(
+        135deg,
+        rgba(68, 192, 255, 0.08),
+        rgba(68, 192, 255, 0.08) 18px,
+        rgba(68, 192, 255, 0.02) 18px,
+        rgba(68, 192, 255, 0.02) 36px
+      );
+      height: 420px;
+      overflow: hidden;
+    }
+
+    .workspace::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 0 60px rgba(31, 33, 80, 0.08);
+      pointer-events: none;
+    }
+
+    .value-block {
+      position: absolute;
+      padding: 12px 18px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #1f2150;
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+      cursor: grab;
+      user-select: none;
+      transform-origin: center;
+      animation: drop 0.6s ease forwards;
+    }
+
+    .value-block:active {
+      cursor: grabbing;
+    }
+
+    .value-block.dragging {
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.25);
+      transform: scale(1.05);
+    }
+
+    .block-ones {
+      background: var(--yellow);
+    }
+
+    .block-tens {
+      background: var(--orange);
+    }
+
+    .block-hundreds {
+      background: var(--green);
+    }
+
+    .block-thousands {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .block-lakhs {
+      background: var(--purple);
+      color: #fff;
+    }
+
+    @keyframes drop {
+      0% {
+        transform: translateY(-140px) scale(0.8);
+        opacity: 0;
+      }
+      70% {
+        transform: translateY(15px) scale(1.05);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .trash-bin {
+      position: absolute;
+      right: 30px;
+      bottom: 20px;
+      width: 140px;
+      height: 120px;
+      border-radius: 24px;
+      background: #1f2150;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 15px 35px rgba(31, 33, 80, 0.35);
+      transition: transform 0.2s ease;
+    }
+
+    .trash-bin::before,
+    .trash-bin::after {
+      content: "";
+      width: 70px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 999px;
+    }
+
+    .trash-bin.active {
+      transform: scale(1.08);
+      background: #ff5bbd;
+    }
+
+    .trash-bin span {
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      .lab-shell {
+        padding: 20px;
+      }
+
+      .workspace {
+        height: 370px;
+      }
+
+      .trash-bin {
+        position: static;
+        width: 100%;
+        height: 90px;
+        margin-top: 16px;
+        flex-direction: row;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="lab-shell">
+    <header class="lab-header">
+      <h1>Place Value Builder Lab</h1>
+      <p>Tap a block value, watch it plop into the lab, then drag unwanted pieces to the sparkling trash bin.</p>
+      <div class="total-display">
+        <span>Number you built</span>
+        <strong id="total-number">0</strong>
+      </div>
+    </header>
+
+    <section class="controls-panel">
+      <div class="block-buttons" id="block-buttons">
+        <button class="block-btn" data-type="ones">Ones<span>value 1</span></button>
+        <button class="block-btn" data-type="tens">Tens<span>value 10</span></button>
+        <button class="block-btn" data-type="hundreds">Hundreds<span>value 100</span></button>
+        <button class="block-btn" data-type="thousands">Thousands<span>value 1,000</span></button>
+        <button class="block-btn" data-type="lakhs">Lakhs<span>value 1,00,000</span></button>
+      </div>
+
+      <div class="practice-panel">
+        <div class="practice-header">
+          Practice Mode
+          <button id="new-target">New Target</button>
+        </div>
+        <div class="practice-target">
+          Build: <strong id="target-number">0</strong>
+        </div>
+        <div id="practice-status"></div>
+      </div>
+    </section>
+
+    <section class="workspace-wrapper">
+      <div class="workspace-info">
+        Drop your place value pieces anywhere in the play space. Drag to rearrange or toss blocks into the bin to remove them.
+      </div>
+      <div class="workspace" id="workspace"></div>
+      <div class="trash-bin" id="trash-bin">
+        <span>Recycle</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const blocks = {
+      ones: { value: 1, className: 'block-ones', label: '1' },
+      tens: { value: 10, className: 'block-tens', label: '10' },
+      hundreds: { value: 100, className: 'block-hundreds', label: '100' },
+      thousands: { value: 1000, className: 'block-thousands', label: '1,000' },
+      lakhs: { value: 100000, className: 'block-lakhs', label: '1,00,000' }
+    };
+
+    const workspace = document.getElementById('workspace');
+    const totalDisplay = document.getElementById('total-number');
+    const trashBin = document.getElementById('trash-bin');
+    const targetDisplay = document.getElementById('target-number');
+    const practiceStatus = document.getElementById('practice-status');
+    const newTargetBtn = document.getElementById('new-target');
+
+    let targetNumber = 0;
+    let blockIdCounter = 0;
+    let draggingBlock = null;
+    let dragOffset = { x: 0, y: 0 };
+
+    const practiceValues = [
+      203, 1_508, 18_420, 76_010, 5, 9_999, 50_230, 30_100, 111_111, 205_640
+    ];
+
+    function formatNumber(num) {
+      return num.toLocaleString('en-IN');
+    }
+
+    function updateTotal() {
+      const total = [...workspace.querySelectorAll('.value-block')]
+        .reduce((sum, block) => sum + Number(block.dataset.value), 0);
+      totalDisplay.textContent = formatNumber(total);
+      if (targetNumber === 0) return;
+      if (total === targetNumber) {
+        practiceStatus.textContent = 'Perfect build! 🎉';
+        practiceStatus.style.color = '#1cb578';
+      } else {
+        practiceStatus.textContent = `Keep building… (${formatNumber(total)} of ${formatNumber(targetNumber)})`;
+        practiceStatus.style.color = '#ff5bbd';
+      }
+    }
+
+    function createBlock(type) {
+      const config = blocks[type];
+      if (!config) return;
+      const block = document.createElement('div');
+      block.className = `value-block ${config.className}`;
+      block.dataset.value = config.value;
+      block.dataset.id = `block-${blockIdCounter++}`;
+      block.textContent = config.label;
+      block.style.left = `${Math.random() * (workspace.clientWidth - 120) + 20}px`;
+      block.style.top = `${Math.random() * (workspace.clientHeight - 120) + 30}px`;
+      workspace.appendChild(block);
+      block.addEventListener('pointerdown', startDrag);
+      updateTotal();
+    }
+
+    function setTargetNumber() {
+      targetNumber = practiceValues[Math.floor(Math.random() * practiceValues.length)];
+      targetDisplay.textContent = formatNumber(targetNumber);
+      practiceStatus.textContent = 'Match this number with blocks!';
+      practiceStatus.style.color = '#1f2150';
+      updateTotal();
+    }
+
+    function startDrag(event) {
+      draggingBlock = event.currentTarget;
+      draggingBlock.setPointerCapture(event.pointerId);
+      draggingBlock.classList.add('dragging');
+      const rect = draggingBlock.getBoundingClientRect();
+      dragOffset.x = event.clientX - rect.left;
+      dragOffset.y = event.clientY - rect.top;
+      moveBlock(event);
+      draggingBlock.addEventListener('pointermove', moveBlock);
+      draggingBlock.addEventListener('pointerup', endDrag);
+    }
+
+    function moveBlock(event) {
+      if (!draggingBlock) return;
+      const workspaceRect = workspace.getBoundingClientRect();
+      const x = event.clientX - workspaceRect.left - dragOffset.x;
+      const y = event.clientY - workspaceRect.top - dragOffset.y;
+      const clampedX = Math.min(Math.max(x, 6), workspace.clientWidth - draggingBlock.offsetWidth - 6);
+      const clampedY = Math.min(Math.max(y, 6), workspace.clientHeight - draggingBlock.offsetHeight - 6);
+      draggingBlock.style.left = `${clampedX}px`;
+      draggingBlock.style.top = `${clampedY}px`;
+      toggleTrashHighlight(event);
+    }
+
+    function toggleTrashHighlight(event) {
+      const trashRect = trashBin.getBoundingClientRect();
+      const isOverTrash =
+        event.clientX >= trashRect.left &&
+        event.clientX <= trashRect.right &&
+        event.clientY >= trashRect.top &&
+        event.clientY <= trashRect.bottom;
+      trashBin.classList.toggle('active', isOverTrash);
+    }
+
+    function endDrag(event) {
+      if (!draggingBlock) return;
+      draggingBlock.releasePointerCapture(event.pointerId);
+      draggingBlock.classList.remove('dragging');
+      const trashRect = trashBin.getBoundingClientRect();
+      const isOverTrash =
+        event.clientX >= trashRect.left &&
+        event.clientX <= trashRect.right &&
+        event.clientY >= trashRect.top &&
+        event.clientY <= trashRect.bottom;
+      trashBin.classList.remove('active');
+
+      draggingBlock.removeEventListener('pointermove', moveBlock);
+      draggingBlock.removeEventListener('pointerup', endDrag);
+
+      if (isOverTrash) {
+        draggingBlock.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+        draggingBlock.style.transform = 'scale(0.2)';
+        draggingBlock.style.opacity = '0';
+        setTimeout(() => {
+          draggingBlock.remove();
+          updateTotal();
+        }, 220);
+      }
+
+      draggingBlock = null;
+      updateTotal();
+    }
+
+    document.getElementById('block-buttons').addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-type]');
+      if (!button) return;
+      createBlock(button.dataset.type);
+    });
+
+    newTargetBtn.addEventListener('click', setTargetNumber);
+
+    setTargetNumber();
+  </script>
+</body>
+</html>
