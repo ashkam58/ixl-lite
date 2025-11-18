@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Box Method Division Lab – Grade 5</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Comic Sans MS", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #ffe6f7, #e0f7ff);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      color: #333;
+    }
+    .app {
+      margin: 20px;
+      width: 1000px;
+      max-width: 100%;
+      background: #ffffffdd;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      padding: 20px 24px 26px;
+      border: 3px solid #ffb6c1;
+    }
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .title-emoji {
+      font-size: 40px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #ff4081;
+      text-shadow: 0 2px 0 #fff;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 12px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .controls label {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .controls input {
+      width: 80px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 2px solid #ffd1e3;
+      font-size: 14px;
+      outline: none;
+    }
+    .controls input:focus {
+      border-color: #ff4081;
+    }
+    button {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+    }
+    button:active {
+      transform: translateY(1px) scale(0.97);
+      box-shadow: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff4081, #ffb74d);
+      color: white;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.25);
+    }
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #555;
+      border: 2px dashed #ffcdd2;
+    }
+    .status-bar {
+      margin: 8px 0 14px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: #fffaf0;
+      border: 2px dashed #ffecb3;
+      font-size: 14px;
+    }
+    .status-highlight {
+      font-weight: 700;
+      color: #e91e63;
+    }
+    .layout {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .left-panel {
+      flex: 2;
+      min-width: 320px;
+    }
+    .right-panel {
+      flex: 1;
+      min-width: 260px;
+      background: #f3f8ff;
+      border-radius: 16px;
+      padding: 10px;
+      border: 2px solid #bbdefb;
+    }
+    canvas {
+      width: 100%;
+      border-radius: 16px;
+      border: 3px solid #90caf9;
+      background: #e3f2fd;
+    }
+    .helper-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1976d2;
+      margin-bottom: 6px;
+    }
+    .helper-note {
+      font-size: 12px;
+      margin-bottom: 6px;
+      color: #555;
+    }
+    .mult-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .mult-btn {
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 12px;
+      background: #fff;
+      border: 2px solid #bbdefb;
+      cursor: pointer;
+    }
+    .mult-btn:hover {
+      background: #e3f2fd;
+    }
+    .info-card {
+      font-size: 13px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px dashed #b0bec5;
+      margin-bottom: 6px;
+    }
+    .info-label {
+      font-weight: 700;
+      color: #37474f;
+    }
+    .footer-note {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #777;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title-row">
+      <span class="title-emoji">🧠</span>
+      <h1>Box Method Division Lab</h1>
+    </div>
+    <div class="subtitle">
+      Grade 5 friendly ➗ Break the dividend into easy chunks using boxes.  
+      Think: <b>“How many groups of divisor can I take out?”</b> 🎨
+    </div>
+
+    <div class="controls">
+      <label>Dividend:
+        <input type="number" id="dividendInput" min="1" value="96" />
+      </label>
+      <label>Divisor:
+        <input type="number" id="divisorInput" min="1" value="6" />
+      </label>
+      <button class="btn-primary" id="startBtn">Start / Reset</button>
+      <button class="btn-secondary" id="exampleBtn">Random Example</button>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+      Enter a <span class="status-highlight">dividend</span> and a <span class="status-highlight">divisor</span>, then press <b>Start</b>.  
+      Next: tap a multiple of the divisor from the right side to build boxes.
+    </div>
+
+    <div class="layout">
+      <div class="left-panel">
+        <canvas id="divisionCanvas" width="640" height="360"></canvas>
+      </div>
+
+      <div class="right-panel">
+        <div class="helper-title">Multiplication Helper 🧮</div>
+        <div class="helper-note">
+          Tap a button like <b>3 × 6 = 18</b> to remove that chunk from the dividend.
+        </div>
+        <div class="mult-buttons" id="multButtons"></div>
+
+        <div class="info-card" id="infoRemaining">
+          <span class="info-label">Remaining inside the big box:</span>
+          <span id="remainingValue">–</span>
+        </div>
+        <div class="info-card" id="infoQuotient">
+          <span class="info-label">Quotient so far:</span>
+          <span id="quotientValue">–</span>
+        </div>
+        <div class="info-card" id="infoRemainder">
+          <span class="info-label">Remainder:</span>
+          <span id="remainderValue">–</span>
+        </div>
+
+        <div class="info-card">
+          <span class="info-label">Tip for kids 🌈:</span><br />
+          Keep taking out big friendly chunks (like 10 groups, 5 groups, 2 groups).  
+          Boxes = <b>how many groups</b> you took. Sum of groups = <b>quotient</b>.
+        </div>
+
+        <div class="footer-note">
+          Designed for Grade 5 box/area method practice.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==== State ====
+    let dividend = 0;
+    let divisor = 0;
+    let remaining = 0;
+    let boxes = []; // { groups, product }
+    const maxGroups = 10; // up to 10x divisor buttons
+
+    // ==== DOM Elements ====
+    const canvas = document.getElementById("divisionCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const dividendInput = document.getElementById("dividendInput");
+    const divisorInput = document.getElementById("divisorInput");
+    const startBtn = document.getElementById("startBtn");
+    const exampleBtn = document.getElementById("exampleBtn");
+    const multButtonsContainer = document.getElementById("multButtons");
+    const statusBar = document.getElementById("statusBar");
+
+    const remainingValue = document.getElementById("remainingValue");
+    const quotientValue = document.getElementById("quotientValue");
+    const remainderValue = document.getElementById("remainderValue");
+
+    // ==== Utility ====
+    function randomExample() {
+      // small grade 5 friendly problems
+      const divisors = [3, 4, 5, 6, 7, 8, 9];
+      const d = divisors[Math.floor(Math.random() * divisors.length)];
+      // pick a quotient from 4–12, maybe add a small remainder
+      const q = 4 + Math.floor(Math.random() * 8);
+      const rOptions = [0, 1, 2, 3];
+      const r = rOptions[Math.floor(Math.random() * rOptions.length)];
+      dividendInput.value = d * q + r;
+      divisorInput.value = d;
+    }
+
+    function calculateQuotient() {
+      return boxes.reduce((sum, b) => sum + b.groups, 0);
+    }
+
+    function updateInfoCards() {
+      remainingValue.textContent = remaining >= 0 ? remaining : "–";
+      quotientValue.textContent = boxes.length ? calculateQuotient() : "–";
+
+      if (remaining < divisor && remaining >= 0) {
+        remainderValue.textContent = remaining;
+      } else {
+        remainderValue.textContent = "–";
+      }
+    }
+
+    function setStatus(message, isFinished = false) {
+      statusBar.innerHTML = message;
+      statusBar.style.borderColor = isFinished ? "#c5e1a5" : "#ffecb3";
+      statusBar.style.background = isFinished ? "#f1f8e9" : "#fffaf0";
+    }
+
+    // ==== Canvas Drawing ====
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Background
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, "#e3f2fd");
+      gradient.addColorStop(1, "#fff3e0");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Title text
+      ctx.fillStyle = "#283593";
+      ctx.font = "20px 'Comic Sans MS'";
+      ctx.fillText("Box Method Division Lab 🤓", 20, 32);
+
+      if (!dividend || !divisor) {
+        ctx.font = "16px 'Comic Sans MS'";
+        ctx.fillStyle = "#424242";
+        ctx.fillText("Step 1: Type a dividend and divisor, then press Start.", 20, 70);
+        ctx.fillText("Step 2: Tap a multiple on the right to draw boxes.", 20, 95);
+        return;
+      }
+
+      // Show main equation
+      ctx.font = "18px 'Comic Sans MS'";
+      ctx.fillStyle = "#1a237e";
+      ctx.fillText(`${dividend} ÷ ${divisor} = ?`, 20, 70);
+
+      // Big outer box for the total dividend
+      const boxX = 40;
+      const boxY = 100;
+      const boxWidth = canvas.width - 80;
+      const boxHeight = 180;
+
+      ctx.save();
+      ctx.strokeStyle = "#1e88e5";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([10, 4]);
+      ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+      ctx.restore();
+
+      // Label the big box
+      ctx.font = "14px 'Comic Sans MS'";
+      ctx.fillStyle = "#0d47a1";
+      ctx.fillText(`Big box = ${dividend}`, boxX, boxY - 8);
+
+      // Draw the boxes inside based on boxes[]
+      let usedTotal = boxes.reduce((sum, b) => sum + b.product, 0);
+      usedTotal = Math.min(usedTotal, dividend); // safety
+
+      const totalHeight = boxHeight;
+      const usedHeight = dividend > 0 ? (usedTotal / dividend) * totalHeight : 0;
+      const remainingHeight = totalHeight - usedHeight;
+
+      // Draw used area (chunks)
+      let currentY = boxY + boxHeight - usedHeight;
+      boxes.forEach((b, index) => {
+        const h = dividend > 0 ? (b.product / dividend) * totalHeight : 0;
+        const colorPalette = ["#ffcc80", "#ffab91", "#ffe082", "#b39ddb", "#80deea", "#a5d6a7"];
+        const color = colorPalette[index % colorPalette.length];
+
+        ctx.fillStyle = color;
+        ctx.strokeStyle = "#5d4037";
+        ctx.lineWidth = 2;
+        ctx.fillRect(boxX, currentY, boxWidth, h);
+        ctx.strokeRect(boxX, currentY, boxWidth, h);
+
+        // Label inside each box
+        ctx.fillStyle = "#4e342e";
+        ctx.font = "14px 'Comic Sans MS'";
+        const label = `${b.groups} × ${divisor} = ${b.product}`;
+        ctx.fillText(label, boxX + 10, currentY + h / 2);
+
+        currentY += h;
+      });
+
+      // Draw remaining part as a light area on top
+      if (remaining > 0) {
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        ctx.fillRect(boxX, boxY, boxWidth, remainingHeight);
+        ctx.strokeStyle = "#b0bec5";
+        ctx.setLineDash([4, 3]);
+        ctx.lineWidth = 2;
+        ctx.strokeRect(boxX, boxY, boxWidth, remainingHeight);
+
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#37474f";
+        ctx.font = "14px 'Comic Sans MS'";
+        ctx.fillText(`Left: ${remaining}`, boxX + 10, boxY + 20);
+      } else if (remaining === 0) {
+        // Happy face when exactly done
+        ctx.font = "26px 'Comic Sans MS'";
+        ctx.fillStyle = "#2e7d32";
+        ctx.fillText("Perfect! 🎉 No pieces left!", boxX + 20, boxY + boxHeight + 40);
+      } else {
+        ctx.font = "16px 'Comic Sans MS'";
+        ctx.fillStyle = "#c62828";
+        ctx.fillText("Careful! That chunk is too big for what's left.", boxX + 20, boxY + boxHeight + 40);
+      }
+
+      // Show quotient & remainder visually at the bottom
+      ctx.font = "16px 'Comic Sans MS'";
+      ctx.fillStyle = "#004d40";
+      const q = calculateQuotient();
+      const r = remaining >= 0 ? remaining : "–";
+      ctx.fillText(`Quotient so far: ${q}`, 40, boxY + boxHeight + 20);
+      ctx.fillText(`Remainder: ${r}`, 260, boxY + boxHeight + 20);
+
+      // Cute character
+      ctx.font = "20px 'Comic Sans MS'";
+      ctx.fillStyle = "#6a1b9a";
+      ctx.fillText("🧸 Tip: Build boxes using easy multiples like 10x, 5x, 2x!", 40, boxY + boxHeight + 70);
+    }
+
+    // ==== Multiplication Helper Buttons ====
+    function renderMultButtons() {
+      multButtonsContainer.innerHTML = "";
+      if (!divisor) return;
+
+      for (let g = 1; g <= maxGroups; g++) {
+        const product = g * divisor;
+        const btn = document.createElement("button");
+        btn.className = "mult-btn";
+        btn.textContent = `${g} × ${divisor} = ${product}`;
+        btn.addEventListener("click", () => handleChunkSelection(g, product));
+        multButtonsContainer.appendChild(btn);
+      }
+    }
+
+    function handleChunkSelection(groups, product) {
+      if (!dividend || !divisor) return;
+      if (remaining <= 0) {
+        setStatus(
+          `All done! Quotient = <span class="status-highlight">${calculateQuotient()}</span>, Remainder = <span class="status-highlight">${remaining}</span>. Press <b>Start</b> for a new problem.`,
+          true
+        );
+        return;
+      }
+
+      if (product > remaining) {
+        // Over-chunk
+        remaining -= product; // temporarily go negative to show warning visually
+        boxes.push({ groups, product });
+        drawScene();
+        updateInfoCards();
+        // Then revert the step
+        boxes.pop();
+        remaining += product;
+        setStatus(
+          `Chunk <b>${groups} × ${divisor} = ${product}</b> is too big for the remaining ${remaining}. Try a smaller multiple. 🚦`
+        );
+        return;
+      }
+
+      // Accept this chunk
+      boxes.push({ groups, product });
+      remaining -= product;
+      drawScene();
+      updateInfoCards();
+
+      if (remaining === 0) {
+        const q = calculateQuotient();
+        setStatus(
+          `Nice! You used boxes to exactly reach ${dividend}. 🎉 <br>Final answer: <b>${dividend} ÷ ${divisor} = ${q}</b> (no remainder).`,
+          true
+        );
+      } else if (remaining < divisor) {
+        const q = calculateQuotient();
+        setStatus(
+          `You cannot take any more full groups of ${divisor}. <br>Final answer: <b>${dividend} ÷ ${divisor} = ${q}</b> with remainder <b>${remaining}</b>. ✅`,
+          true
+        );
+      } else {
+        setStatus(
+          `Good move! You removed <b>${groups} × ${divisor} = ${product}</b>. Now ${remaining} is left. Pick another multiple. 💡`
+        );
+      }
+    }
+
+    // ==== Start / Reset ====
+    function startProblem() {
+      dividend = parseInt(dividendInput.value, 10);
+      divisor = parseInt(divisorInput.value, 10);
+
+      if (!dividend || !divisor || divisor <= 0) {
+        dividend = 0;
+        divisor = 0;
+        remaining = 0;
+        boxes = [];
+        renderMultButtons();
+        updateInfoCards();
+        drawScene();
+        setStatus(
+          `Please enter a valid <span class="status-highlight">dividend</span> and <span class="status-highlight">divisor</span> greater than 0.`,
+          false
+        );
+        return;
+      }
+
+      remaining = dividend;
+      boxes = [];
+      renderMultButtons();
+      updateInfoCards();
+      drawScene();
+      setStatus(
+        `Solve: <b>${dividend} ÷ ${divisor}</b>. <br>Use the helper: choose a multiple like <b>10 × ${divisor}</b> or <b>5 × ${divisor}</b> to create your first box.`,
+        false
+      );
+    }
+
+    // ==== Event Listeners ====
+    startBtn.addEventListener("click", startProblem);
+    exampleBtn.addEventListener("click", () => {
+      randomExample();
+      startProblem();
+    });
+
+    // ==== Initial Render ====
+    drawScene();
+    renderMultButtons();
+    updateInfoCards();
+  </script>
+</body>
+</html>

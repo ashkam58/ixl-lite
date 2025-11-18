@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Division Fun Lab – Long & Box Method</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Comic Sans MS", system-ui, sans-serif;
+      background: linear-gradient(135deg, #ffe66d, #ff9a9e);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    #app {
+      margin: 20px;
+      padding: 20px;
+      max-width: 1100px;
+      width: 100%;
+      background: #fffdf5;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 36px;
+      margin: 0 0 10px 0;
+    }
+
+    h1 span {
+      font-size: 40px;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 16px;
+      color: #444;
+    }
+
+    .top-controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      background: #3da4ab;
+      color: #fff;
+      box-shadow: 0 3px 0 #298089;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
+    }
+
+    button:hover {
+      background: #35b0b9;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 #2a818a;
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 #2a818a;
+    }
+
+    .mode-btn.active {
+      background: #ffb347;
+      box-shadow: 0 3px 0 #d98c2e;
+    }
+
+    #problemDisplay {
+      text-align: center;
+      font-size: 28px;
+      margin: 10px 0 15px 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2.2fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* STEP CARD */
+
+    #stepCard {
+      background: #fef5ff;
+      border-radius: 16px;
+      padding: 15px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #stepCard::before {
+      content: "✏️";
+      position: absolute;
+      font-size: 70px;
+      opacity: 0.08;
+      right: -10px;
+      top: -15px;
+    }
+
+    #modeLabel {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    #stepTitle {
+      font-size: 20px;
+      margin: 4px 0;
+    }
+
+    #stepExplanation {
+      font-size: 16px;
+      margin: 4px 0 10px 0;
+    }
+
+    #answerRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+    }
+
+    #answerInput {
+      font-size: 20px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 2px solid #ffb347;
+      width: 100px;
+      text-align: center;
+    }
+
+    #feedback {
+      min-height: 26px;
+      font-size: 18px;
+      margin-top: 6px;
+    }
+
+    #feedback.good {
+      color: #1a936f;
+    }
+
+    #feedback.bad {
+      color: #d7263d;
+    }
+
+    #summary {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #progressText {
+      font-size: 14px;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    /* DMSB indicator */
+
+    #dmsbList {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0 0;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+
+    #dmsbList li {
+      padding: 4px 8px;
+      border-radius: 10px;
+      background: #f0f0f0;
+    }
+
+    #dmsbList li.active {
+      background: #ffb347;
+      color: #222;
+      font-weight: bold;
+    }
+
+    /* Visual area (fake canvas) */
+
+    #visualArea {
+      margin-top: 10px;
+      background: #f0fbff;
+      border-radius: 14px;
+      padding: 10px;
+      border: 2px dashed #85c6ff;
+      position: relative;
+    }
+
+    .visual-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+
+    .long-bracket {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 26px;
+      margin-top: 6px;
+    }
+
+    .long-bracket .divisor {
+      padding-right: 4px;
+      border-right: 3px solid #333;
+    }
+
+    .long-bracket .dividend-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .long-bracket .top-line {
+      border-top: 3px solid #333;
+      padding-top: 4px;
+      text-align: left;
+    }
+
+    /* Box method visual */
+
+    .box-grid {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .box-cell {
+      background: #ffffff;
+      border-radius: 10px;
+      border: 2px solid #ffa5c3;
+      padding: 4px;
+      min-height: 60px;
+      font-size: 13px;
+      position: relative;
+    }
+
+    .box-cell span.label {
+      font-size: 12px;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .box-cell.active {
+      border-color: #ffb347;
+      box-shadow: 0 0 5px #ffb347;
+    }
+
+    /* Times table */
+
+    #timesTableCard {
+      background: #e8fff3;
+      border-radius: 16px;
+      padding: 10px 15px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #timesTableCard::before {
+      content: "🧮";
+      position: absolute;
+      font-size: 60px;
+      opacity: 0.1;
+      right: -8px;
+      top: -12px;
+    }
+
+    #timesTitle {
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    #timesTableList {
+      font-family: "Courier New", monospace;
+      font-size: 16px;
+      text-align: left;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    #timesTableList div {
+      padding: 1px 0;
+    }
+
+    .tiny-note {
+      font-size: 12px;
+      color: #333;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <h1><span>🧠</span> Division Fun Lab <span>🎨</span></h1>
+  <p class="subtitle">
+    Long Division + Box Method, step by step. Type the answer ➜ go to next step ➜ watch the visuals.
+  </p>
+
+  <div class="top-controls">
+    <button id="newProblemBtn">🎲 New Problem</button>
+    <button class="mode-btn active" data-mode="long">📐 Long Division</button>
+    <button class="mode-btn" data-mode="box">🧩 Box Method</button>
+  </div>
+
+  <div id="problemDisplay">Click “New Problem” to start!</div>
+
+  <div class="layout">
+    <!-- LEFT: Steps + Visual -->
+    <div>
+      <div id="stepCard">
+        <div id="modeLabel">Mode: Long Division</div>
+        <div id="stepTitle">No problem yet.</div>
+        <div id="stepExplanation">Click “New Problem” to generate a question.</div>
+
+        <div id="answerRow">
+          <input id="answerInput" type="number" placeholder="Your answer" />
+          <button id="checkBtn">✅ Check</button>
+          <button id="nextBtn" disabled>➡️ Next Step</button>
+        </div>
+
+        <div id="feedback"></div>
+        <div id="progressText"></div>
+
+        <ul id="dmsbList">
+          <li data-stage="0">D – Divide</li>
+          <li data-stage="1">M – Multiply</li>
+          <li data-stage="2">S – Subtract</li>
+          <li data-stage="3">B – Bring down</li>
+        </ul>
+
+        <div id="visualArea">
+          <div class="visual-title">Problem picture</div>
+          <div id="visualContent">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+        <div id="summary"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Times Table Helper -->
+    <div id="timesTableCard">
+      <div id="timesTitle">Multiplication Helper</div>
+      <div id="timesTableList">
+        <div>Waiting for a divisor...</div>
+      </div>
+      <div class="tiny-note">
+        Tip: Peek here if you’re stuck on “how many times does it go?”<br>
+        We are training the brain, not punishing it. 😄
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== STATE =====
+  let mode = "long";          // "long" or "box"
+  let dividend = null;
+  let divisor = null;
+  let steps = [];             // array of step objects (per digit)
+  let currentStepIndex = 0;   // which digit-step we are on
+  let currentSubStep = 0;     // 0: Divide, 1: Multiply, 2: Subtract, 3: Bring down
+
+  const newProblemBtn = document.getElementById("newProblemBtn");
+  const modeButtons = document.querySelectorAll(".mode-btn");
+  const problemDisplay = document.getElementById("problemDisplay");
+  const modeLabel = document.getElementById("modeLabel");
+  const stepTitle = document.getElementById("stepTitle");
+  const stepExplanation = document.getElementById("stepExplanation");
+  const answerInput = document.getElementById("answerInput");
+  const checkBtn = document.getElementById("checkBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const feedback = document.getElementById("feedback");
+  const progressText = document.getElementById("progressText");
+  const summary = document.getElementById("summary");
+  const dmsbListItems = document.querySelectorAll("#dmsbList li");
+  const visualContent = document.getElementById("visualContent");
+  const timesTitle = document.getElementById("timesTitle");
+  const timesTableList = document.getElementById("timesTableList");
+
+  // ===== UTILS =====
+
+  function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function buildDivisionSteps(N, D) {
+    const digits = N.toString().split("").map(Number);
+    const stepArr = [];
+    let remainder = 0;
+    for (let i = 0; i < digits.length; i++) {
+      const digit = digits[i];
+      const partialDividend = remainder * 10 + digit;
+      const qDigit = Math.floor(partialDividend / D);
+      const product = qDigit * D;
+      const newRemainder = partialDividend - product;
+      stepArr.push({
+        index: i,
+        digit,
+        partialDividend,
+        qDigit,
+        product,
+        remainderBefore: remainder,
+        newRemainder
+      });
+      remainder = newRemainder;
+    }
+    return stepArr;
+  }
+
+  function updateTimesTable() {
+    if (!divisor) {
+      timesTableList.innerHTML = "<div>Waiting for a divisor...</div>";
+      timesTitle.textContent = "Multiplication Helper";
+      return;
+    }
+    timesTitle.textContent = `Multiplication Helper for ${divisor}`;
+    let html = "";
+    for (let i = 1; i <= 12; i++) {
+      const val = i * divisor;
+      html += `<div>${i.toString().padStart(2, " ")} × ${divisor} = ${val}</div>`;
+    }
+    timesTableList.innerHTML = html;
+  }
+
+  function highlightDMSB() {
+    dmsbListItems.forEach(li => {
+      const stage = Number(li.getAttribute("data-stage"));
+      if (stage === currentSubStep) {
+        li.classList.add("active");
+      } else {
+        li.classList.remove("active");
+      }
+    });
+  }
+
+  function getCurrentStep() {
+    if (!steps.length) return null;
+    return steps[currentStepIndex];
+  }
+
+  function maxSubStepForCurrentStep() {
+    // Last step: Divide, Multiply, Subtract only.
+    if (currentStepIndex === steps.length - 1) return 2;
+    return 3;
+  }
+
+  function computeQuotientAndRemainder() {
+    if (!steps.length) return { q: null, r: null };
+    const qDigits = steps.map(s => s.qDigit);
+    const q = Number(qDigits.join(""));
+    const r = steps[steps.length - 1].newRemainder;
+    return { q, r };
+  }
+
+  function resetFeedback() {
+    feedback.textContent = "";
+    feedback.className = "";
+    summary.textContent = "";
+  }
+
+  function renderVisual() {
+    if (!dividend || !divisor) {
+      visualContent.innerHTML = "<p>We’ll draw the maths here.</p>";
+      return;
+    }
+    const { q } = computeQuotientAndRemainder();
+    const step = getCurrentStep();
+    const stageNames = ["Divide", "Multiply", "Subtract", "Bring down"];
+    const stage = stageNames[currentSubStep];
+
+    if (mode === "long") {
+      visualContent.innerHTML = `
+        <div class="visual-title">Classic Long Division Picture</div>
+        <div class="long-bracket">
+          <div class="divisor">${divisor}</div>
+          <div class="dividend-wrapper">
+            <div class="top-line">${q ? q : "?"}</div>
+            <div>${dividend}</div>
+          </div>
+        </div>
+        <p style="margin-top:8px;font-size:14px;">
+          We are on digit #${step.index + 1} (${step.digit}) – <b>${stage}</b> step.
+        </p>
+      `;
+    } else {
+      // Box method style
+      const isLast = currentStepIndex === steps.length - 1;
+      visualContent.innerHTML = `
+        <div class="visual-title">Box Method Picture</div>
+        <p style="font-size:14px;margin:0 0 4px 0;">
+          Each box is Divide → Multiply → Subtract for one “round”.
+        </p>
+        <div><b>${dividend} ÷ ${divisor}</b></div>
+        <div class="box-grid">
+          <div class="box-cell ${currentSubStep === 0 ? "active" : ""}">
+            <span class="label">Divide</span>
+            <div>${step.partialDividend} ÷ ${divisor} = ?</div>
+          </div>
+          <div class="box-cell ${currentSubStep === 1 ? "active" : ""}">
+            <span class="label">Multiply</span>
+            <div>? × ${divisor} = ?</div>
+          </div>
+          <div class="box-cell ${currentSubStep === 2 ? "active" : ""}">
+            <span class="label">Subtract</span>
+            <div>${step.partialDividend} - ? = ?</div>
+          </div>
+        </div>
+        ${
+          !isLast
+            ? `<p style="margin-top:6px;font-size:14px;">
+                 Next we will <b>Bring down</b> digit ${steps[currentStepIndex + 1].digit}.
+               </p>`
+            : `<p style="margin-top:6px;font-size:14px;">
+                 Final round. After subtract, we are done!
+               </p>`
+        }
+      `;
+    }
+  }
+
+  function renderStep() {
+    if (!dividend || !divisor || !steps.length) {
+      stepTitle.textContent = "No problem yet.";
+      stepExplanation.textContent = "Click “New Problem” to start the division journey.";
+      answerInput.disabled = true;
+      checkBtn.disabled = true;
+      nextBtn.disabled = true;
+      visualContent.innerHTML = "<p>Waiting for a new problem…</p>";
+      updateTimesTable();
+      return;
+    }
+
+    answerInput.disabled = false;
+    checkBtn.disabled = false;
+    nextBtn.disabled = true; // only enable after correct answer
+    answerInput.value = "";
+    answerInput.focus();
+    resetFeedback();
+    highlightDMSB();
+    renderVisual();
+
+    const step = getCurrentStep();
+    const stageNames = ["Divide", "Multiply", "Subtract", "Bring down"];
+    const stageEmoji = ["➗", "✖️", "➖", "⬇️"];
+    const stage = stageNames[currentSubStep];
+    const emoji = stageEmoji[currentSubStep];
+
+    modeLabel.textContent = `Mode: ${mode === "long" ? "Long Division" : "Box Method"}`;
+
+    stepTitle.textContent = `${emoji} Step: ${stage}`;
+
+    // Explanation and requested answer:
+    let explanation = "";
+    let expected = null;
+
+    if (currentSubStep === 0) {
+      explanation =
+        `How many times does <b>${divisor}</b> fit into <b>${step.partialDividend}</b>? ` +
+        `Use the green table if you need help.`;
+      expected = step.qDigit;
+    } else if (currentSubStep === 1) {
+      explanation =
+        `Now multiply. Take your answer from Divide step (<b>${step.qDigit}</b>) ` +
+        `and do <b>${step.qDigit} × ${divisor}</b>.`;
+      expected = step.product;
+    } else if (currentSubStep === 2) {
+      explanation =
+        `Subtract. Do <b>${step.partialDividend} - ${step.product}</b> ` +
+        `to get the new remainder.`;
+      expected = step.newRemainder;
+    } else {
+      // Bring down
+      const isLast = currentStepIndex === steps.length - 1;
+      if (isLast) {
+        explanation =
+          `No more digits to bring down – this step should not appear.`;
+      } else {
+        const nextStep = steps[currentStepIndex + 1];
+        explanation =
+          `Write the remainder <b>${step.newRemainder}</b> next to the next digit ` +
+          `<b>${nextStep.digit}</b>. What new number do you get?`;
+        expected = nextStep.partialDividend;
+      }
+    }
+
+    stepExplanation.innerHTML = explanation;
+    answerInput.setAttribute("data-expected", expected);
+    progressText.textContent =
+      `Round ${currentStepIndex + 1} of ${steps.length} • Stage: ${stage}.`;
+  }
+
+  function handleCheck() {
+    const raw = answerInput.value.trim();
+    if (raw === "") return;
+    const user = Number(raw);
+    const expected = Number(answerInput.getAttribute("data-expected"));
+
+    if (user === expected) {
+      feedback.textContent = "🎉 Correct! Click “Next Step”.";
+      feedback.className = "good";
+      nextBtn.disabled = false;
+    } else {
+      feedback.textContent = "🧐 Not yet. Check the table and try again.";
+      feedback.className = "bad";
+      nextBtn.disabled = true;
+    }
+  }
+
+  function handleNext() {
+    const maxSub = maxSubStepForCurrentStep();
+    if (currentSubStep < maxSub) {
+      currentSubStep++;
+    } else {
+      // Move to next digit-round
+      currentStepIndex++;
+      currentSubStep = 0;
+    }
+
+    // Finished all steps?
+    if (currentStepIndex >= steps.length) {
+      const { q, r } = computeQuotientAndRemainder();
+      answerInput.disabled = true;
+      checkBtn.disabled = true;
+      nextBtn.disabled = true;
+      highlightDMSB();
+      visualContent.innerHTML = `
+        <p style="font-size:16px;">
+          🎊 All rounds done! Long division + box thinking complete.
+        </p>
+      `;
+      summary.textContent =
+        `Answer: ${dividend} ÷ ${divisor} = ${q} ` +
+        (r !== 0 ? `remainder ${r}.` : `(no remainder).`);
+      progressText.textContent = "You may click “New Problem” to play again.";
+      feedback.textContent = "";
+      return;
+    }
+
+    renderStep();
+  }
+
+  function newProblem() {
+    // Random 3-digit ÷ 1-digit
+    divisor = randomInt(2, 9);
+    dividend = randomInt(100, 999);
+    steps = buildDivisionSteps(dividend, divisor);
+    currentStepIndex = 0;
+    currentSubStep = 0;
+    problemDisplay.innerHTML = `<b>${dividend} ÷ ${divisor}</b>`;
+    summary.textContent = "";
+    resetFeedback();
+    updateTimesTable();
+    renderStep();
+  }
+
+  function setMode(newMode) {
+    mode = newMode;
+    modeButtons.forEach(btn => {
+      const m = btn.getAttribute("data-mode");
+      btn.classList.toggle("active", m === mode);
+    });
+    renderStep();
+  }
+
+  // ===== EVENT LISTENERS =====
+  newProblemBtn.addEventListener("click", newProblem);
+  modeButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      setMode(btn.getAttribute("data-mode"));
+    });
+  });
+  checkBtn.addEventListener("click", handleCheck);
+  nextBtn.addEventListener("click", handleNext);
+  answerInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      handleCheck();
+    }
+  });
+
+  // Initial render
+  renderStep();
+</script>
+</body>
+</html>

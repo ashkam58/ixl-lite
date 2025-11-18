@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Grade 3 Money Practice Lab</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Comic Sans MS", system-ui, sans-serif;
+      background: linear-gradient(135deg, #ffe6f0, #e3f6ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .app {
+      background: #ffffffdd;
+      border-radius: 24px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      padding: 20px 24px 30px;
+      border: 4px solid #ffb347;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app::before {
+      content: "💰";
+      font-size: 80px;
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      opacity: 0.2;
+      transform: rotate(-15deg);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      color: #666;
+    }
+
+    .chips-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 2px solid transparent;
+    }
+    .chip.rupees {
+      background: #d1ffd6;
+      border-color: #22c55e;
+    }
+    .chip.paise {
+      background: #ffe9c7;
+      border-color: #f97316;
+    }
+
+    .modes {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .mode-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      background: #e0ecff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    }
+    .mode-btn.active {
+      background: #4f46e5;
+      color: #fff;
+      box-shadow: 0 3px 0 #312e81;
+      transform: translateY(-1px);
+    }
+    .mode-btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    @media (max-width: 800px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Problem panel */
+    .problem-card {
+      background: #fdf7ff;
+      border-radius: 18px;
+      padding: 14px 14px 18px;
+      border: 2px dashed #d946ef;
+      position: relative;
+      overflow: hidden;
+    }
+    .problem-card::before {
+      content: "🪙";
+      position: absolute;
+      bottom: 4px;
+      right: 10px;
+      font-size: 32px;
+      opacity: 0.25;
+    }
+    .problem-title {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .problem-text {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    /* Money board (visual columns for ₹ & p) */
+    .money-board {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 8px 0 4px;
+    }
+    .money-column {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 2px solid #c4b5fd;
+      padding: 8px 10px;
+      min-width: 120px;
+      position: relative;
+    }
+    .money-column h3 {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+    .money-column h3 span {
+      font-weight: 700;
+      margin-right: 3px;
+    }
+
+    .money-amount {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.9rem;
+    }
+    .money-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px;
+      border-radius: 999px;
+      background: #eff6ff;
+    }
+    .money-row:nth-child(2) { background: #fef9c3; }
+    .money-row span.label {
+      font-size: 0.8rem;
+      opacity: 0.75;
+    }
+
+    .operator-big {
+      font-size: 2.4rem;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    /* Coin/note mini art */
+    .money-art {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .note {
+      width: 60px;
+      height: 30px;
+      border-radius: 8px;
+      background: #bbf7d0;
+      border: 2px solid #22c55e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .coin {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid #f97316;
+      background: #fed7aa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    /* Answer panel */
+    .answer-card {
+      background: #ecfeff;
+      border-radius: 18px;
+      padding: 12px 14px 16px;
+      border: 2px dashed #22d3ee;
+      position: relative;
+    }
+    .answer-card::before {
+      content: "🧠";
+      position: absolute;
+      top: -12px;
+      right: 6px;
+      font-size: 30px;
+      opacity: 0.2;
+    }
+
+    .answer-label {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .answer-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .answer-box {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      padding: 8px 8px 10px;
+      border: 2px solid #bae6fd;
+      position: relative;
+    }
+    .answer-box h4 {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .answer-box h4 span.symbol {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    .answer-box input {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 2px solid #60a5fa;
+      font-size: 1rem;
+      outline: none;
+    }
+    .answer-box.rupees {
+      border-color: #4ade80;
+    }
+    .answer-box.paise {
+      border-color: #fb923c;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+    button.action {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #22c55e;
+      color: #fff;
+      box-shadow: 0 3px 0 #15803d;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    }
+    button.action.secondary {
+      background: #38bdf8;
+      box-shadow: 0 3px 0 #0369a1;
+    }
+    button.action:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      min-height: 32px;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .feedback span.big-emoji { font-size: 1.3rem; }
+    .feedback.correct { color: #16a34a; }
+    .feedback.wrong { color: #dc2626; }
+
+    .score-row {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .hint {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      background: #fef3c7;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px dashed #f59e0b;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>Grade 3 Money Lab</h1>
+  <p class="subtitle">Add & subtract <strong>rupees (₹)</strong> and <strong>paise (p)</strong> with fun visuals!</p>
+
+  <div class="chips-row">
+    <div class="chip rupees">💵 <strong>Rupees (₹)</strong> – notes, whole money</div>
+    <div class="chip paise">🪙 <strong>Paise (p)</strong> – coins, tiny pieces (100 p = 1 ₹)</div>
+  </div>
+
+  <div class="modes">
+    <button class="mode-btn active" data-mode="add">➕ Add money</button>
+    <button class="mode-btn" data-mode="sub">➖ Subtract money</button>
+    <button class="mode-btn" data-mode="word">📖 Word problems</button>
+  </div>
+
+  <div class="main-grid">
+    <!-- Problem side -->
+    <div class="problem-card">
+      <div class="problem-title">
+        <span>📝 Question:</span><span id="problem-label">Add the following.</span>
+      </div>
+      <div class="problem-text" id="problem-text">
+        <!-- word problem text goes here if needed -->
+      </div>
+
+      <div class="money-board">
+        <div class="money-column">
+          <h3><span>₹ / p</span> First amount</h3>
+          <div class="money-amount" id="amount-a">
+            <!-- filled by JS -->
+          </div>
+        </div>
+        <div class="money-column">
+          <h3><span>₹ / p</span> Second amount</h3>
+          <div class="money-amount" id="amount-b">
+            <!-- filled by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="operator-big" id="operator-big">+</div>
+
+      <div class="money-art" id="money-art">
+        <!-- simple cartoon notes/coins -->
+      </div>
+    </div>
+
+    <!-- Answer side -->
+    <div class="answer-card">
+      <div class="answer-label">Type your answer carefully — keep <strong>₹ rupees</strong> and <strong>p paise</strong> separate.</div>
+
+      <div class="answer-row">
+        <div class="answer-box rupees">
+          <h4><span class="symbol">₹</span> Rupees</h4>
+          <input type="number" min="0" id="answer-rupees" placeholder="Rupees" />
+        </div>
+        <div class="answer-box paise">
+          <h4><span class="symbol">p</span> Paise</h4>
+          <input type="number" min="0" max="99" id="answer-paise" placeholder="Paise (0–99)" />
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="action" id="check-btn">✅ Check answer</button>
+        <button class="action secondary" id="next-btn">🔁 New question</button>
+        <button class="action secondary" id="hint-btn">💡 Show hint</button>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <div class="score-row" id="score-row">Score: 0 / 0</div>
+      <div class="hint" id="hint" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- Helpers ----------
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  function toPaise(obj) {
+    return obj.r * 100 + obj.p;
+  }
+  function paiseToRP(totalP) {
+    const r = Math.floor(totalP / 100);
+    const p = totalP % 100;
+    return { r, p };
+  }
+  function formatRP(obj) {
+    const pp = obj.p.toString().padStart(2, "0");
+    return `₹${obj.r}.${pp}`;
+  }
+
+  const paiseOptions = [0, 25, 50, 75];
+  function randomAmount() {
+    return {
+      r: randInt(10, 80),
+      p: paiseOptions[randInt(0, paiseOptions.length - 1)]
+    };
+  }
+
+  // ---------- State ----------
+  let mode = "add";
+  let currentProblem = null;
+  let correctAnswer = null;
+  let total = 0, correct = 0;
+
+  const problemLabel = document.getElementById("problem-label");
+  const problemText = document.getElementById("problem-text");
+  const amountABox = document.getElementById("amount-a");
+  const amountBBox = document.getElementById("amount-b");
+  const operatorBig = document.getElementById("operator-big");
+  const moneyArt = document.getElementById("money-art");
+
+  const ansRupees = document.getElementById("answer-rupees");
+  const ansPaise = document.getElementById("answer-paise");
+  const feedback = document.getElementById("feedback");
+  const scoreRow = document.getElementById("score-row");
+  const hintBox = document.getElementById("hint");
+
+  // ---------- Problem generation ----------
+  function makeMoneyRows(container, amount) {
+    container.innerHTML = "";
+    const aRow1 = document.createElement("div");
+    aRow1.className = "money-row";
+    aRow1.innerHTML = `<span class="label">Rupees</span><span><strong>₹ ${amount.r}</strong></span>`;
+    const aRow2 = document.createElement("div");
+    aRow2.className = "money-row";
+    aRow2.innerHTML = `<span class="label">Paise</span><span><strong>${amount.p} p</strong></span>`;
+    container.appendChild(aRow1);
+    container.appendChild(aRow2);
+  }
+
+  function makeMoneyArt(amount) {
+    moneyArt.innerHTML = "";
+    // simple: 1 note per 10 rupees, max 4 notes
+    const notesCount = Math.min(4, Math.max(1, Math.round(amount.r / 20)));
+    for (let i = 0; i < notesCount; i++) {
+      const note = document.createElement("div");
+      note.className = "note";
+      note.textContent = "₹" + (10 * (i+1));
+      moneyArt.appendChild(note);
+    }
+    // coins for paise (25, 50, 75)
+    const coinCount = amount.p === 0 ? 0 : (amount.p / 25);
+    for (let i = 0; i < coinCount; i++) {
+      const coin = document.createElement("div");
+      coin.className = "coin";
+      coin.textContent = "p";
+      moneyArt.appendChild(coin);
+    }
+  }
+
+  function generateProblem() {
+    feedback.textContent = "";
+    feedback.className = "feedback";
+    hintBox.style.display = "none";
+    hintBox.textContent = "";
+    ansRupees.value = "";
+    ansPaise.value = "";
+    ansRupees.focus();
+
+    const a = randomAmount();
+    const b = randomAmount();
+
+    let label = "", op = "+", story = "";
+    if (mode === "add") {
+      label = "Add the following.";
+      op = "+";
+    } else if (mode === "sub") {
+      label = "Subtract the following (bigger money − smaller money).";
+      op = "−";
+      // make sure a >= b
+      if (toPaise(a) < toPaise(b)) {
+        const temp = { ...a };
+        a.r = b.r; a.p = b.p;
+        b.r = temp.r; b.p = temp.p;
+      }
+    } else if (mode === "word") {
+      label = "Read and solve the money word problem.";
+      const names = ["Myra", "Joy", "Teena", "Ivan", "Riya", "Aarav"];
+      const things = ["pencil", "eraser", "crayons box", "scale", "sharpener", "notebook"];
+      const who = names[randInt(0, names.length - 1)];
+      const item1 = things[randInt(0, things.length - 1)];
+      let item2 = things[randInt(0, things.length - 1)];
+      if (item2 === item1) item2 = "ruler";
+      story =
+        `${who} buys a ${item1} for ${formatRP(a)} and a ${item2} for ${formatRP(b)}. ` +
+        `How much money does ${who} spend in all?`;
+    }
+
+    problemLabel.textContent = label;
+    problemText.textContent = story;
+    operatorBig.textContent = (mode === "add" || mode === "word") ? "+" : "−";
+
+    makeMoneyRows(amountABox, a);
+    makeMoneyRows(amountBBox, b);
+    makeMoneyArt(a); // show art based on first amount
+
+    currentProblem = { a, b };
+    let totalP;
+    if (mode === "add" || mode === "word") {
+      totalP = toPaise(a) + toPaise(b);
+    } else {
+      totalP = toPaise(a) - toPaise(b);
+    }
+    correctAnswer = paiseToRP(totalP);
+  }
+
+  // ---------- Checking ----------
+  function checkAnswer() {
+    if (!currentProblem) return;
+    const r = parseInt(ansRupees.value, 10);
+    const p = parseInt(ansPaise.value, 10);
+
+    if (isNaN(r) || isNaN(p)) {
+      feedback.className = "feedback wrong";
+      feedback.innerHTML = `<span class="big-emoji">🤔</span> Type both <strong>rupees</strong> and <strong>paise</strong> first.`;
+      return;
+    }
+    if (p < 0 || p > 99) {
+      feedback.className = "feedback wrong";
+      feedback.innerHTML = `<span class="big-emoji">⚠️</span> Paise must be between 0 and 99. Remember, 100 paise = 1 rupee.`;
+      return;
+    }
+
+    total++;
+    const givenP = r * 100 + p;
+    const correctP = correctAnswer.r * 100 + correctAnswer.p;
+    if (givenP === correctP) {
+      correct++;
+      feedback.className = "feedback correct";
+      feedback.innerHTML =
+        `<span class="big-emoji">🎉</span> Super! Correct answer: <strong>${formatRP(correctAnswer)}</strong>`;
+    } else {
+      feedback.className = "feedback wrong";
+      feedback.innerHTML =
+        `<span class="big-emoji">💡</span> Not yet. The correct answer is <strong>${formatRP(correctAnswer)}</strong>. ` +
+        `Check how you carried/borrowed between rupees and paise.`;
+    }
+    scoreRow.textContent = `Score: ${correct} / ${total}`;
+  }
+
+  function showHint() {
+    if (!currentProblem) return;
+    const aP = toPaise(currentProblem.a);
+    const bP = toPaise(currentProblem.b);
+    const opSymbol = (mode === "sub") ? "−" : "+";
+    const expr = `${aP} p ${opSymbol} ${bP} p = ? p`;
+    const answerP = correctAnswer.r * 100 + correctAnswer.p;
+    hintBox.style.display = "block";
+    hintBox.innerHTML =
+      `Convert both to paise:<br/>
+       <strong>${expr}</strong><br/>
+       Then change back: ${answerP} p = <strong>${correctAnswer.r} rupees and ${correctAnswer.p} paise</strong>.`;
+  }
+
+  // ---------- Event listeners ----------
+  document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      mode = btn.getAttribute("data-mode");
+      generateProblem();
+    });
+  });
+
+  document.getElementById("check-btn").addEventListener("click", checkAnswer);
+  document.getElementById("next-btn").addEventListener("click", generateProblem);
+  document.getElementById("hint-btn").addEventListener("click", showHint);
+
+  ansPaise.addEventListener("keydown", e => { if (e.key === "Enter") checkAnswer(); });
+  ansRupees.addEventListener("keydown", e => { if (e.key === "Enter") checkAnswer(); });
+
+  // ---------- Start ----------
+  generateProblem();
+</script>
+</body>
+</html>
