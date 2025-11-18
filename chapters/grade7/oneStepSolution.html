@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sajeev's Fraction & Decimal Equation Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top, #ffe6ff, #cce9ff, #fef3c7);
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffffdd;
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      padding: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .app {
+        padding: 28px 32px 32px;
+      }
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #1f2933;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #4b5563;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-emoji {
+      font-size: 1rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .control-group {
+      flex: 1 1 170px;
+      min-width: 0;
+    }
+
+    .control-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s ease, color 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .btn.small {
+      font-size: 0.8rem;
+      padding: 5px 11px;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(37,99,235,0.35);
+    }
+
+    .btn.selected {
+      background: #111827;
+      color: #f9fafb;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    }
+
+    .main-card {
+      margin-top: 4px;
+      padding: 16px 14px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #eff6ff, #fef3c7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .main-card {
+        padding: 18px 18px 20px;
+      }
+    }
+
+    .pill {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(96,165,250,0.5), transparent);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .pill.p1 { top: -40px; left: -40px; }
+    .pill.p2 { bottom: -40px; right: -40px; background: radial-gradient(circle, rgba(248,113,113,0.5), transparent); }
+
+    .question-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .equation-block {
+      flex: 1;
+    }
+
+    .equation-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .equation-text {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .equation-extra {
+      font-size: 0.85rem;
+      color: #374151;
+      margin-top: 4px;
+    }
+
+    .mascot {
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      background: #fef2f2;
+      border: 2px solid #fecaca;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.1rem;
+      box-shadow: 0 4px 12px rgba(248,113,113,0.4);
+    }
+
+    @media (max-width: 500px) {
+      .equation-text {
+        font-size: 1.35rem;
+      }
+      .mascot {
+        width: 60px;
+        height: 60px;
+        font-size: 1.7rem;
+      }
+    }
+
+    .options-grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 480px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .option-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #ffffff;
+      color: #111827;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.12s ease, color 0.12s ease;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.16);
+    }
+
+    .option-btn.correct {
+      background: #16a34a;
+      color: #f9fafb;
+    }
+
+    .option-btn.wrong {
+      background: #ef4444;
+      color: #f9fafb;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(148,163,184,0.7);
+      position: relative;
+      z-index: 1;
+    }
+
+    .status-text {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    .status-text.correct {
+      color: #15803d;
+    }
+
+    .status-text.wrong {
+      color: #b91c1c;
+    }
+
+    .score-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #0f172a;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+    }
+
+    .score-pill span {
+      font-weight: 700;
+    }
+
+    .tiny {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    /* Confetti */
+    .confetti-piece {
+      position: fixed;
+      top: -10px;
+      width: 8px;
+      height: 14px;
+      border-radius: 2px;
+      animation-name: confetti-fall;
+      animation-timing-function: linear;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translate3d(0,0,0) rotateZ(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(0, 120vh, 0) rotateZ(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title-block">
+        <div class="title">Sajeev’s Equation Playground</div>
+        <div class="subtitle">Fractions &amp; Decimals · One-step &amp; Two-step · Grade 7</div>
+      </div>
+      <div class="badge">
+        <span class="badge-emoji">🧠</span>
+        Click the correct solution!
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <div class="control-label">Difficulty</div>
+        <div class="btn-row" id="difficulty-buttons">
+          <button class="btn small selected" data-diff="easy">Easy</button>
+          <button class="btn small" data-diff="medium">Medium</button>
+          <button class="btn small" data-diff="hard">Hard</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">Steps</div>
+        <div class="btn-row" id="step-buttons">
+          <button class="btn small selected" data-step="one">One-step</button>
+          <button class="btn small" data-step="two">Two-step</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">New</div>
+        <div class="btn-row">
+          <button class="btn primary" id="new-question-btn">🎲 New Equation</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-card">
+      <div class="pill p1"></div>
+      <div class="pill p2"></div>
+
+      <div class="question-row">
+        <div class="equation-block">
+          <div class="equation-label">Solve for x</div>
+          <div class="equation-text" id="equation-text">
+            Click “New Equation” to start!
+          </div>
+          <div class="equation-extra" id="equation-note">
+            You’ll see fractions like <strong>3/4</strong> and decimals like <strong>1.2</strong>. Just tap the correct value of x.
+          </div>
+        </div>
+        <div class="mascot">
+          🤓
+        </div>
+      </div>
+
+      <div class="options-grid" id="options-grid">
+        <!-- Options will be injected here -->
+      </div>
+
+      <div class="status-row">
+        <div class="status-text" id="status-text">
+          Ready when you are, Sajeev!
+        </div>
+        <div class="score-pill" id="score-pill">
+          ⭐ Score: <span id="score">0</span> / <span id="total">0</span>
+        </div>
+      </div>
+      <div class="tiny">
+        Tip: Say the equation aloud like a story: “Three-fifths of x plus one-half equals two.”
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ------- Utility: random helpers -------
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function choice(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // ------- Fraction utilities (for clean fraction equations) -------
+    function gcd(a, b) {
+      a = Math.abs(a);
+      b = Math.abs(b);
+      while (b !== 0) {
+        const t = b;
+        b = a % b;
+        a = t;
+      }
+      return a || 1;
+    }
+
+    function makeFraction(num, den) {
+      if (den === 0) den = 1;
+      const sign = den < 0 ? -1 : 1;
+      num *= sign;
+      den *= sign;
+      const g = gcd(num, den);
+      return { num: num / g, den: den / g };
+    }
+
+    function addFrac(a, b) {
+      return makeFraction(a.num * b.den + b.num * a.den, a.den * b.den);
+    }
+
+    function subFrac(a, b) {
+      return makeFraction(a.num * b.den - b.num * a.den, a.den * b.den);
+    }
+
+    function mulFrac(a, b) {
+      return makeFraction(a.num * b.num, a.den * b.den);
+    }
+
+    function divFrac(a, b) {
+      return makeFraction(a.num * b.den, a.den * b.num);
+    }
+
+    function fracToString(f) {
+      if (f.den === 1) return String(f.num);
+      return f.num + "/" + f.den;
+    }
+
+    // ------- Question generation -------
+
+    let currentQuestion = null;
+    let locked = false;
+    let score = 0;
+    let total = 0;
+
+    const equationTextEl = document.getElementById("equation-text");
+    const equationNoteEl = document.getElementById("equation-note");
+    const optionsGridEl = document.getElementById("options-grid");
+    const statusTextEl = document.getElementById("status-text");
+    const scoreEl = document.getElementById("score");
+    const totalEl = document.getElementById("total");
+
+    const difficultyButtons = document.querySelectorAll("#difficulty-buttons .btn");
+    const stepButtons = document.querySelectorAll("#step-buttons .btn");
+    const newQuestionBtn = document.getElementById("new-question-btn");
+
+    let currentDifficulty = "easy";
+    let currentSteps = "one"; // 'one' or 'two'
+
+    difficultyButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        difficultyButtons.forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        currentDifficulty = btn.dataset.diff;
+      });
+    });
+
+    stepButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        stepButtons.forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        currentSteps = btn.dataset.step;
+      });
+    });
+
+    newQuestionBtn.addEventListener("click", () => {
+      generateNewQuestion();
+    });
+
+    function generateNewQuestion() {
+      locked = false;
+      equationTextEl.classList.remove("shake");
+
+      const type = Math.random() < 0.5 ? "decimal" : "fraction"; // mix
+      let q;
+      if (type === "decimal") {
+        q = generateDecimalQuestion(currentDifficulty, currentSteps);
+      } else {
+        q = generateFractionQuestion(currentDifficulty, currentSteps);
+      }
+      currentQuestion = q;
+      renderQuestion(q);
+    }
+
+    function generateDecimalQuestion(diff, steps) {
+      let equation, answer, note;
+      if (steps === "one") {
+        if (diff === "easy") {
+          // x ± a = b, x integer answer
+          const x = randInt(1, 20);
+          const a = (randInt(1, 9) / 10).toFixed(1);
+          if (Math.random() < 0.5) {
+            const b = (x + Number(a)).toFixed(1);
+            equation = `x + ${a} = ${b}`;
+          } else {
+            const b = (x - Number(a)).toFixed(1);
+            equation = `x - ${a} = ${b}`;
+          }
+          answer = String(x);
+          note = "One-step decimal equation. Undo the last operation.";
+        } else if (diff === "medium") {
+          // x / k = b   or   a·x = b
+          const x = randInt(2, 20);
+          if (Math.random() < 0.5) {
+            const k = randInt(2, 9);
+            const b = (x / k).toFixed(1);
+            equation = `x ÷ ${k} = ${b}`;
+            answer = String(x);
+          } else {
+            const a = (randInt(2, 9) / 2).toFixed(1); // 1.0 to 4.5 step 0.5
+            const b = (x * Number(a)).toFixed(1);
+            equation = `${a}x = ${b}`;
+            answer = String(x);
+          }
+          note = "Remember: do the opposite operation to isolate x.";
+        } else {
+          // hard one-step: x + a = b (x is decimal)
+          const x = (randInt(5, 50) / 10).toFixed(1);
+          const a = (randInt(2, 15) / 10).toFixed(1);
+          if (Math.random() < 0.5) {
+            const b = (Number(x) + Number(a)).toFixed(1);
+            equation = `x + ${a} = ${b}`;
+          } else {
+            const b = (Number(x) - Number(a)).toFixed(1);
+            equation = `x - ${a} = ${b}`;
+          }
+          answer = x;
+          note = "Careful with decimal subtraction/addition.";
+        }
+      } else {
+        // two-step: a x + b = c  or  a x - b = c
+        let a, b, x, c;
+        if (diff === "easy") {
+          a = randInt(2, 5);
+          x = randInt(1, 15);
+          b = randInt(1, 9);
+          if (Math.random() < 0.5) {
+            c = a * x + b;
+            equation = `${a}x + ${b} = ${c}`;
+          } else {
+            c = a * x - b;
+            equation = `${a}x - ${b} = ${c}`;
+          }
+          answer = String(x);
+          note = "Two-step equation: undo +/− first, then divide.";
+        } else if (diff === "medium") {
+          a = (randInt(2, 9) / 2).toFixed(1);
+          x = randInt(1, 20);
+          b = (randInt(-10, 10) / 2).toFixed(1);
+          let cNum;
+          if (Math.random() < 0.5) {
+            cNum = Number(a) * x + Number(b);
+            equation = `${a}x + ${b} = ${cNum.toFixed(1)}`;
+          } else {
+            cNum = Number(a) * x - Number(b);
+            equation = `${a}x - ${b} = ${cNum.toFixed(1)}`;
+          }
+          answer = String(x);
+          note = "Decimals + two steps. Be systematic.";
+        } else {
+          // hard: (x / k) + a = b
+          const k = randInt(2, 9);
+          x = randInt(2, 50);
+          const aDec = (randInt(1, 9) / 10).toFixed(1);
+          const bDec = (x / k + Number(aDec)).toFixed(1);
+          equation = `x ÷ ${k} + ${aDec} = ${bDec}`;
+          answer = String(x);
+          note = "Clear division first, then move the decimal term.";
+        }
+      }
+
+      // Build options
+      const options = buildNumericOptions(answer, diff);
+      return {
+        type: "decimal",
+        equation,
+        answer,
+        options,
+        note
+      };
+    }
+
+    function generateFractionQuestion(diff, steps) {
+      let equation, answerFrac, note;
+
+      function randomSimpleFrac() {
+        const den = randInt(2, 9);
+        const num = randInt(1, den - 1);
+        return makeFraction(num, den);
+      }
+
+      if (steps === "one") {
+        // x + p = q   or   p x = q
+        if (diff === "easy") {
+          const x = makeFraction(randInt(1, 9), randInt(1, 3)); // integer or /2 or /3
+          const add = randomSimpleFrac();
+          const total = addFrac(x, add);
+          equation = `x + ${fracToString(add)} = ${fracToString(total)}`;
+          answerFrac = x;
+          note = "Subtract the fraction from both sides.";
+        } else if (diff === "medium") {
+          const x = randomSimpleFrac();
+          const add = randomSimpleFrac();
+          const total = addFrac(x, add);
+          equation = `x + ${fracToString(add)} = ${fracToString(total)}`;
+          answerFrac = x;
+          note = "Common denominator time! Then subtract.";
+        } else {
+          // mul: (a/b)x = c/d
+          const x = randomSimpleFrac();
+          const coeff = randomSimpleFrac();
+          const rhs = mulFrac(coeff, x);
+          equation = `${fracToString(coeff)}·x = ${fracToString(rhs)}`;
+          answerFrac = x;
+          note = "Divide by the fraction (multiply by its reciprocal).";
+        }
+      } else {
+        // two-step fractional: (a/b)x + c/d = e/f
+        const coeff = randomSimpleFrac();
+        const x = randomSimpleFrac();
+        const extra = randomSimpleFrac();
+        const temp = mulFrac(coeff, x);
+        const rhs = addFrac(temp, extra);
+        if (diff === "easy") {
+          equation = `${fracToString(coeff)}·x + ${fracToString(extra)} = ${fracToString(rhs)}`;
+          note = "Remove the extra fraction, then divide by the coefficient.";
+        } else if (diff === "medium") {
+          // switch signs: (a/b)x - c/d = e/f
+          const rhs2 = subFrac(temp, extra);
+          equation = `${fracToString(coeff)}·x - ${fracToString(extra)} = ${fracToString(rhs2)}`;
+          note = "Add the subtracted fraction, then divide.";
+        } else {
+          // mix integer + fraction on RHS: (a/b)x + c/d = integer
+          const integer = randInt(1, 5);
+          const rhsInt = makeFraction(integer, 1);
+          const base = mulFrac(coeff, x);
+          const extra2 = subFrac(rhsInt, base);
+          equation = `${fracToString(coeff)}·x + ${fracToString(extra2)} = ${integer}`;
+          note = "Turn the integer into a fraction while solving.";
+        }
+        answerFrac = x;
+      }
+
+      const answer = fracToString(answerFrac);
+      const options = buildFractionOptions(answer, answerFrac, diff);
+      return {
+        type: "fraction",
+        equation,
+        answer,
+        options,
+        note
+      };
+    }
+
+    // ------- Options builders -------
+
+    function buildNumericOptions(answer, diff) {
+      const correct = Number(answer);
+      const set = new Set();
+      set.add(answer);
+
+      const spread = diff === "easy" ? 3 : diff === "medium" ? 5 : 8;
+
+      while (set.size < 4) {
+        const delta = randInt(-spread, spread);
+        let opt = correct + delta;
+        if (opt === correct) continue;
+        set.add(String(opt));
+      }
+
+      const arr = Array.from(set);
+      // shuffle
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildFractionOptions(answerString, answerFrac, diff) {
+      const set = new Set();
+      set.add(answerString);
+
+      const spreadNum = diff === "easy" ? 1 : diff === "medium" ? 2 : 3;
+      while (set.size < 4) {
+        // tweak numerator a little
+        let newNum = answerFrac.num + randInt(-spreadNum, spreadNum);
+        if (newNum === answerFrac.num || newNum === 0) continue;
+        const newFrac = makeFraction(newNum, answerFrac.den);
+        const s = fracToString(newFrac);
+        if (!set.has(s)) set.add(s);
+      }
+
+      const arr = Array.from(set);
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // ------- Rendering & interaction -------
+
+    function renderQuestion(q) {
+      equationTextEl.textContent = q.equation;
+      equationNoteEl.textContent = q.note || "";
+      statusTextEl.textContent = "Pick the value of x.";
+      statusTextEl.classList.remove("correct", "wrong");
+
+      optionsGridEl.innerHTML = "";
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswerClick(btn, opt));
+        optionsGridEl.appendChild(btn);
+      });
+    }
+
+    function handleAnswerClick(btn, selected) {
+      if (locked || !currentQuestion) return;
+      locked = true;
+      total++;
+      totalEl.textContent = total;
+
+      const optionButtons = optionsGridEl.querySelectorAll(".option-btn");
+      optionButtons.forEach(b => b.disabled = true);
+
+      if (selected === currentQuestion.answer) {
+        score++;
+        scoreEl.textContent = score;
+        btn.classList.add("correct");
+        statusTextEl.textContent = "Nice! That’s the correct value of x 🎉";
+        statusTextEl.classList.remove("wrong");
+        statusTextEl.classList.add("correct");
+        launchConfetti();
+      } else {
+        btn.classList.add("wrong");
+        statusTextEl.textContent = `Not quite. x = ${currentQuestion.answer}`;
+        statusTextEl.classList.remove("correct");
+        statusTextEl.classList.add("wrong");
+        // highlight correct
+        optionButtons.forEach(b => {
+          if (b.textContent === currentQuestion.answer) {
+            b.classList.add("correct");
+          }
+        });
+      }
+    }
+
+    // ------- Confetti -------
+
+    function launchConfetti() {
+      const pieces = 120;
+      for (let i = 0; i < pieces; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        const left = Math.random() * 100;
+        const duration = 2 + Math.random() * 1.5;
+        const delay = Math.random() * 0.5;
+        const hue = randInt(0, 360);
+
+        piece.style.left = left + "vw";
+        piece.style.animationDuration = duration + "s";
+        piece.style.animationDelay = delay + "s";
+        piece.style.backgroundColor = `hsl(${hue}, 90%, 55%)`;
+
+        document.body.appendChild(piece);
+
+        setTimeout(() => {
+          piece.remove();
+        }, (duration + delay) * 1000);
+      }
+    }
+
+    // Auto-start one question
+    generateNewQuestion();
+  </script>
+</body>
+</html>
