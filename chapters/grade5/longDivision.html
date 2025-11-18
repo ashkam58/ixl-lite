@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sujay’s Division Dojo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-1: #fce38a;
+      --bg-2: #f38181;
+      --card: #ffffff;
+      --accent: #ff9f43;
+      --accent-dark: #ff6b6b;
+      --text-main: #333;
+      --correct: #2ecc71;
+      --wrong: #e74c3c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .app {
+      background: var(--card);
+      width: 100%;
+      max-width: 480px;
+      border-radius: 1.5rem;
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+      padding: 1.5rem 1.25rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 1rem;
+      background: var(--accent-dark);
+      color: white;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffeaa7, #fd79a8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #777;
+    }
+
+    .mode-row {
+      margin: 0.75rem 0 0.9rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      flex: 1 1 0;
+      border: none;
+      border-radius: 999px;
+      padding: 0.5rem 0.4rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: #f1f2f6;
+      color: #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.1s,
+        color 0.1s;
+    }
+
+    .mode-btn span.small {
+      font-size: 0.7rem;
+      opacity: 0.75;
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .mode-btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      margin-bottom: 0.35rem;
+      color: #555;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 7px;
+      background: #f1f2f6;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 0.9rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #00b894, #00cec9, #0984e3);
+      transition: width 0.2s ease-out;
+    }
+
+    .question-card {
+      background: #fef5e7;
+      border-radius: 1.1rem;
+      padding: 0.9rem 0.8rem;
+      margin-bottom: 0.9rem;
+      border: 1px dashed rgba(0, 0, 0, 0.05);
+      position: relative;
+    }
+
+    .question-label {
+      font-size: 0.8rem;
+      color: #777;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .question {
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      color: #222;
+      font-weight: 600;
+    }
+
+    .division-symbol {
+      font-size: 1.4rem;
+      color: #c0392b;
+    }
+
+    .input-inline {
+      width: 70px;
+      max-width: 28%;
+      padding: 0.3rem 0.35rem;
+      border-radius: 0.7rem;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      text-align: center;
+      outline: none;
+    }
+
+    .input-inline:focus {
+      border-color: var(--accent-dark);
+      box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.25);
+    }
+
+    .remainder-wrap {
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      justify-content: center;
+      margin-top: 0.4rem;
+    }
+
+    .chip {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.04);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .chip span.icon {
+      font-size: 0.9rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0.55rem 0.4rem;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+    }
+
+    .btn-main {
+      background: var(--accent-dark);
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-secondary {
+      background: #dfe6e9;
+      color: #2d3436;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn:not(:disabled):active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: #636e72;
+      background: #f1f2f6;
+      border-radius: 0.9rem;
+      padding: 0.4rem 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feedback {
+      font-size: 0.85rem;
+      margin-bottom: 0.1rem;
+      min-height: 1.2em;
+      font-weight: 600;
+    }
+
+    .feedback.correct {
+      color: var(--correct);
+    }
+
+    .feedback.wrong {
+      color: var(--wrong);
+    }
+
+    .explain {
+      font-size: 0.78rem;
+      color: #555;
+      min-height: 1.1em;
+    }
+
+    .tiny-note {
+      margin-top: 0.4rem;
+      font-size: 0.7rem;
+      color: #888;
+      text-align: center;
+    }
+
+    @media (min-width: 640px) {
+      .app {
+        padding: 1.75rem 1.6rem 1.2rem;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="badge">Grade 5 • 2-digit ÷ 4–6-digit</div>
+
+    <div class="hero-row">
+      <div class="hero-avatar">🧠</div>
+      <div>
+        <h1>Sujay’s Division Dojo</h1>
+        <div class="subtitle">
+          Practice 2-digit division with 4, 5 & 6 digit numbers. Tap, think,
+          divide, repeat. 💪
+        </div>
+      </div>
+    </div>
+
+    <!-- Modes -->
+    <div class="mode-row">
+      <button class="mode-btn active" data-mode="easy">
+        😊 Easy
+        <span class="small">(4-digit ÷ 2-digit)</span>
+      </button>
+      <button class="mode-btn" data-mode="medium">
+        😼 Medium
+        <span class="small">(5-digit ÷ 2-digit)</span>
+      </button>
+      <button class="mode-btn" data-mode="hard">
+        🐲 Hard
+        <span class="small">(6-digit ÷ 2-digit)</span>
+      </button>
+    </div>
+
+    <!-- Status -->
+    <div class="status-row">
+      <div>Q<span id="qNumber">1</span>/ <span id="qTotal">50</span></div>
+      <div>Score: <span id="scoreCorrect">0</span> ✅</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="question-card">
+      <div class="question-label">
+        Current Question
+        <span class="chip">
+          <span class="icon">🎯</span>
+          <span id="modeLabel">Easy</span>
+        </span>
+      </div>
+
+      <div class="question">
+        <span id="dividend">----</span>
+        <span class="division-symbol">÷</span>
+        <span id="divisor">--</span>
+        <span>=</span>
+        <input
+          type="number"
+          id="inputQuotient"
+          class="input-inline"
+          placeholder="quot"
+        />
+      </div>
+
+      <div class="remainder-wrap" id="remainderSection">
+        <span class="chip">
+          <span class="icon">🔁</span> Remainder
+        </span>
+        <input
+          type="number"
+          id="inputRemainder"
+          class="input-inline"
+          placeholder="R"
+        />
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn btn-main" id="btnCheck">
+        ✅ Check
+      </button>
+      <button class="btn btn-secondary" id="btnNext" disabled>
+        ➡️ Next
+      </button>
+    </div>
+
+    <div class="hint" id="hintBox">
+      Hint: Think “dividend = divisor × quotient + remainder”.
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+    <div id="explain" class="explain"></div>
+
+    <div class="tiny-note">
+      Tip for Sujay: Try to do the long division on paper, then type the answer
+      here to see if the dojo approves. 🥷
+    </div>
+  </div>
+
+  <script>
+    // Core state
+    const state = {
+      mode: "easy",
+      totalQuestions: 50,
+      currentQuestion: 0,
+      correct: 0,
+      questionData: null,
+      checked: false,
+    };
+
+    // Elements
+    const modeButtons = document.querySelectorAll(".mode-btn");
+    const qNumberEl = document.getElementById("qNumber");
+    const qTotalEl = document.getElementById("qTotal");
+    const scoreCorrectEl = document.getElementById("scoreCorrect");
+    const progressFillEl = document.getElementById("progressFill");
+    const dividendEl = document.getElementById("dividend");
+    const divisorEl = document.getElementById("divisor");
+    const inputQuotient = document.getElementById("inputQuotient");
+    const inputRemainder = document.getElementById("inputRemainder");
+    const remainderSection = document.getElementById("remainderSection");
+    const modeLabelEl = document.getElementById("modeLabel");
+    const btnCheck = document.getElementById("btnCheck");
+    const btnNext = document.getElementById("btnNext");
+    const feedbackEl = document.getElementById("feedback");
+    const explainEl = document.getElementById("explain");
+    const hintBoxEl = document.getElementById("hintBox");
+
+    qTotalEl.textContent = state.totalQuestions;
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function digitCount(n) {
+      return n.toString().length;
+    }
+
+    function getTargetDigitsForMode(mode) {
+      if (mode === "easy") return 4;
+      if (mode === "medium") return 5;
+      return 6; // hard
+    }
+
+    function generateQuestion() {
+      // Completed session?
+      if (state.currentQuestion >= state.totalQuestions) {
+        showSessionSummary();
+        return;
+      }
+
+      const targetDigits = getTargetDigitsForMode(state.mode);
+      const withRemainder = Math.random() < 0.6; // 60% of questions require remainder
+
+      let divisor, quotient, remainder, dividend;
+      let safety = 0;
+
+      do {
+        safety++;
+        if (safety > 2000) break; // avoid any weird infinite loops
+
+        // 2-digit divisor, avoid too tiny numbers
+        divisor = randomInt(12, 98);
+
+        // Choose quotient so the product has roughly the right size
+        // For 4-digit, quotient about 10–99; for 5–6 digit, allow bigger
+        if (targetDigits === 4) {
+          quotient = randomInt(10, 99);
+        } else if (targetDigits === 5) {
+          quotient = randomInt(50, 299);
+        } else {
+          quotient = randomInt(100, 999);
+        }
+
+        dividend = divisor * quotient;
+
+        if (withRemainder) {
+          remainder = randomInt(1, divisor - 1);
+          dividend += remainder;
+        } else {
+          remainder = 0;
+        }
+      } while (digitCount(dividend) !== targetDigits);
+
+      state.currentQuestion++;
+      state.questionData = {
+        divisor,
+        dividend,
+        quotient,
+        remainder,
+        withRemainder,
+      };
+      state.checked = false;
+
+      // Update UI
+      qNumberEl.textContent = state.currentQuestion;
+      dividendEl.textContent = dividend;
+      divisorEl.textContent = divisor;
+      modeLabelEl.textContent =
+        state.mode === "easy"
+          ? "Easy"
+          : state.mode === "medium"
+          ? "Medium"
+          : "Hard";
+
+      inputQuotient.value = "";
+      inputRemainder.value = "";
+      inputQuotient.focus();
+
+      remainderSection.style.display = withRemainder ? "flex" : "none";
+
+      const progress =
+        ((state.currentQuestion - 1) / state.totalQuestions) * 100;
+      progressFillEl.style.width = progress + "%";
+
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback";
+      explainEl.textContent = "";
+      hintBoxEl.textContent =
+        targetDigits === 4
+          ? "Easy mode: 4-digit number divided by a 2-digit number. Warm-up time! 🔥"
+          : targetDigits === 5
+          ? "Medium mode: 5-digit number ÷ 2-digit number. Take it step by step. 🧮"
+          : "Hard mode: 6-digit number ÷ 2-digit number. Big boss level! 🐉";
+
+      btnCheck.disabled = false;
+      btnNext.disabled = true;
+    }
+
+    function showSessionSummary() {
+      feedbackEl.className = "feedback";
+      feedbackEl.textContent = "Session complete! 🎉";
+      const percent = Math.round(
+        (state.correct / state.totalQuestions) * 100
+      );
+      explainEl.textContent =
+        "You solved " +
+        state.correct +
+        " out of " +
+        state.totalQuestions +
+        " correctly (" +
+        percent +
+        "%). Tap any mode to restart a fresh round.";
+
+      btnCheck.disabled = true;
+      btnNext.disabled = true;
+    }
+
+    function checkAnswer() {
+      if (!state.questionData || state.checked) return;
+
+      const qUser = parseInt(inputQuotient.value, 10);
+      const rUserRaw = inputRemainder.value;
+      const expectRemainder = state.questionData.withRemainder;
+      const rUser =
+        expectRemainder && rUserRaw !== "" ? parseInt(rUserRaw, 10) : 0;
+
+      if (Number.isNaN(qUser) || (expectRemainder && Number.isNaN(rUser))) {
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = "Type your answer first, math ninja. 🥷";
+        return;
+      }
+
+      const { divisor, dividend, quotient, remainder } = state.questionData;
+
+      let isCorrect = qUser === quotient;
+      if (state.questionData.withRemainder) {
+        isCorrect = isCorrect && rUser === remainder;
+      }
+
+      const correctExpression =
+        dividend +
+        " = " +
+        divisor +
+        " × " +
+        quotient +
+        (remainder ? " + " + remainder : "");
+
+      if (isCorrect) {
+        state.correct++;
+        scoreCorrectEl.textContent = state.correct;
+        feedbackEl.className = "feedback correct";
+        const messages = [
+          "Perfect! Sujay cracked this one. ⭐",
+          "Clean division! That was smooth. ✅",
+          "Nice! Quotient and remainder are spot on. 💯",
+        ];
+        feedbackEl.textContent =
+          messages[randomInt(0, messages.length - 1)];
+        explainEl.textContent = correctExpression;
+      } else {
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = "Not quite. Check your long division steps.";
+        let extra =
+          "Correct answer → Quotient: " +
+          quotient +
+          (state.questionData.withRemainder
+            ? ", Remainder: " + remainder
+            : "") +
+          ".";
+        explainEl.textContent = correctExpression + ". " + extra;
+      }
+
+      state.checked = true;
+      btnCheck.disabled = true;
+      btnNext.disabled = state.currentQuestion >= state.totalQuestions;
+    }
+
+    // Mode switching
+    modeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mode = btn.getAttribute("data-mode");
+        if (state.mode === mode) return;
+
+        modeButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        state.mode = mode;
+        state.currentQuestion = 0;
+        state.correct = 0;
+        scoreCorrectEl.textContent = "0";
+        progressFillEl.style.width = "0%";
+        generateQuestion();
+      });
+    });
+
+    btnCheck.addEventListener("click", checkAnswer);
+    btnNext.addEventListener("click", () => {
+      generateQuestion();
+    });
+
+    // Enter to check
+    inputQuotient.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !btnCheck.disabled) {
+        checkAnswer();
+      }
+    });
+    inputRemainder.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !btnCheck.disabled) {
+        checkAnswer();
+      }
+    });
+
+    // First question
+    generateQuestion();
+  </script>
+</body>
+</html>
