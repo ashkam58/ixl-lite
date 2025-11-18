@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Python Game Lab – Drill Questions</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Comic Sans MS", system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #ffe7c9, #ffe5f6);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .app {
+      max-width: 1100px;
+      width: 100%;
+      padding: 24px;
+      margin: 24px;
+      background: #ffffffdd;
+      border-radius: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+      border: 3px solid #ffb347;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .title-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .snake-emoji {
+      font-size: 40px;
+      background: #f8ffe5;
+      border-radius: 50%;
+      padding: 10px;
+      border: 3px solid #96e072;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #263238;
+    }
+
+    .subtitle {
+      margin: 2px 0 0;
+      font-size: 14px;
+      color: #546e7a;
+    }
+
+    .scoreboard {
+      background: #fff3cd;
+      padding: 10px 16px;
+      border-radius: 16px;
+      border: 2px dashed #ffb347;
+      font-size: 14px;
+      color: #6d4c41;
+    }
+
+    .scoreboard span {
+      font-weight: bold;
+    }
+
+    .drills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: #fdfbff;
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+      border: 2px solid #e0d7ff;
+      box-shadow: 0 6px 16px rgba(120, 114, 255, 0.12);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255, 243, 205, 0.7);
+      top: -30px;
+      right: -20px;
+      z-index: 0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #bbdefb;
+    }
+
+    .topic-label {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #fce4ec;
+      color: #ad1457;
+      border: 1px solid #f8bbd0;
+    }
+
+    .question-text {
+      font-size: 13px;
+      margin: 6px 0 4px;
+      color: #37474f;
+      position: relative;
+      z-index: 1;
+    }
+
+    pre {
+      background: #263238;
+      color: #e0f2f1;
+      padding: 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      overflow-x: auto;
+      margin: 6px 0 8px;
+    }
+
+    .answer-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .answer-input {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 2px solid #c5cae9;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .answer-input:focus {
+      border-color: #7e57c2;
+    }
+
+    .btn {
+      border: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .btn-check {
+      background: #7e57c2;
+      color: #fff;
+    }
+
+    .btn-show {
+      background: #ffb347;
+      color: #4e342e;
+    }
+
+    .feedback {
+      font-size: 12px;
+      min-height: 16px;
+      margin-bottom: 4px;
+    }
+
+    .feedback.correct {
+      color: #2e7d32;
+    }
+
+    .feedback.incorrect {
+      color: #c62828;
+    }
+
+    .output-preview {
+      background: #000;
+      color: #c5e1a5;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-family: "Fira Code", monospace;
+      font-size: 11px;
+      display: none;
+    }
+
+    .output-preview.visible {
+      display: block;
+    }
+
+    .output-label {
+      color: #cfd8dc;
+      font-size: 10px;
+      margin-bottom: 2px;
+    }
+
+    .tiny-hint {
+      font-size: 10px;
+      color: #90a4ae;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        margin: 12px;
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="app-header">
+      <div class="title-block">
+        <div class="snake-emoji">🐍</div>
+        <div>
+          <h1>Python Game Lab – Drill Questions</h1>
+          <p class="subtitle">
+            Practice variables, print & operators. Guess the output, then peek at the console!
+          </p>
+        </div>
+      </div>
+      <div class="scoreboard">
+        <div>Answered: <span id="answeredCount">0</span> / <span id="totalCount">0</span></div>
+        <div>Correct: <span id="correctCount">0</span></div>
+      </div>
+    </div>
+
+    <div class="drills-grid" id="drillsContainer"></div>
+  </div>
+
+  <script>
+    // === Drill data ===
+    const drills = [
+      {
+        id: 1,
+        topic: "Variables + Addition",
+        code: `x = 5\ny = 3\nprint(x + y)`,
+        question: "What will be printed?",
+        acceptable: ["8"]
+      },
+      {
+        id: 2,
+        topic: "Reassignment",
+        code: `x = 10\nx = x + 4\nprint(x)`,
+        question: "What will be printed?",
+        acceptable: ["14"]
+      },
+      {
+        id: 3,
+        topic: "String + String",
+        code: `first = "Py"\nsecond = "thon"\nprint(first + second)`,
+        question: "What will be printed?",
+        acceptable: ["python"]
+      },
+      {
+        id: 4,
+        topic: "Comma in print",
+        code: `name = "Riya"\nage = 12\nprint(name, "is", age, "years old")`,
+        question: "Write the exact line printed.",
+        acceptable: [
+          "riya is 12 years old",
+          "Riya is 12 years old"
+        ]
+      },
+      {
+        id: 5,
+        topic: "Multiplication & Exponent",
+        code: `a = 3\nb = 2\nprint(a * b)\nprint(a ** b)`,
+        question: "What two numbers will be printed (each on its own line)?",
+        acceptable: ["6\n9", "6 9", "6,9", "6  9"]
+      },
+      {
+        id: 6,
+        topic: "Floor Division & Modulo",
+        code: `x = 17\ny = 5\nprint(x // y)\nprint(x % y)`,
+        question: "Write the two outputs in order (line 1 then line 2).",
+        acceptable: ["3\n2", "3 2", "3,2", "3  2"]
+      },
+      {
+        id: 7,
+        topic: "Type Casting",
+        code: `a = "10"\nb = 5\nc = int(a) + b\nprint(c)`,
+        question: "What will be printed?",
+        acceptable: ["15"]
+      },
+      {
+        id: 8,
+        topic: "Booleans & Comparison",
+        code: `x = 7\ny = 10\nprint(x > y)\nprint(x <= y)`,
+        question: "What two boolean values will be printed (line by line)?",
+        acceptable: [
+          "False\nTrue",
+          "false\ntrue",
+          "False True",
+          "false true",
+          "False,True"
+        ]
+      },
+      {
+        id: 9,
+        topic: "Ternary Style",
+        code: `n = 8\nresult = "Even" if n % 2 == 0 else "Odd"\nprint(result)`,
+        question: "What will be printed?",
+        acceptable: ["even", "Even"]
+      },
+      {
+        id: 10,
+        topic: "len() with String",
+        code: `word = "python"\nprint(len(word))`,
+        question: "What will be printed?",
+        acceptable: ["6"]
+      }
+    ];
+
+    // === State ===
+    let answeredCount = 0;
+    let correctCount = 0;
+
+    // === Helpers ===
+    function normalize(userAnswer) {
+      return userAnswer.trim().toLowerCase();
+    }
+
+    function isCorrectAnswer(drill, userAnswer) {
+      const norm = normalize(userAnswer)
+        .replace(/\s*,\s*/g, ",")
+        .replace(/\s+/g, " ");
+      return drill.acceptable.some(ans => {
+        const normAns = ans.trim().toLowerCase().replace(/\s*,\s*/g, ",").replace(/\s+/g, " ");
+        return norm === normAns;
+      });
+    }
+
+    // === UI building ===
+    function renderDrills() {
+      const container = document.getElementById("drillsContainer");
+      document.getElementById("totalCount").textContent = drills.length;
+
+      drills.forEach((drill, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="badge">Q${index + 1}</div>
+            <div class="topic-label">${drill.topic}</div>
+          </div>
+          <p class="question-text">${drill.question}</p>
+          <pre>${drill.code}</pre>
+          <div class="answer-row">
+            <input
+              type="text"
+              placeholder="Type your answer here..."
+              class="answer-input"
+              id="answer-${drill.id}"
+            />
+            <button class="btn btn-check" onclick="checkAnswer(${drill.id})">Check</button>
+            <button class="btn btn-show" onclick="toggleOutput(${drill.id})">Show Output</button>
+          </div>
+          <div class="feedback" id="feedback-${drill.id}"></div>
+          <div class="output-preview" id="output-${drill.id}">
+            <div class="output-label">Python console preview</div>
+            <code id="outputText-${drill.id}"></code>
+          </div>
+          <div class="tiny-hint">Tip: For two-line outputs, you can also answer like "6 9".</div>
+        `;
+
+        container.appendChild(card);
+
+        // Pre-fill the expected output preview once (for Show Output)
+        const expected = drill.acceptable[0];
+        const pretty = expected.includes("\n")
+          ? expected
+          : expected.replace(",", ", ");
+        document.getElementById("outputText-" + drill.id).textContent = pretty;
+      });
+    }
+
+    // === Actions ===
+    window.checkAnswer = function (id) {
+      const drill = drills.find(d => d.id === id);
+      const inputEl = document.getElementById("answer-" + id);
+      const fbEl = document.getElementById("feedback-" + id);
+
+      const userAnswer = inputEl.value;
+      if (!userAnswer.trim()) {
+        fbEl.textContent = "Type something first 🙂";
+        fbEl.className = "feedback incorrect";
+        return;
+      }
+
+      const correct = isCorrectAnswer(drill, userAnswer);
+      answeredCount++;
+      if (correct) correctCount++;
+
+      document.getElementById("answeredCount").textContent = answeredCount;
+      document.getElementById("correctCount").textContent = correctCount;
+
+      if (correct) {
+        fbEl.textContent = "✅ Correct! Nice!";
+        fbEl.className = "feedback correct";
+      } else {
+        fbEl.textContent = "❌ Not quite. Try again or tap “Show Output”.";
+        fbEl.className = "feedback incorrect";
+      }
+    };
+
+    window.toggleOutput = function (id) {
+      const outEl = document.getElementById("output-" + id);
+      outEl.classList.toggle("visible");
+    };
+
+    // Initial render
+    renderDrills();
+  </script>
+</body>
+</html>

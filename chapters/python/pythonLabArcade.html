@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Python Game Lab – Variables, Input, Print & Operators</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 30%, #a1c4fd 60%, #c2e9fb 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      color: #222;
+    }
+
+    .lab-wrapper {
+      width: 100%;
+      max-width: 1200px;
+      min-height: 80vh;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 26px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      padding: 18px 20px;
+    }
+
+    .lab-wrapper::before,
+    .lab-wrapper::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(3px);
+      opacity: 0.25;
+      z-index: 0;
+    }
+
+    .lab-wrapper::before {
+      width: 260px;
+      height: 260px;
+      background: #ffe082;
+      top: -70px;
+      right: -50px;
+    }
+
+    .lab-wrapper::after {
+      width: 280px;
+      height: 280px;
+      background: #81d4fa;
+      bottom: -120px;
+      left: -80px;
+    }
+
+    .lab-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 10px;
+    }
+
+    header.lab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 6px;
+      border-bottom: 2px dashed rgba(0, 0, 0, 0.08);
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .lab-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lab-title span.icon {
+      font-size: 2rem;
+    }
+
+    .lab-badge {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffb74d, #ff8a65);
+      color: #222;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .lab-subtitle {
+      font-size: 0.92rem;
+      opacity: 0.9;
+    }
+
+    .stats-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+      font-size: 0.8rem;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .stat-chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.04);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .score-bar {
+      width: 220px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .score-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #00e676, #00c853);
+      transition: width 0.2s ease-out;
+    }
+
+    .lab-main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(320px, 1.4fr) minmax(320px, 1.3fr);
+      gap: 14px;
+      margin-top: 8px;
+      min-height: 0;
+    }
+
+    /* Question card */
+
+    .question-card {
+      background: linear-gradient(150deg, #fff8e1, #e1f5fe);
+      border-radius: 20px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 25px rgba(255, 183, 77, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .question-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .question-title {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .question-index {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .topic-tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      font-size: 0.7rem;
+    }
+
+    .difficulty-tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      color: #fff;
+      background: linear-gradient(135deg, #42a5f5, #7e57c2);
+    }
+
+    .question-text {
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    pre.code-snippet {
+      margin-top: 6px;
+      background: #1e1e2f;
+      color: #e0f7fa;
+      border-radius: 14px;
+      padding: 8px 10px;
+      font-family: "Fira Code", "Consolas", monospace;
+      font-size: 0.82rem;
+      max-height: 200px;
+      overflow: auto;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      position: relative;
+    }
+
+    pre.code-snippet::before {
+      content: "python";
+      position: absolute;
+      top: 4px;
+      right: 8px;
+      font-size: 0.6rem;
+      opacity: 0.6;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+
+    .options-list {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .option-btn {
+      text-align: left;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border 0.08s ease, background 0.08s ease;
+    }
+
+    .option-label {
+      font-weight: 700;
+      font-size: 0.8rem;
+      min-width: 20px;
+    }
+
+    .option-text {
+      flex: 1;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      border-color: rgba(33, 150, 243, 0.4);
+    }
+
+    .option-btn.selected {
+      border-color: #42a5f5;
+      background: rgba(227, 242, 253, 0.95);
+      box-shadow: 0 4px 10px rgba(66, 165, 245, 0.5);
+    }
+
+    .option-btn.correct {
+      border-color: #00c853;
+      background: rgba(200, 230, 201, 0.95);
+    }
+
+    .option-btn.incorrect {
+      border-color: #e53935;
+      background: rgba(255, 205, 210, 0.95);
+    }
+
+    .question-footer {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+    }
+
+    .question-footer span {
+      opacity: 0.85;
+    }
+
+    /* Feedback / explanation panel */
+
+    .feedback-panel {
+      background: linear-gradient(145deg, #f3e5f5, #e3f2fd);
+      border-radius: 20px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 25px rgba(126, 87, 194, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feedback-title {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .feedback-message {
+      font-size: 0.9rem;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      min-height: 40px;
+    }
+
+    .feedback-message.correct {
+      border-left: 4px solid #00c853;
+    }
+
+    .feedback-message.incorrect {
+      border-left: 4px solid #e53935;
+    }
+
+    .explanation-text {
+      font-size: 0.86rem;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: #fdfbff;
+      border: 1px dashed rgba(156, 39, 176, 0.5);
+    }
+
+    .drill-list {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+
+    .drill-list span.badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.06);
+      margin-right: 6px;
+    }
+
+    .control-row {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #42a5f5, #7e57c2);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(63, 81, 181, 0.6);
+    }
+
+    .btn.secondary {
+      background: rgba(33, 150, 243, 0.08);
+      color: #1e88e5;
+      border: 1px dashed rgba(30, 136, 229, 0.4);
+    }
+
+    .btn.success {
+      background: linear-gradient(135deg, #00e676, #00c853);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 200, 83, 0.7);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    footer.lab-footer {
+      font-size: 0.78rem;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      align-items: center;
+      opacity: 0.9;
+    }
+
+    .footer-note {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    .footer-hints {
+      font-size: 0.74rem;
+      opacity: 0.8;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .summary-banner {
+      margin-top: 4px;
+      padding: 6px 8px;
+      border-radius: 12px;
+      background: #fffde7;
+      border: 1px dashed rgba(255, 193, 7, 0.7);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 900px) {
+      .lab-main {
+        grid-template-columns: 1fr;
+      }
+      .lab-wrapper {
+        min-height: 90vh;
+      }
+      .score-bar {
+        width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="lab-wrapper">
+    <div class="lab-inner">
+      <header class="lab-header">
+        <div class="title-block">
+          <div class="lab-title">
+            <span class="icon">🐍</span>
+            <span>Python Game Lab</span>
+            <span class="lab-badge">Variables · Input · Print · Operators</span>
+          </div>
+          <div class="lab-subtitle">
+            Play drills on <strong>core Python basics</strong> – just like a coding arcade, but smarter. 
+          </div>
+        </div>
+        <div class="stats-block">
+          <div class="stats-row">
+            <div class="stat-chip">⭐ Score: <span id="score">0</span></div>
+            <div class="stat-chip">✅ Correct: <span id="correct-count">0</span></div>
+            <div class="stat-chip">❓ Question: <span id="question-counter">1</span>/<span id="question-total">0</span></div>
+          </div>
+          <div class="score-bar">
+            <div class="score-fill" id="score-fill"></div>
+          </div>
+        </div>
+      </header>
+
+      <main class="lab-main">
+        <!-- Question side -->
+        <section class="question-card">
+          <div class="question-header">
+            <div class="question-meta">
+              <div class="question-title">
+                <span id="question-emoji">🎯</span>
+                <span id="question-heading">Drill Question</span>
+              </div>
+              <div class="question-index">
+                Topic: <span class="topic-tag" id="question-topic">Basics</span>
+              </div>
+            </div>
+            <div>
+              <span class="difficulty-tag" id="question-difficulty">Easy</span>
+            </div>
+          </div>
+
+          <div class="question-text" id="question-text">
+            Loading question…
+          </div>
+
+          <pre class="code-snippet hidden" id="code-snippet"></pre>
+
+          <div class="options-list" id="options-list">
+            <!-- Options will be generated dynamically -->
+          </div>
+
+          <div class="question-footer">
+            <span>Pick the best answer, then press <strong>Check Answer</strong>.</span>
+            <span id="progress-text">Progress: 0%</span>
+          </div>
+        </section>
+
+        <!-- Feedback / Explanation side -->
+        <section class="feedback-panel">
+          <div class="feedback-header">
+            <div class="feedback-title">
+              <span id="feedback-emoji">💡</span>
+              <span id="feedback-title">Feedback & Explanation</span>
+            </div>
+            <span class="pill">Core Concepts Lab</span>
+          </div>
+
+          <div class="feedback-message" id="feedback-message">
+            Answer the question to see if you’re a Python Ninja or need one more try.
+          </div>
+
+          <div class="explanation-text" id="explanation-text">
+            Explanations will appear here. Each drill is based on beginner-friendly Python concepts:
+            variables, input(), print(), type(), operators, indentation and more.
+          </div>
+
+          <div class="drill-list">
+            <span class="badge">Drill Types:</span> Valid names · Input & typecasting · Output & formatting ·
+            type() and data types · Indentation blocks · Arithmetic/Relational/Logical operators · Ternary & membership ·
+            Swapping · len() and strings.
+          </div>
+
+          <div class="summary-banner hidden" id="summary-banner"></div>
+
+          <div class="control-row">
+            <button class="btn primary" id="check-btn">✅ Check Answer</button>
+            <button class="btn secondary" id="next-btn" disabled>➡ Next Question</button>
+            <button class="btn success" id="restart-btn">🔁 Restart Lab</button>
+          </div>
+        </section>
+      </main>
+
+      <footer class="lab-footer">
+        <div class="footer-note">
+          💡 Teacher tip: Ask students to <strong>predict the output / result first</strong> before clicking “Check Answer”.
+        </div>
+        <div class="footer-hints">
+          Covers: variables, input(), print(), type(), comments, indentation, arithmetic, comparison, logical, membership, ternary, len().
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // -------------- DRILL QUESTION BANK (24 questions) --------------
+
+    const questions = [
+      // VARIABLES & NAMING
+      {
+        id: 1,
+        emoji: "📦",
+        topic: "Variables & Naming",
+        difficulty: "Easy",
+        question: "Which of these is a valid variable name in Python?",
+        code: "",
+        options: [
+          "1name",
+          "student_name",
+          "my-name",
+          "class"
+        ],
+        correctIndex: 1,
+        explanation:
+          "Variable names cannot start with a digit, cannot contain hyphens, and cannot be keywords like 'class'. 'student_name' is valid."
+      },
+      {
+        id: 2,
+        emoji: "📦",
+        topic: "Variables & Naming",
+        difficulty: "Easy",
+        question: "Which variable name follows Python's naming rules and style best?",
+        options: [
+          "TotalMarks",
+          "total_marks",
+          "total marks",
+          "total-marks"
+        ],
+        correctIndex: 1,
+        explanation:
+          "Python style (PEP 8) prefers snake_case for variable names. No spaces or hyphens are allowed, so 'total_marks' is best."
+      },
+      {
+        id: 3,
+        emoji: "📦",
+        topic: "Assigning & Dynamic Typing",
+        difficulty: "Easy",
+        question: "What happens when we run this code?",
+        code: `x = 5
+x = "hello"`,
+        options: [
+          "Python gives an error because x cannot change type",
+          "x will store the string 'hello'",
+          "Python automatically deletes x",
+          "x will store both 5 and 'hello' at the same time"
+        ],
+        correctIndex: 1,
+        explanation:
+          "Python is dynamically typed. The same variable name can refer to different types over time. After the second line, x refers to the string 'hello'."
+      },
+
+      // INPUT & TYPECASTING
+      {
+        id: 4,
+        emoji: "⌨️",
+        topic: "Input Basics",
+        difficulty: "Easy",
+        question: "What is the type of value returned by input() in Python?",
+        code: `name = input("Enter your name: ")`,
+        options: [
+          "int",
+          "float",
+          "str",
+          "bool"
+        ],
+        correctIndex: 2,
+        explanation:
+          "The input() function always returns a string (str) in Python, even if the user types numbers."
+      },
+      {
+        id: 5,
+        emoji: "⌨️",
+        topic: "Multiple Inputs",
+        difficulty: "Medium",
+        question: "Which code correctly takes two numbers in one line and stores them as integers a and b?",
+        code: "",
+        options: [
+          `a, b = input("Enter two numbers: ")`,
+          `a, b = int(input().split())`,
+          `a, b = map(int, input("Enter two numbers: ").split())`,
+          `a, b = input("Enter two numbers: ").map(int)`
+        ],
+        correctIndex: 2,
+        explanation:
+          "map(int, input().split()) converts each space-separated input piece into an int. So 'a, b = map(int, input(\"...\").split())' is the correct syntax."
+      },
+      {
+        id: 6,
+        emoji: "🔄",
+        topic: "Type Casting",
+        difficulty: "Easy",
+        question: "What does this code do?",
+        code: `x = input("Enter a number: ")
+y = int(x)`,
+        options: [
+          "Converts an integer to a string",
+          "Converts the string from input into an integer",
+          "Converts y into a float",
+          "It is invalid; input cannot be converted"
+        ],
+        correctIndex: 1,
+        explanation:
+          "input() returns a string. int(x) converts that string to an integer, if it contains a valid whole number."
+      },
+
+      // PRINT / OUTPUT
+      {
+        id: 7,
+        emoji: "🖨️",
+        topic: "Print Basics",
+        difficulty: "Easy",
+        question: "What is the output of this code?",
+        code: `name = "Riya"
+print("Hello", name)`,
+        options: [
+          "Hello",
+          "HelloRiya",
+          "Hello Riya",
+          "\"Hello\", name"
+        ],
+        correctIndex: 2,
+        explanation:
+          "print() with commas adds a space between arguments. So it prints: Hello Riya."
+      },
+      {
+        id: 8,
+        emoji: "🖨️",
+        topic: "Print & Expressions",
+        difficulty: "Easy",
+        question: "What will this print?",
+        code: `a = 3
+b = 4
+print(a + b)`,
+        options: [
+          "a + b",
+          "34",
+          "7",
+          "Error"
+        ],
+        correctIndex: 2,
+        explanation:
+          "a and b are integers. a + b is 7, so print(a + b) prints 7."
+      },
+      {
+        id: 9,
+        emoji: "🖨️",
+        topic: "Strings & TypeError",
+        difficulty: "Medium",
+        question: "What happens if we run this code?",
+        code: `x = "5"
+y = 3
+print(x + y)`,
+        options: [
+          "It prints 8",
+          "It prints 53",
+          "It prints 5 + 3",
+          "It raises a TypeError"
+        ],
+        correctIndex: 3,
+        explanation:
+          "x is a string and y is an integer. Using + between str and int without conversion causes a TypeError in Python."
+      },
+
+      // TYPE & DATA TYPES
+      {
+        id: 10,
+        emoji: "🔍",
+        topic: "type() & Data Types",
+        difficulty: "Easy",
+        question: "What is the output of type(3.14)?",
+        code: "",
+        options: [
+          "<class 'int'>",
+          "<class 'float'>",
+          "<class 'str'>",
+          "<class 'complex'>"
+        ],
+        correctIndex: 1,
+        explanation:
+          "3.14 is a decimal number, so its type is float. type(3.14) returns <class 'float'>."
+      },
+      {
+        id: 11,
+        emoji: "🔍",
+        topic: "type() & Input",
+        difficulty: "Medium",
+        question: "What does this code print?",
+        code: `x = input("Enter something: ")
+print(type(x))`,
+        options: [
+          "<class 'str'>",
+          "<class 'int'>",
+          "<class 'float'>",
+          "Type depends on what user types"
+        ],
+        correctIndex: 0,
+        explanation:
+          "input() always returns a string, so type(x) is always <class 'str'> regardless of what the user types."
+      },
+
+      // BASICS / COMMENTS / INDENTATION
+      {
+        id: 12,
+        emoji: "📜",
+        topic: "Hello World & Comments",
+        difficulty: "Easy",
+        question: "Which line is a valid single-line comment in Python?",
+        code: "",
+        options: [
+          "// This is a comment",
+          "# This is a comment",
+          "/* This is a comment */",
+          "-- This is a comment"
+        ],
+        correctIndex: 1,
+        explanation:
+          "Python uses # for single-line comments. The other styles belong to languages like C, C++, or SQL."
+      },
+      {
+        id: 13,
+        emoji: "🔄",
+        topic: "Indentation",
+        difficulty: "Medium",
+        question: "Which code block has correct indentation for the if statement?",
+        code: `A) if x > 0:
+print("Positive")
+
+B) if x > 0:
+    print("Positive")`,
+        options: [
+          "Only A is correct",
+          "Only B is correct",
+          "Both A and B are correct",
+          "Neither is correct"
+        ],
+        correctIndex: 1,
+        explanation:
+          "Python uses indentation to define blocks. The body of if must be indented. So version B is correct."
+      },
+
+      // ARITHMETIC OPERATORS
+      {
+        id: 14,
+        emoji: "🧮",
+        topic: "Arithmetic Operators",
+        difficulty: "Easy",
+        question: "What is the result of 7 // 2 in Python?",
+        code: "",
+        options: [
+          "3",
+          "3.5",
+          "4",
+          "Error"
+        ],
+        correctIndex: 0,
+        explanation:
+          "// is floor division. 7 // 2 gives the integer quotient 3."
+      },
+      {
+        id: 15,
+        emoji: "🧮",
+        topic: "Arithmetic Operators",
+        difficulty: "Medium",
+        question: "What is the result of 2 ** 3 ** 2 in Python?",
+        code: "",
+        options: [
+          "64",
+          "512",
+          "36",
+          "Error"
+        ],
+        correctIndex: 1,
+        explanation:
+          "** is right-associative. 3 ** 2 = 9, then 2 ** 9 = 512."
+      },
+      {
+        id: 16,
+        emoji: "🧮",
+        topic: "Modulus Operator",
+        difficulty: "Easy",
+        question: "What is 17 % 5 equal to?",
+        code: "",
+        options: [
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        correctIndex: 1,
+        explanation:
+          "17 divided by 5 is 3 with remainder 2… wait! Check: 5 * 3 = 15, remainder is 2. So 17 % 5 is 2. (Good to let kids actually compute.)"
+      },
+
+      // COMPARISON & LOGICAL
+      {
+        id: 17,
+        emoji: "⚖️",
+        topic: "Comparison Operators",
+        difficulty: "Easy",
+        question: "What is the result of this expression?",
+        code: `5 > 3 and 2 > 4`,
+        options: [
+          "True",
+          "False",
+          "Error",
+          "Sometimes True"
+        ],
+        correctIndex: 1,
+        explanation:
+          "5 > 3 is True, 2 > 4 is False, True and False gives False."
+      },
+      {
+        id: 18,
+        emoji: "🔗",
+        topic: "Logical Operators",
+        difficulty: "Medium",
+        question: "Which has the highest precedence among these logical operators?",
+        code: "",
+        options: [
+          "and",
+          "or",
+          "not",
+          "They all have the same precedence"
+        ],
+        correctIndex: 2,
+        explanation:
+          "In Python, precedence is: not > and > or."
+      },
+
+      // IDENTITY & MEMBERSHIP
+      {
+        id: 19,
+        emoji: "🆔",
+        topic: "Identity vs Equality",
+        difficulty: "Medium",
+        question: "Which statement is true about 'is' in Python?",
+        code: "",
+        options: [
+          "'is' checks if two values are equal",
+          "'is' checks if two variables refer to the same object in memory",
+          "'is' is used only with numbers",
+          "'is' and '==' are always identical"
+        ],
+        correctIndex: 1,
+        explanation:
+          "is checks identity (same object), while == checks value equality. They are different concepts."
+      },
+      {
+        id: 20,
+        emoji: "📦",
+        topic: "Membership Operators",
+        difficulty: "Easy",
+        question: "What is the result of 'py' in 'python'?",
+        code: "",
+        options: [
+          "True",
+          "False",
+          "Error",
+          "None"
+        ],
+        correctIndex: 0,
+        explanation:
+          "The substring 'py' exists inside 'python', so the expression evaluates to True."
+      },
+
+      // TERNARY & PRECEDENCE
+      {
+        id: 21,
+        emoji: "❓",
+        topic: "Ternary Operator",
+        difficulty: "Medium",
+        question: "What does this expression print?",
+        code: `x = 10
+print("even" if x % 2 == 0 else "odd")`,
+        options: [
+          "even",
+          "odd",
+          "True",
+          "Error"
+        ],
+        correctIndex: 0,
+        explanation:
+          "x % 2 == 0 is True for x = 10, so the conditional expression chooses 'even'."
+      },
+      {
+        id: 22,
+        emoji: "📊",
+        topic: "Precedence",
+        difficulty: "Medium",
+        question: "What is the result of this expression?",
+        code: `2 + 3 * 4`,
+        options: [
+          "20",
+          "14",
+          "24",
+          "Error"
+        ],
+        correctIndex: 1,
+        explanation:
+          "Multiplication has higher precedence than addition. 3 * 4 = 12, then 2 + 12 = 14."
+      },
+
+      // PRACTICAL EXAMPLES – SWAP & LEN
+      {
+        id: 23,
+        emoji: "🔁",
+        topic: "Swapping Variables",
+        difficulty: "Easy",
+        question: "Which is the Pythonic way to swap a and b?",
+        code: "",
+        options: [
+          "temp = a; a = b; b = temp",
+          "swap(a, b)",
+          "a, b = b, a",
+          "swap(a <- b)"
+        ],
+        correctIndex: 2,
+        explanation:
+          "Python supports multiple assignment. a, b = b, a is the concise, Pythonic swap."
+      },
+      {
+        id: 24,
+        emoji: "🔤",
+        topic: "len() & Strings",
+        difficulty: "Easy",
+        question: "What is the result of len('Python 3') ?",
+        code: "",
+        options: [
+          "7",
+          "8",
+          "9",
+          "Error"
+        ],
+        correctIndex: 1,
+        explanation:
+          "'Python 3' has 8 characters: P y t h o n (space) 3. So len('Python 3') is 8."
+      }
+    ];
+
+    // -------------- GAME STATE --------------
+
+    let currentIndex = 0;
+    let score = 0;
+    let correctCount = 0;
+    let answeredCount = 0;
+    let selectedOptionIndex = null;
+    let questionOrder = [];
+
+    const scoreEl = document.getElementById("score");
+    const correctCountEl = document.getElementById("correct-count");
+    const questionCounterEl = document.getElementById("question-counter");
+    const questionTotalEl = document.getElementById("question-total");
+    const scoreFillEl = document.getElementById("score-fill");
+    const progressTextEl = document.getElementById("progress-text");
+
+    const questionEmojiEl = document.getElementById("question-emoji");
+    const questionHeadingEl = document.getElementById("question-heading");
+    const questionTopicEl = document.getElementById("question-topic");
+    const questionDifficultyEl = document.getElementById("question-difficulty");
+    const questionTextEl = document.getElementById("question-text");
+    const codeSnippetEl = document.getElementById("code-snippet");
+    const optionsListEl = document.getElementById("options-list");
+
+    const feedbackEmojiEl = document.getElementById("feedback-emoji");
+    const feedbackTitleEl = document.getElementById("feedback-title");
+    const feedbackMessageEl = document.getElementById("feedback-message");
+    const explanationTextEl = document.getElementById("explanation-text");
+    const summaryBannerEl = document.getElementById("summary-banner");
+
+    const checkBtn = document.getElementById("check-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const restartBtn = document.getElementById("restart-btn");
+
+    // -------------- UTILS --------------
+
+    function shuffleArray(arr) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function percentProgress() {
+      return Math.round((answeredCount / questions.length) * 100);
+    }
+
+    function updateStats() {
+      scoreEl.textContent = score;
+      correctCountEl.textContent = correctCount;
+      questionCounterEl.textContent = answeredCount + 1 > questions.length ? questions.length : answeredCount + 1;
+      questionTotalEl.textContent = questions.length;
+      const pct = percentProgress();
+      progressTextEl.textContent = `Progress: ${pct}%`;
+      scoreFillEl.style.width = `${pct}%`;
+    }
+
+    // -------------- RENDER QUESTION --------------
+
+    function renderQuestion() {
+      if (currentIndex >= questionOrder.length) {
+        showSummary();
+        return;
+      }
+
+      const q = questions[questionOrder[currentIndex]];
+      selectedOptionIndex = null;
+      feedbackMessageEl.classList.remove("correct", "incorrect");
+      feedbackMessageEl.textContent = "Answer the question to see if you’re a Python Ninja or need one more try.";
+      explanationTextEl.textContent = "Think carefully about the rules: variable naming, input(), print(), type(), operators, indentation.";
+
+      summaryBannerEl.classList.add("hidden");
+
+      questionEmojiEl.textContent = q.emoji;
+      questionHeadingEl.textContent = "Drill Question";
+      questionTopicEl.textContent = q.topic;
+      questionDifficultyEl.textContent = q.difficulty;
+      questionTextEl.textContent = q.question;
+
+      if (q.code && q.code.trim() !== "") {
+        codeSnippetEl.textContent = q.code;
+        codeSnippetEl.classList.remove("hidden");
+      } else {
+        codeSnippetEl.classList.add("hidden");
+        codeSnippetEl.textContent = "";
+      }
+
+      optionsListEl.innerHTML = "";
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.dataset.index = idx;
+        btn.innerHTML = `
+          <span class="option-label">${String.fromCharCode(65 + idx)}.</span>
+          <span class="option-text">${opt}</span>
+        `;
+        btn.addEventListener("click", () => selectOption(idx));
+        optionsListEl.appendChild(btn);
+      });
+
+      checkBtn.disabled = false;
+      nextBtn.disabled = true;
+
+      updateStats();
+    }
+
+    function selectOption(idx) {
+      selectedOptionIndex = idx;
+      document.querySelectorAll(".option-btn").forEach((btn) => {
+        btn.classList.remove("selected");
+        if (Number(btn.dataset.index) === idx) {
+          btn.classList.add("selected");
+        }
+      });
+    }
+
+    // -------------- CHECK ANSWER --------------
+
+    function checkAnswer() {
+      if (currentIndex >= questionOrder.length) return;
+
+      const q = questions[questionOrder[currentIndex]];
+
+      if (selectedOptionIndex === null) {
+        feedbackMessageEl.classList.remove("correct", "incorrect");
+        feedbackMessageEl.textContent = "Pick an option first 😉 Your brain deserves the workout.";
+        return;
+      }
+
+      const optionButtons = document.querySelectorAll(".option-btn");
+      optionButtons.forEach((btn) => {
+        btn.disabled = true;
+      });
+
+      const isCorrect = selectedOptionIndex === q.correctIndex;
+
+      if (isCorrect) {
+        feedbackEmojiEl.textContent = "🎉";
+        feedbackTitleEl.textContent = "Correct!";
+        feedbackMessageEl.classList.remove("incorrect");
+        feedbackMessageEl.classList.add("correct");
+        feedbackMessageEl.textContent = "Nice! That matches how Python actually behaves.";
+        score += 10;
+        correctCount += 1;
+
+        optionButtons.forEach((btn) => {
+          const idx = Number(btn.dataset.index);
+          if (idx === q.correctIndex) {
+            btn.classList.add("correct");
+          }
+        });
+      } else {
+        feedbackEmojiEl.textContent = "🧠";
+        feedbackTitleEl.textContent = "Good Try!";
+        feedbackMessageEl.classList.remove("correct");
+        feedbackMessageEl.classList.add("incorrect");
+        feedbackMessageEl.textContent = "Not quite. Read the explanation and try to remember the rule.";
+        optionButtons.forEach((btn) => {
+          const idx = Number(btn.dataset.index);
+          if (idx === q.correctIndex) {
+            btn.classList.add("correct");
+          } else if (idx === selectedOptionIndex) {
+            btn.classList.add("incorrect");
+          }
+        });
+      }
+
+      explanationTextEl.textContent = q.explanation;
+      answeredCount += 1;
+      updateStats();
+
+      checkBtn.disabled = true;
+      nextBtn.disabled = false;
+
+      // If last question, change button text
+      if (answeredCount >= questions.length) {
+        nextBtn.textContent = "🏁 View Summary";
+      } else {
+        nextBtn.textContent = "➡ Next Question";
+      }
+    }
+
+    // -------------- SUMMARY --------------
+
+    function showSummary() {
+      feedbackEmojiEl.textContent = "🏁";
+      feedbackTitleEl.textContent = "Lab Summary";
+      const total = questions.length;
+      const percent = Math.round((correctCount / total) * 100);
+
+      feedbackMessageEl.classList.remove("correct", "incorrect");
+      feedbackMessageEl.textContent = `You answered ${correctCount} out of ${total} drills correctly. Score: ${score}`;
+
+      let comment = "";
+      if (percent === 100) {
+        comment = "Perfect! Your basics are razor sharp. On to harder Python topics!";
+      } else if (percent >= 75) {
+        comment = "Strong start! Review the explanations for the few you missed.";
+      } else if (percent >= 50) {
+        comment = "Decent foundation. Repeat this lab to make concepts automatic.";
+      } else {
+        comment = "This was a warm-up. Replay the lab and focus on the explanations. Basics first, glory later.";
+      }
+
+      explanationTextEl.textContent = comment;
+
+      summaryBannerEl.classList.remove("hidden");
+      summaryBannerEl.textContent =
+        "Teacher idea: Turn this into a timed challenge. Kids redo the lab and try to beat their previous score with fewer mistakes.";
+
+      checkBtn.disabled = true;
+      nextBtn.disabled = true;
+    }
+
+    // -------------- RESTART --------------
+
+    function restartLab() {
+      score = 0;
+      correctCount = 0;
+      answeredCount = 0;
+      currentIndex = 0;
+      selectedOptionIndex = null;
+      questionOrder = shuffleArray([...questions.keys()]);
+      updateStats();
+      renderQuestion();
+      feedbackEmojiEl.textContent = "💡";
+      feedbackTitleEl.textContent = "Feedback & Explanation";
+      summaryBannerEl.classList.add("hidden");
+    }
+
+    // -------------- INIT --------------
+
+    checkBtn.addEventListener("click", checkAnswer);
+    nextBtn.addEventListener("click", () => {
+      currentIndex += 1;
+      renderQuestion();
+    });
+    restartBtn.addEventListener("click", restartLab);
+
+    // Start game
+    questionOrder = shuffleArray([...questions.keys()]);
+    questionTotalEl.textContent = questions.length;
+    restartLab();
+  </script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Division Fact Sorter!</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- js-confetti library for the celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
+    
+    <!-- Fun, cartoon-style font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #f0f9ff; /* Light sky blue */
+            background-image:
+                linear-gradient(45deg, #e0f2fe 25%, transparent 25%),
+                linear-gradient(-45deg, #e0f2fe 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #e0f2fe 75%),
+                linear-gradient(-45deg, transparent 75%, #e0f2fe 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        #game-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 24px;
+            border: 4px solid #0ea5e9; /* Sky-500 */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* This area holds all the problem boxes */
+        #problem-area {
+            background-color: #f3f4f6; /* Gray-100 */
+            border: 4px dashed #9ca3af; /* Gray-400 */
+            border-radius: 16px;
+            padding: 1rem;
+            min-height: 150px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem; /* 12px */
+        }
+
+        /* Class for the draggable division problems */
+        .problem-box {
+            background-color: #fef08a; /* Yellow-200 */
+            border: 4px solid #facc15; /* Yellow-400 */
+            font-size: 1.875rem; /* 30px */
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            cursor: grab;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+            user-select: none;
+        }
+        
+        /* Style for a box being dragged */
+        .problem-box.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* The answer bins (drop targets) */
+        .answer-bin {
+            background-color: #f0fdf4; /* Green-50 */
+            border: 4px solid #4ade80; /* Green-400 */
+            border-radius: 16px;
+            padding: 1.5rem;
+            width: 100%;
+            md:width: 45%; /* Tailwind class for medium screens */
+            min-height: 150px;
+            transition: all 0.2s ease;
+        }
+        
+        .answer-bin-text {
+            font-size: 2.5rem; /* 40px */
+            font-weight: 600;
+            color: #166534; /* Green-800 */
+        }
+        
+        /* Style for when dragging over a valid drop target */
+        .answer-bin.drag-over {
+            background-color: #dcfce7; /* Green-100 */
+            transform: scale(1.03);
+            border-style: dashed;
+        }
+        
+        /* "Reset Game" button */
+        #reset-button {
+            display: none; /* Hidden by default */
+            font-size: 1.25rem;
+            font-weight: 600;
+            background-color: #3b82f6; /* Blue-500 */
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 9999px; /* Full pill shape */
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        }
+        
+        #reset-button:hover {
+            background-color: #2563eb; /* Blue-600 */
+            transform: translateY(-2px);
+        }
+        
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+        
+        .answer-bin.wrong-drop {
+            animation: shake 0.6s;
+            background-color: #fee2e2; /* Red-100 */
+            border-color: #f87171; /* Red-400 */
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .answer-bin.correct-drop {
+            animation: bounce 0.5s;
+        }
+
+    </style>
+</head>
+<body class="antialiased text-center p-4">
+
+    <div id="game-container">
+        <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">
+            Division Fact Sorter!
+        </h1>
+        <p class="text-lg text-gray-600 mb-8">
+            Drag the division problems into the correct bin!
+        </p>
+
+        <!-- Area where the draggable problems appear -->
+        <div id="problem-area" class="mb-8">
+            <!-- Problem boxes will be injected here by JS -->
+        </div>
+
+        <!-- The two answer bins -->
+        <div id="answer-bins-container" class="flex flex-col md:flex-row justify-around items-center gap-6">
+            <div id="bin-1" class="answer-bin flex flex-col justify-center items-center">
+                <span class="answer-bin-text">Equals 1</span>
+            </div>
+            <div id="bin-2" class="answer-bin flex flex-col justify-center items-center">
+                <span class="answer-bin-text">Equals 3</span>
+            </div>
+        </div>
+        
+        <!-- Feedback message and Reset button -->
+        <div id="feedback-area" class="h-24 mt-8 flex flex-col items-center justify-center">
+             <p id="score-counter" class="text-xl font-semibold text-gray-700 h-8">
+                <!-- Score appears here -->
+            </p>
+            <p id="feedback-message" class="text-2xl font-semibold h-8 mt-2">
+                <!-- Feedback (e.g., "Correct!") appears here -->
+            </p>
+            <button id="reset-button" class="mt-4">Play Again! 🔄</button>
+        </div>
+        
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Game Configuration ---
+            const jsConfetti = new JSConfetti();
+
+            // We'll produce a dynamic set of problems each round. Bins expect answers 1 and 3.
+            const TARGET_ANSWERS = [1, 3];
+            const PROBLEMS_PER_ROUND = 10; // how many problems to present per round
+
+            // LocalStorage key to avoid immediate repeats across rounds/sessions
+            const LS_KEY = 'divisionFactSorter.lastProblemsV2';
+
+            // Create a large pool of candidate problems for each target answer
+            function buildCandidatePool() {
+                const pool = [];
+                // For answer 1: use pairs like n ÷ n for n=2..20
+                for (let n = 2; n <= 20; n++) {
+                    pool.push({ text: `${n} ÷ ${n}`, answer: 1 });
+                }
+                // For answer 3: use pairs where dividend = 3 * d for d=2..12 (avoid tiny trivial ones)
+                for (let d = 2; d <= 12; d++) {
+                    const dividend = 3 * d;
+                    pool.push({ text: `${dividend} ÷ ${d}`, answer: 3 });
+                }
+                // Add a few mixed examples to increase variety
+                const extras = [
+                    { text: '30 ÷ 10', answer: 3 },
+                    { text: '18 ÷ 6', answer: 3 },
+                    { text: '14 ÷ 14', answer: 1 },
+                    { text: '11 ÷ 11', answer: 1 }
+                ];
+                return pool.concat(extras);
+            }
+
+            // Load last used problems (array of text strings)
+            function loadLastUsed() {
+                try {
+                    const raw = localStorage.getItem(LS_KEY);
+                    return raw ? JSON.parse(raw) : [];
+                } catch (e) { return []; }
+            }
+
+            function saveLastUsed(list) {
+                try { localStorage.setItem(LS_KEY, JSON.stringify(list)); } catch (e) { /* noop */ }
+            }
+
+            // Sample a fresh round of problems from the pool, avoiding recent repeats where possible
+            function sampleRound(pool, count) {
+                const last = new Set(loadLastUsed());
+                // Prefer items not in `last`, but if pool too small, allow repeats
+                const fresh = pool.filter(p => !last.has(p.text));
+                const source = fresh.length >= count ? fresh : pool.slice();
+
+                // Shuffle and take `count` items, but keep balanced answers
+                shuffle(source);
+                // Try to ensure roughly half 1s and half 3s if possible
+                const wantEach = Math.ceil(count / TARGET_ANSWERS.length);
+                const chosen = [];
+                for (const target of TARGET_ANSWERS) {
+                    const candidates = source.filter(p => p.answer === target);
+                    for (let i = 0; i < wantEach && chosen.length < count && i < candidates.length; i++) {
+                        chosen.push(candidates[i]);
+                    }
+                }
+                // fill remaining with any leftover
+                for (let i = 0; i < source.length && chosen.length < count; i++) {
+                    const p = source[i];
+                    if (!chosen.includes(p)) chosen.push(p);
+                }
+
+                // Final shuffle so problems are mixed up visually
+                shuffle(chosen);
+                // Persist the texts used so next round can avoid them
+                saveLastUsed(chosen.map(p => p.text));
+                return chosen.slice(0, count);
+            }
+
+            // --- Element References ---
+            const problemArea = document.getElementById('problem-area');
+            const bin1 = document.getElementById('bin-1');
+            const bin2 = document.getElementById('bin-2');
+            const feedbackMessage = document.getElementById('feedback-message');
+            const scoreCounter = document.getElementById('score-counter');
+            const resetButton = document.getElementById('reset-button');
+            const bins = [bin1, bin2];
+
+            // --- Game State ---
+            let correctlySortedCount = 0;
+            let draggedElement = null;
+            let currentRoundProblems = [];
+            let totalProblems = 0;
+
+            // --- Utility Functions ---
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            // --- Game Setup Functions ---
+            
+            // Create and display all problem boxes for the current round
+            function createProblemBoxes() {
+                problemArea.innerHTML = ''; // Clear old boxes
+                const pool = buildCandidatePool();
+                currentRoundProblems = sampleRound(pool, PROBLEMS_PER_ROUND);
+                totalProblems = currentRoundProblems.length;
+
+                currentRoundProblems.forEach((problem, index) => {
+                    const box = document.createElement('div');
+                    box.className = 'problem-box';
+                    box.draggable = true;
+                    box.textContent = problem.text;
+                    box.dataset.answer = problem.answer;
+                    box.id = `problem-${index}`; // Unique ID
+
+                    // Add drag listeners to each box
+                    box.addEventListener('dragstart', handleDragStart);
+                    box.addEventListener('dragend', handleDragEnd);
+
+                    problemArea.appendChild(box);
+                });
+                updateScore();
+            }
+
+            // Set up the answer bins
+            function setupBins() {
+                bin1.dataset.value = 1;
+                bin2.dataset.value = 3;
+
+                bins.forEach(bin => {
+                    bin.addEventListener('dragover', handleDragOver);
+                    bin.addEventListener('dragleave', handleDragLeave);
+                    bin.addEventListener('drop', handleDrop);
+                });
+            }
+
+            // Update the score display
+            function updateScore() {
+                scoreCounter.textContent = `Sorted: ${correctlySortedCount} / ${totalProblems}`;
+            }
+
+            // --- Drag & Drop Event Handlers ---
+            
+            function handleDragStart(e) {
+                draggedElement = e.target; // Store the element being dragged
+                draggedElement.classList.add('dragging');
+                // Set data (though we'll use the draggedElement var)
+                e.dataTransfer.setData('text/plain', draggedElement.id);
+            }
+
+            function handleDragEnd() {
+                draggedElement.classList.remove('dragging');
+                draggedElement = null; // Clear reference
+            }
+
+            function handleDragOver(e) {
+                e.preventDefault(); // Necessary to allow dropping
+                e.currentTarget.classList.add('drag-over');
+            }
+
+            function handleDragLeave(e) {
+                e.currentTarget.classList.remove('drag-over');
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                const bin = e.currentTarget;
+                bin.classList.remove('drag-over');
+
+                if (!draggedElement) return; // If something went wrong
+
+                const problemAnswer = parseInt(draggedElement.dataset.answer);
+                const binValue = parseInt(bin.dataset.value);
+
+                if (problemAnswer === binValue) {
+                    handleCorrectDrop(draggedElement, bin);
+                } else {
+                    handleWrongDrop(bin);
+                }
+            }
+
+            // --- Game Logic Handlers ---
+
+            function handleCorrectDrop(element, bin) {
+                feedbackMessage.textContent = 'Correct! 🎉';
+                feedbackMessage.style.color = '#166534'; // Green-800
+                
+                bin.classList.add('correct-drop');
+                element.style.display = 'none'; // Hide the correctly sorted box
+                
+                correctlySortedCount++;
+                updateScore();
+                
+                // Check for win
+                if (correctlySortedCount === totalProblems) {
+                    handleWin();
+                }
+
+                setTimeout(() => {
+                    bin.classList.remove('correct-drop');
+                    feedbackMessage.textContent = '';
+                }, 1000);
+            }
+
+            function handleWrongDrop(bin) {
+                feedbackMessage.textContent = 'Not quite! Try again.';
+                feedbackMessage.style.color = '#b91c1c'; // Red-800
+                
+                bin.classList.add('wrong-drop');
+
+                setTimeout(() => {
+                    bin.classList.remove('wrong-drop');
+                    feedbackMessage.textContent = '';
+                }, 800);
+            }
+            
+            function handleWin() {
+                feedbackMessage.textContent = 'You sorted them all!';
+                feedbackMessage.style.color = '#065f46'; // Green-900
+                resetButton.style.display = 'inline-block';
+                
+                // Fire confetti!
+                jsConfetti.addConfetti({
+                    emojis: ['🎉', '✨', '✅', '⭐', '🎈'],
+                    emojiSize: 80,
+                    confettiNumber: 50,
+                });
+            }
+
+            // --- Reset Game ---
+            function resetGame() {
+                correctlySortedCount = 0;
+                updateScore();
+                feedbackMessage.textContent = '';
+                resetButton.style.display = 'none';
+                createProblemBoxes(); // Re-create and shuffle the boxes
+            }
+
+            // --- Initialization ---
+            resetButton.addEventListener('click', resetGame);
+            setupBins();
+            resetGame(); // Call resetGame to start the first round
+        });
+    </script>
+
+</body>
+</html>

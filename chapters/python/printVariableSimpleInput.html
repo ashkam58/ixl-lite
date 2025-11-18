@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Python Lab – Class 1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, #ff9a9e, #fecfef 30%, #a1c4fd 60%, #c2e9fb);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: #222;
+    }
+
+    .lab-canvas {
+      width: 100%;
+      max-width: 1200px;
+      min-height: 80vh;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+      padding: 20px 24px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Floating decor circles */
+    .lab-canvas::before,
+    .lab-canvas::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(2px);
+      opacity: 0.3;
+      z-index: 0;
+    }
+
+    .lab-canvas::before {
+      width: 220px;
+      height: 220px;
+      background: #ffe082;
+      top: -60px;
+      right: -40px;
+    }
+
+    .lab-canvas::after {
+      width: 260px;
+      height: 260px;
+      background: #81d4fa;
+      bottom: -120px;
+      left: -80px;
+    }
+
+    .lab-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      gap: 12px;
+    }
+
+    header.lab-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px dashed rgba(0, 0, 0, 0.08);
+    }
+
+    .lab-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lab-title span.badge {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ff8a65, #ffca28);
+      color: #222;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .lab-subtitle {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .lab-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+      font-size: 0.75rem;
+    }
+
+    .chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.04);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .lab-main {
+      display: grid;
+      grid-template-columns: minmax(260px, 1.1fr) minmax(360px, 1.6fr);
+      gap: 14px;
+      margin-top: 6px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Tutorial panel */
+
+    .tutorial-panel {
+      background: linear-gradient(150deg, #fff3e0, #e3f2fd);
+      border-radius: 18px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 8px 20px rgba(255, 183, 77, 0.3);
+    }
+
+    .tutorial-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tutorial-header h2 {
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tutorial-header small {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    .step-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .step-btn {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .step-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    }
+
+    .step-btn.active {
+      background: linear-gradient(135deg, #ffb74d, #ff8a65);
+      color: #222;
+      box-shadow: 0 3px 8px rgba(255, 112, 67, 0.6);
+    }
+
+    .tutorial-body {
+      margin-top: 4px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.9);
+      max-height: 100%;
+      overflow-y: auto;
+    }
+
+    .tutorial-body h3 {
+      font-size: 1rem;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tutorial-body p {
+      font-size: 0.88rem;
+      margin-bottom: 4px;
+    }
+
+    .tutorial-body ul {
+      margin-left: 16px;
+      margin-bottom: 6px;
+      font-size: 0.86rem;
+    }
+
+    .tutorial-body li {
+      margin-bottom: 3px;
+    }
+
+    .tip-box {
+      margin-top: 4px;
+      padding: 5px 8px;
+      border-radius: 10px;
+      background: #fffde7;
+      font-size: 0.78rem;
+      border: 1px dashed rgba(255, 193, 7, 0.8);
+    }
+
+    .tutorial-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #42a5f5, #7e57c2);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(63, 81, 181, 0.5);
+    }
+
+    .btn.secondary {
+      background: rgba(33, 150, 243, 0.1);
+      color: #1e88e5;
+      border: 1px dashed rgba(30, 136, 229, 0.4);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
+    }
+
+    /* Editor panel */
+
+    .editor-panel {
+      background: #f3e5f5;
+      border-radius: 18px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.75);
+      box-shadow: 0 10px 25px rgba(126, 87, 194, 0.4);
+    }
+
+    .editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .editor-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .editor-title span.icon {
+      font-size: 1.2rem;
+    }
+
+    .quick-hints {
+      font-size: 0.72rem;
+      opacity: 0.9;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    textarea#code-editor {
+      width: 100%;
+      flex: 1;
+      min-height: 180px;
+      resize: vertical;
+      border-radius: 14px;
+      border: none;
+      padding: 10px 12px;
+      font-family: "Fira Code", "Consolas", monospace;
+      font-size: 0.86rem;
+      outline: none;
+      background: #fdfbff;
+      box-shadow: inset 0 0 0 1px rgba(123, 31, 162, 0.15);
+      line-height: 1.4;
+      white-space: pre;
+    }
+
+    textarea#code-editor:focus {
+      box-shadow: 0 0 0 2px #ab47bc;
+      background: #ffffff;
+    }
+
+    .run-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .label-output {
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .label-output span.tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.05);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .run-btn-big {
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 700;
+      background: radial-gradient(circle at top left, #00e676, #00c853);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 5px 14px rgba(0, 200, 83, 0.7);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .run-btn-big:hover {
+      transform: translateY(-1px) scale(1.01);
+      box-shadow: 0 7px 18px rgba(0, 200, 83, 0.9);
+    }
+
+    pre#output {
+      margin-top: 4px;
+      flex: 1;
+      min-height: 120px;
+      max-height: 260px;
+      overflow-y: auto;
+      background: #1e1e2f;
+      color: #e0f7fa;
+      border-radius: 14px;
+      padding: 8px 10px;
+      font-family: "Fira Code", "Consolas", monospace;
+      font-size: 0.82rem;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+
+    pre#output.empty::before {
+      content: "Your Python output will appear here…";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.4;
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    .output-success {
+      animation: sparkle 0.4s ease-out;
+    }
+
+    @keyframes sparkle {
+      0% { box-shadow: 0 0 0 0 rgba(129, 212, 250, 0.8); }
+      100% { box-shadow: 0 0 0 12px rgba(129, 212, 250, 0); }
+    }
+
+    footer.lab-footer {
+      font-size: 0.78rem;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      align-items: center;
+      opacity: 0.9;
+    }
+
+    .footer-tip {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+
+    .footer-keys {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 900px) {
+      .lab-main {
+        grid-template-columns: 1fr;
+      }
+
+      .lab-canvas {
+        max-width: 100%;
+        min-height: 90vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="lab-canvas">
+    <div class="lab-inner">
+      <header class="lab-header">
+        <div>
+          <div class="lab-title">
+            <span>🐍 Python Lab – Class 1</span>
+            <span class="badge">Print · Variables · Input</span>
+          </div>
+          <div class="lab-subtitle">
+            Learn to <strong>talk to the computer</strong> using Python, one friendly step at a time.
+          </div>
+        </div>
+        <div class="lab-chip-row">
+          <span class="chip">🎯 Age: 9–13</span>
+          <span class="chip">✨ Beginner Friendly</span>
+          <span class="chip">🧪 Play • Edit • Run</span>
+        </div>
+      </header>
+
+      <main class="lab-main">
+        <!-- Tutorial / Interaction Panel -->
+        <section class="tutorial-panel">
+          <div class="tutorial-header">
+            <h2>📚 Tutorial Steps</h2>
+            <small>Click a step, load the example, then run the code ➜</small>
+          </div>
+          <div class="step-buttons" id="step-buttons">
+            <!-- Buttons inserted by JS -->
+          </div>
+
+          <div class="tutorial-body">
+            <h3 id="step-title">Welcome to Python Lab</h3>
+            <p id="step-description">
+              Select a step above to learn about <strong>print()</strong>, emojis, variables, and a mini ID card project.
+            </p>
+            <ul id="step-points">
+              <li>👈 Start with “Step 1 – print() speaks on the screen”.</li>
+              <li>🎨 Change the words and emojis in the example.</li>
+              <li>▶ Press the green “Run Code” button to see the output.</li>
+            </ul>
+            <div class="tip-box" id="tip-box">
+              Tip: Python reads your code <strong>line by line</strong>, like a story. Be kind and clear with your instructions.
+            </div>
+            <div class="tutorial-actions">
+              <button class="btn primary" id="load-example-btn">📥 Load example into editor</button>
+              <button class="btn secondary" id="clear-editor-btn">🧽 Clear editor</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Editor / Output Panel -->
+        <section class="editor-panel">
+          <div class="editor-header">
+            <div class="editor-title">
+              <span class="icon">💻</span>
+              <span>Python Code Canvas</span>
+            </div>
+            <div class="quick-hints">
+              Use <code>print("Hello")</code>, variables like <code>name = "Ayaan"</code>, and <code>input()</code>.
+            </div>
+          </div>
+
+          <div class="editor-toolbar">
+            <button class="btn secondary" id="reset-code-btn">🔄 Reset to starter code</button>
+          </div>
+
+          <textarea id="code-editor" spellcheck="false"></textarea>
+
+          <div class="run-row">
+            <div class="label-output">
+              <span>📤 Output Console</span>
+              <span class="tag">Simulated Python</span>
+            </div>
+            <button class="run-btn-big" id="run-btn">
+              ▶ Run Code
+            </button>
+          </div>
+
+          <pre id="output" class="empty"></pre>
+        </section>
+      </main>
+
+      <footer class="lab-footer">
+        <div class="footer-tip">
+          💡 Reminder: Use quotes <code>" "</code> around words in <code>print()</code>, or Python gets confused.
+        </div>
+        <div class="footer-keys">
+          Teacher idea: Ask students to predict the output before pressing <strong>Run</strong>.
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Tutorial Content ----------
+
+    const steps = [
+      {
+        id: 1,
+        title: "Step 1 – print() speaks on the screen",
+        emoji: "🗣️",
+        description:
+          "The print() command asks Python to show something on the screen. It is like talking to the computer.",
+        points: [
+          "Anything inside quotes will be shown exactly as it is.",
+          "We write: print(\"Hello\") to show the word Hello.",
+          "We can show many lines by using many print() commands."
+        ],
+        tip:
+          "Explain to kids: print() is the friendly marker on the whiteboard. Whatever is inside quotes becomes visible.",
+        example: `print("Hello SuperCoder!")
+print("Welcome to Python Lab 🐍")
+print("I am ready to learn!")`
+      },
+      {
+        id: 2,
+        title: "Step 2 – Emojis and fun messages",
+        emoji: "😄",
+        description:
+          "Python can print emojis and fun messages. This makes the screen feel alive for kids.",
+        points: [
+          "Emojis are just special characters inside quotes.",
+          "We can mix text and emojis in the same print().",
+          "Ask kids to change emojis and re-run the code."
+        ],
+        tip:
+          "Let them personalise: their favourite animal, game, and emoji can appear on the screen.",
+        example: `print("My Python mood today: 😄✨")
+print("I love solving puzzles 🧩")
+print("Python + Me = Best Team 💻🤝")`
+      },
+      {
+        id: 3,
+        title: "Step 3 – Variables are magic boxes",
+        emoji: "📦",
+        description:
+          "A variable is like a box with a name. Python remembers whatever you store in it.",
+        points: [
+          "Use = to put a value into a box: name = \"Aryan\"",
+          "Later, print(name) shows what is inside the box.",
+          "We can change what is inside the box by assigning again."
+        ],
+        tip:
+          "Use the box metaphor: the label (name) stays, but we can replace what is inside.",
+        example: `name = "Aryan"
+age = 11
+favourite_game = "Minecraft"
+
+print("Name:", name)
+print("Age:", age)
+print("Favourite game:", favourite_game)
+
+# Changing the box:
+name = "Code Ninja"
+print("New hero name:", name)`
+      },
+      {
+        id: 4,
+        title: "Step 4 – Tiny interaction with input()",
+        emoji: "⌨️",
+        description:
+          "The input() command lets Python ask the user a question and store the answer in a variable.",
+        points: [
+          "We write: name = input(\"What is your name? \")",
+          "Whatever the child types is saved into the variable.",
+          "Then we can use print() to respond to their answer."
+        ],
+        tip:
+          "This lab simulates input() using a browser pop-up. Kids feel the computer ‘talk’ to them.",
+        example: `name = input("What is your name? ")
+emoji = input("Type your favourite emoji: ")
+
+print("Nice to meet you,", name, emoji)
+print("Welcome to Python Lab!")`
+      },
+      {
+        id: 5,
+        title: "Mini Project – ID Card",
+        emoji: "📇",
+        description:
+          "Combine print(), variables and input() to build a tiny ID card project. This is your hero project for Class 1.",
+        points: [
+          "Ask the user for their name, age, hobby and favourite emoji.",
+          "Store each answer in a variable.",
+          "Print a small ‘ID card’ using multiple print() lines."
+        ],
+        tip:
+          "Tell kids: this is your Python identity. You can decorate it with stars and emojis.",
+        example: `name = input("What is your name? ")
+age = input("How old are you? ")
+hobby = input("What is your favourite hobby? ")
+emoji = input("Type your favourite emoji: ")
+
+print("-------------")
+print("   PYTHON ID CARD")
+print("-------------")
+print("Name:", name)
+print("Age:", age)
+print("Hobby:", hobby)
+print("Emoji:", emoji)
+print("-------------")`
+      }
+    ];
+
+    const starterCode = `# Welcome to Python Lab 🐍
+# Try changing this text and press "Run Code"
+
+print("Hello from Python Lab!")
+print("I am ready to learn print(), variables and input()!")`;
+
+    const stepButtonsContainer = document.getElementById("step-buttons");
+    const stepTitleEl = document.getElementById("step-title");
+    const stepDescriptionEl = document.getElementById("step-description");
+    const stepPointsEl = document.getElementById("step-points");
+    const tipBoxEl = document.getElementById("tip-box");
+    const codeEditorEl = document.getElementById("code-editor");
+    const outputEl = document.getElementById("output");
+
+    const loadExampleBtn = document.getElementById("load-example-btn");
+    const clearEditorBtn = document.getElementById("clear-editor-btn");
+    const resetCodeBtn = document.getElementById("reset-code-btn");
+    const runBtn = document.getElementById("run-btn");
+
+    let activeStepId = null;
+
+    function renderStepButtons() {
+      steps.forEach((step) => {
+        const btn = document.createElement("button");
+        btn.className = "step-btn";
+        btn.dataset.stepId = step.id;
+        btn.innerHTML = `<span>${step.emoji}</span><span>${step.title}</span>`;
+        btn.addEventListener("click", () => selectStep(step.id));
+        stepButtonsContainer.appendChild(btn);
+      });
+    }
+
+    function selectStep(id) {
+      activeStepId = id;
+      const step = steps.find((s) => s.id === id);
+      if (!step) return;
+
+      // Update button styles
+      document.querySelectorAll(".step-btn").forEach((btn) => {
+        if (Number(btn.dataset.stepId) === id) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+
+      // Update tutorial text
+      stepTitleEl.textContent = `${step.emoji} ${step.title}`;
+      stepDescriptionEl.textContent = step.description;
+      stepPointsEl.innerHTML = "";
+      step.points.forEach((p) => {
+        const li = document.createElement("li");
+        li.textContent = p;
+        stepPointsEl.appendChild(li);
+      });
+      tipBoxEl.textContent = step.tip;
+    }
+
+    function loadExampleIntoEditor() {
+      if (!activeStepId) {
+        // If no step selected, load starter code
+        codeEditorEl.value = starterCode;
+      } else {
+        const step = steps.find((s) => s.id === activeStepId);
+        if (step) {
+          codeEditorEl.value = step.example;
+        }
+      }
+    }
+
+    function clearEditor() {
+      codeEditorEl.value = "";
+    }
+
+    function resetCode() {
+      codeEditorEl.value = starterCode;
+    }
+
+    // ---------- Simple Python-like Interpreter (for Class 1) ----------
+
+    function runPythonLikeCode() {
+      const code = codeEditorEl.value;
+      const lines = code.split(/\r?\n/);
+      let vars = {};
+      let outputLines = [];
+
+      function addOutput(text) {
+        outputLines.push(String(text));
+      }
+
+      for (let rawLine of lines) {
+        let line = rawLine.trim();
+
+        if (line === "" || line.startsWith("#")) {
+          continue; // skip empty & comments
+        }
+
+        // Handle variable = input("question")
+        let inputMatch = line.match(/^([a-zA-Z_]\w*)\s*=\s*input\((.*)\)\s*$/);
+        if (inputMatch) {
+          let varName = inputMatch[1];
+          let questionRaw = inputMatch[2].trim();
+          let question = questionRaw.replace(/^["']|["']$/g, "");
+          let answer = window.prompt(question);
+          vars[varName] = answer;
+          continue;
+        }
+
+        // Handle simple variable assignment: name = "Aryan" or age = 11
+        let assignMatch = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+        if (assignMatch && !line.startsWith("print")) {
+          let varName = assignMatch[1];
+          let valueRaw = assignMatch[2].trim();
+
+          // String literal
+          if (
+            (valueRaw.startsWith('"') && valueRaw.endsWith('"')) ||
+            (valueRaw.startsWith("'") && valueRaw.endsWith("'"))
+          ) {
+            vars[varName] = valueRaw.slice(1, -1);
+          } else if (!isNaN(Number(valueRaw))) {
+            // Number
+            vars[varName] = Number(valueRaw);
+          } else {
+            // Could be another variable, simple case
+            vars[varName] = vars[valueRaw] ?? valueRaw;
+          }
+          continue;
+        }
+
+        // Handle print(...)
+        let printMatch = line.match(/^print\((.*)\)\s*$/);
+        if (printMatch) {
+          let inside = printMatch[1].trim();
+
+          // Split by comma for simple multi-argument prints
+          let parts = [];
+          let current = "";
+          let inString = false;
+          let stringChar = null;
+
+          for (let i = 0; i < inside.length; i++) {
+            const ch = inside[i];
+            if ((ch === '"' || ch === "'")) {
+              if (!inString) {
+                inString = true;
+                stringChar = ch;
+                current += ch;
+              } else if (ch === stringChar) {
+                inString = false;
+                current += ch;
+              } else {
+                current += ch;
+              }
+            } else if (ch === "," && !inString) {
+              parts.push(current.trim());
+              current = "";
+            } else {
+              current += ch;
+            }
+          }
+          if (current.trim() !== "") {
+            parts.push(current.trim());
+          }
+
+          let renderedParts = parts.map((p) => {
+            // String literal
+            if (
+              (p.startsWith('"') && p.endsWith('"')) ||
+              (p.startsWith("'") && p.endsWith("'"))
+            ) {
+              return p.slice(1, -1);
+            }
+
+            // Variable
+            if (/^[a-zA-Z_]\w*$/.test(p)) {
+              if (p in vars) {
+                return vars[p];
+              } else {
+                return "[undefined variable: " + p + "]";
+              }
+            }
+
+            // Raw number or other text
+            return p;
+          });
+
+          addOutput(renderedParts.join(" "));
+          continue;
+        }
+
+        // If line type not recognised
+        addOutput("[Cannot understand line] " + rawLine);
+      }
+
+      if (outputLines.length === 0) {
+        outputEl.textContent = "";
+        outputEl.classList.add("empty");
+      } else {
+        outputEl.textContent = outputLines.join("\n");
+        outputEl.classList.remove("empty");
+        outputEl.classList.add("output-success");
+        setTimeout(() => {
+          outputEl.classList.remove("output-success");
+        }, 400);
+      }
+    }
+
+    // ---------- Event Wiring ----------
+
+    renderStepButtons();
+    resetCode();
+    // Select first step by default
+    selectStep(1);
+
+    loadExampleBtn.addEventListener("click", loadExampleIntoEditor);
+    clearEditorBtn.addEventListener("click", clearEditor);
+    resetCodeBtn.addEventListener("click", resetCode);
+    runBtn.addEventListener("click", runPythonLikeCode);
+  </script>
+</body>
+</html>

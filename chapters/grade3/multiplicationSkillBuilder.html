@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Division Skill Builder Lab (Up to 12)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Comic Sans MS", system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .lab-wrapper {
+      width: 100%;
+      max-width: 980px;
+      background: #fffdf7;
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      padding: 20px 20px 26px;
+      border: 4px solid #ffb347;
+    }
+
+    .lab-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .lab-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, #ff6f91);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      border: 3px solid #fff3c4;
+    }
+
+    .lab-title-block h1 {
+      font-size: 24px;
+      color: #ff6f00;
+      text-shadow: 1px 1px 0 #fff;
+    }
+
+    .lab-title-block p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .stats-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 130px;
+      background: #fff6d9;
+      border-radius: 16px;
+      padding: 8px 12px;
+      border: 2px solid #ffd36b;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #777;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ff6f00;
+    }
+
+    .streak-bar-outer {
+      width: 100%;
+      height: 12px;
+      background: #ffe9ba;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .streak-bar-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+      transition: width 0.3s ease;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.3fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .problem-card {
+      background: #e0f7fa;
+      border-radius: 20px;
+      padding: 14px;
+      border: 3px solid #80deea;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .difficulty-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .difficulty-row span {
+      font-size: 13px;
+      color: #006064;
+      font-weight: 600;
+    }
+
+    .max-divisor-select {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+    }
+
+    .max-divisor-select select {
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid #80deea;
+      font-size: 12px;
+      background: #f0ffff;
+    }
+
+    .problem-text {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: #004d40;
+    }
+
+    .emoji-banner {
+      text-align: center;
+      font-size: 24px;
+    }
+
+    .answer-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .answer-row input {
+      width: 80px;
+      padding: 6px 8px;
+      font-size: 20px;
+      border-radius: 10px;
+      border: 2px solid #00796b;
+      text-align: center;
+    }
+
+    .btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary {
+      background: #ff6f91;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #ffd166;
+      color: #5a3b00;
+    }
+
+    .btn-ghost {
+      background: #ffffff;
+      color: #006064;
+      border: 1px solid #80deea;
+      box-shadow: none;
+    }
+
+    .hint-text {
+      font-size: 12px;
+      text-align: center;
+      color: #004d40;
+      min-height: 16px;
+    }
+
+    .feedback {
+      text-align: center;
+      font-size: 14px;
+      min-height: 24px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .feedback.correct {
+      color: #2e7d32;
+    }
+
+    .feedback.wrong {
+      color: #c62828;
+    }
+
+    .visual-card {
+      background: #f3e5f5;
+      border-radius: 20px;
+      padding: 12px;
+      border: 3px solid #ce93d8;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .visual-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .visual-card-header span {
+      font-size: 13px;
+      color: #4a148c;
+      font-weight: 600;
+    }
+
+    .visual-area {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 10px;
+      border: 2px dashed #ba68c8;
+      min-height: 120px;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .group-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+      justify-content: center;
+    }
+
+    .group {
+      min-width: 70px;
+      padding: 6px;
+      border-radius: 12px;
+      background: #fff3e0;
+      border: 2px solid #ffcc80;
+      text-align: center;
+      font-size: 18px;
+      position: relative;
+    }
+
+    .group-label {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffb74d;
+      color: #4e342e;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid #ffe0b2;
+    }
+
+    .group-items {
+      margin-top: 8px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .mini-note {
+      font-size: 11px;
+      color: #6a1b9a;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="lab-wrapper">
+    <div class="lab-header">
+      <div class="lab-logo">➗</div>
+      <div class="lab-title-block">
+        <h1>Division Skill Builder Lab (Up to 12)</h1>
+        <p>Visual groups, cute emojis, and lots of practice for Grade 3 heroes! 🎒</p>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-card">
+        <span class="stat-label">Questions</span>
+        <span class="stat-value" id="stat-questions">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Correct</span>
+        <span class="stat-value" id="stat-correct">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Streak</span>
+        <span class="stat-value" id="stat-streak">0</span>
+        <div class="streak-bar-outer">
+          <div class="streak-bar-inner" id="streak-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <!-- LEFT: Problem & Answer -->
+      <div class="problem-card">
+        <div class="difficulty-row">
+          <span>Step 1: Solve the division problem</span>
+          <div class="max-divisor-select">
+            <span>Max divisor:</span>
+            <select id="max-divisor">
+              <!-- 1–12 options -->
+            </select>
+          </div>
+        </div>
+
+        <div class="emoji-banner">🍪 Sharing Cookies Fairly 🍪</div>
+
+        <div class="problem-text" id="problem-text">
+          24 ÷ 6 = ?
+        </div>
+
+        <div class="answer-row">
+          <input type="number" id="answer-input" placeholder="?" />
+          <button class="btn btn-primary" id="check-btn">✅ Check</button>
+          <button class="btn btn-secondary" id="new-btn">🎲 New</button>
+        </div>
+
+        <div class="hint-text" id="hint-text">
+          Tip: Think “How many in EACH group?”
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+      </div>
+
+      <!-- RIGHT: Visual Area -->
+      <div class="visual-card">
+        <div class="visual-card-header">
+          <span>Step 2: Watch the groups appear 👀</span>
+          <button class="btn btn-ghost" id="show-hint-btn">💡 Show / Refresh Groups</button>
+        </div>
+
+        <div class="visual-area" id="visual-area">
+          <!-- Groups will be drawn here -->
+        </div>
+
+        <div class="mini-note">
+          We are splitting the <b>big number</b> into equal groups.
+          <br />
+          <b>Dividend ÷ Divisor = How many in each group?</b>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------
+    // Division Lab Logic
+    // -------------------------
+
+    const problemTextEl = document.getElementById("problem-text");
+    const answerInputEl = document.getElementById("answer-input");
+    const checkBtn = document.getElementById("check-btn");
+    const newBtn = document.getElementById("new-btn");
+    const feedbackEl = document.getElementById("feedback");
+    const hintTextEl = document.getElementById("hint-text");
+    const visualAreaEl = document.getElementById("visual-area");
+    const showHintBtn = document.getElementById("show-hint-btn");
+    const maxDivisorSelect = document.getElementById("max-divisor");
+
+    const statQuestionsEl = document.getElementById("stat-questions");
+    const statCorrectEl = document.getElementById("stat-correct");
+    const statStreakEl = document.getElementById("stat-streak");
+    const streakBarEl = document.getElementById("streak-bar");
+
+    // Emoji choices for fun
+    const emojiChoices = ["🍪", "🍎", "🍬", "🧁", "🍇", "🍕", "🍉", "🧃"];
+
+    // Current problem state
+    let currentDividend = 24;
+    let currentDivisor = 6;
+    let currentQuotient = 4;
+
+    // Stats
+    let totalQuestions = 0;
+    let totalCorrect = 0;
+    let streak = 0;
+
+    // Populate max divisor select (1 to 12)
+    function initMaxDivisorSelect() {
+      for (let i = 1; i <= 12; i++) {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = i;
+        if (i === 12) opt.selected = true;
+        maxDivisorSelect.appendChild(opt);
+      }
+    }
+
+    // Generate random integer between min and max inclusive
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function newQuestion() {
+      const maxD = parseInt(maxDivisorSelect.value, 10) || 12;
+
+      currentDivisor = randInt(1, maxD);
+      // To keep total items manageable, bound quotient between 1 and 12
+      currentQuotient = randInt(1, 12);
+      currentDividend = currentDivisor * currentQuotient;
+
+      problemTextEl.textContent = `${currentDividend} ÷ ${currentDivisor} = ?`;
+
+      answerInputEl.value = "";
+      answerInputEl.focus();
+
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback";
+      hintTextEl.textContent = "Tip: Think “How many in EACH group?”";
+
+      totalQuestions++;
+      updateStats();
+
+      drawGroups(); // auto-refresh visual on new question
+    }
+
+    function updateStats() {
+      statQuestionsEl.textContent = totalQuestions;
+      statCorrectEl.textContent = totalCorrect;
+      statStreakEl.textContent = streak;
+
+      // streak bar: cap at 10 for full
+      const percent = Math.min((streak / 10) * 100, 100);
+      streakBarEl.style.width = percent + "%";
+    }
+
+    function checkAnswer() {
+      const userValue = parseInt(answerInputEl.value, 10);
+
+      if (isNaN(userValue)) {
+        feedbackEl.textContent = "Type your answer first, super-coder! 🙂";
+        feedbackEl.className = "feedback wrong";
+        return;
+      }
+
+      if (userValue === currentQuotient) {
+        feedbackEl.textContent = "Correct! 🎉 You shared them equally.";
+        feedbackEl.className = "feedback correct";
+        totalCorrect++;
+        streak++;
+      } else {
+        feedbackEl.textContent = `Not yet! The correct answer is ${currentQuotient}. Try the next one! 💪`;
+        feedbackEl.className = "feedback wrong";
+        streak = 0;
+      }
+
+      updateStats();
+    }
+
+    function drawGroups() {
+      visualAreaEl.innerHTML = "";
+
+      const chosenEmoji =
+        emojiChoices[randInt(0, emojiChoices.length - 1)];
+
+      const totalItems = currentDividend;
+      const groups = currentDivisor;
+      const itemsPerGroup = currentQuotient;
+
+      // Explanation text at top
+      const explain = document.createElement("p");
+      explain.style.fontSize = "13px";
+      explain.style.textAlign = "center";
+      explain.style.marginBottom = "6px";
+      explain.innerHTML = `<b>${totalItems}</b> ${chosenEmoji} shared into <b>${groups}</b> groups → each group gets <b>${itemsPerGroup}</b> ${chosenEmoji}.`;
+      visualAreaEl.appendChild(explain);
+
+      const groupRow = document.createElement("div");
+      groupRow.className = "group-row";
+
+      // If total items are small, show all emojis.
+      // If too large, show compact xN notation.
+      const showAllEmojis = totalItems <= 60;
+
+      for (let g = 1; g <= groups; g++) {
+        const groupEl = document.createElement("div");
+        groupEl.className = "group";
+
+        const labelEl = document.createElement("div");
+        labelEl.className = "group-label";
+        labelEl.textContent = `Group ${g}`;
+        groupEl.appendChild(labelEl);
+
+        const itemsEl = document.createElement("div");
+        itemsEl.className = "group-items";
+
+        if (showAllEmojis) {
+          let line = "";
+          for (let i = 0; i < itemsPerGroup; i++) {
+            line += chosenEmoji + " ";
+          }
+          itemsEl.textContent = line;
+        } else {
+          itemsEl.textContent = `${chosenEmoji} × ${itemsPerGroup}`;
+        }
+
+        groupEl.appendChild(itemsEl);
+        groupRow.appendChild(groupEl);
+      }
+
+      visualAreaEl.appendChild(groupRow);
+    }
+
+    // -------------------------
+    // Event Listeners
+    // -------------------------
+
+    checkBtn.addEventListener("click", checkAnswer);
+    newBtn.addEventListener("click", newQuestion);
+    showHintBtn.addEventListener("click", drawGroups);
+
+    maxDivisorSelect.addEventListener("change", () => {
+      newQuestion();
+    });
+
+    // check on Enter press
+    answerInputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        checkAnswer();
+      }
+    });
+
+    // Initialize
+    initMaxDivisorSelect();
+    newQuestion();
+  </script>
+</body>
+</html>

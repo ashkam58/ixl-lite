@@ -302,5 +302,12 @@
     "title": "Fraction as a part of whole",
     "tags": ["grade3", "fraction", "visual", "interactive", "practice"],
     "level": "Easy"
+  },{
+    "slug":"python/printVariableSimpleInput",
+    "title": "🐍 Python Print Variable with Simple Input",
+    "tags": ["python", "print", "variable", "input", "interactive", "practice"],
+    "level": "Easy"
+  },{
+    "slug": "python"
   }
 ]
