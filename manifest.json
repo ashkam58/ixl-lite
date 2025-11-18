@@ -1,313 +1,38 @@
-[
+﻿[
   {
-    "slug": "grade3/addition",
-    "title": "Grade 3 \u2022 Addition",
-    "tags": [
-      "grade3",
-      "arithmetic",
-      "shaan",
-      "aarushi",
-      "srinika",
-      "sanvika"
-    ],
+    "slug": "grade3/money",
+    "title": "Grade 3  Money Lab",
+    "tags": ["grade3", "money", "currency", "siddharth"],
     "level": "Easy"
   },
   {
-    "slug": "grade3/multiplication",
-    "title": "Grade 3 \u2022 Multiplication with Cartoons",
-    "tags": [
-      "grade3",
-      "multiplication",
-      "cartoons",
-      "visual",
-      "shaan",
-      "aarushi",
-      "srinika",
-      "sanvika"
-    ],
+    "slug": "grade6/boxdivision",
+    "title": "Grade 6  Box Division",
+    "tags": ["grade6", "division", "box-method"],
     "level": "Medium"
   },
   {
-    "slug": "grade3/table",
-    "title": "⭐ Grade 3 \u2022 Math Toons Multiplication",
-    "tags": [
-      "grade3",
-      "multiplication",
-      "tables",
-      "interactive",
-      "practice",
-      "visual",
-      "shaan",
-      "aarushi",
-      "srinika",
-      "sanvika"
-    ],
+    "slug": "grade6/longDivisionBoxMethod",
+    "title": "Grade 6  Long Division (Box Method)",
+    "tags": ["grade6", "long-division", "box-method"],
     "level": "Medium"
   },
   {
-    "slug": "grade3/place_value",
-    "title": "🏗️ Grade 3 \u2022 Place Value Builder",
-    "tags": [
-      "grade3",
-      "place-value",
-      "interactive",
-      "blocks",
-      "visual",
-      "shaan",
-      "aarushi",
-      "srinika",
-      "sanvika"
-    ],
-    "level": "Easy"
-  },
-  {
-    "slug": "grade3/fractions_like_denom",
-    "title": "Grade 3 \u2022 Fractions (Like Denominators)",
-    "tags": [
-      "grade3",
-      "fractions",
-      "shaan",
-      "aarushi",
-      "srinika",
-      "sanvika"
-    ],
+    "slug": "statistics/interpretScatterPlot",
+    "title": "Statistics  Interpret Scatter Plot",
+    "tags": ["statistics", "scatter-plot"],
     "level": "Medium"
   },
   {
-    "slug": "grade3/distributive_property",
-    "title": "🧮 Grade 3 \u2022 Distributive Property - Array of Dots",
-    "tags": [
-      "grade3",
-      "distributive-property",
-      "arrays",
-      "multiplication",
-      "interactive",
-      "visual",
-      "dots",
-      "shaan",
-      "aarushi",
-      "srinika",
-      "sanvika"
-    ],
+    "slug": "statistics/scatterplotInterpretOutlier",
+    "title": "Statistics  Scatter Plot with Outliers",
+    "tags": ["statistics", "scatter-plot", "outliers"],
     "level": "Medium"
-  },
-  {
-    "slug": "grade3/fraction",
-    "title": "🍕 Grade 3 \u2022 Fraction Like Denominators",
-    "tags": [
-      "grade3",
-      "fractions",
-      "pizza",
-      "visual",
-      "interactive",
-      "shaded-parts",
-      "cartoon",
-      "animation",
-      "shaan",
-      "aarushi",
-      "srinika",
-      "sanvika"
-    ],
-    "level": "Easy"
-  },
-  {
-    "slug": "grade7/integers",
-    "title": "🎯 Grade 7 \u2022 Integer Counter Lab",
-    "tags": [
-      "grade7",
-      "integers",
-      "counters",
-      "zero-pairs",
-      "interactive",
-      "visual"
-    ],
-    "level": "Medium"
-  },
-  {
-    "slug": "geometry/Angles/index",
-    "title": "🧭 Grade 9 \u2022 Geometry Lab: Angles",
-    "tags": [
-      "grade9",
-      "geometry",
-      "angles",
-      "proofs",
-      "construction",
-      "measurement",
-      "interactive",
-      "comprehensive"
-    ],
-    "level": "Hard"
-  },
-  {
-    "slug": "geometry/Angle/angle",
-    "title": "🎵 Geometry Jive: Angle Adventure",
-    "tags": [
-      "geometry",
-      "angles",
-      "vocabulary",
-      "measurement",
-      "interactive",
-      "learn-practice",
-      "comprehensive",
-      "mascot"
-    ],
-    "level": "Hard"
-  },
-  {
-    "slug": "geometry/PartsOfACircle",
-    "title": "⭕ Parts of a Circle - Geometry Fun!",
-    "tags": [
-      "geometry",
-      "circles",
-      "radius",
-      "diameter",
-      "chord",
-      "tangent",
-      "secant",
-      "interactive",
-      "explore-practice"
-    ],
-    "level": "Medium"
-  },
-  {
-    "slug": "grade3/tableWorksheet",
-    "title": "🧮 Grade 3 • Multiplication Table Worksheet",
-    "tags": [
-      "grade3",
-      "multiplication",
-      "tables",
-      "worksheet",
-      "interactive",
-      "cartoon",
-      "practice",
-      "shaan",
-      "aarushi",
-      "srinika",
-      "sanvika"
-    ],
-    "level": "Medium"
-  }
-  ,
-  {
-    "slug": "grade3/grade3Mega",
-    "title": "🎉 Grade 3 • Mega Practice Pack",
-    "tags": ["grade3","mega","practice","mixed-topics","shaan","aarushi","srinika","sanvika"],
-    "level": "Medium"
-  }
-  ,
-  {
-    "slug": "chess/bishopEndgame",
-    "title": "♟️ Chess • Two Bishops Mate Trainer",
-    "tags": [
-      "chess",
-      "endgame",
-      "bishops",
-      "training",
-      "interactive",
-      "puzzle"
-    ],
-    "level": "Medium"
-  }
-  ,
-  {
-    "slug": "abacus/Soroban",
-    "title": "🧮 Soroban Kids • Interactive Abacus",
-    "tags": [
-      "abacus",
-      "soroban",
-      "counting",
-      "place-value",
-      "interactive",
-      "visual",
-      "practice"
-    ],
-    "level": "Easy"
   },
   {
     "slug": "dotTheory/dotTheory",
-    "title": "Dot Theory • Visual Math",
-    "tags": ["dotTheory", "visual", "math", "theory"],
+    "title": "Dot Theory  Visual Math",
+    "tags": ["dotTheory", "visual"],
     "level": "Medium"
-  }
-  ,
-  {
-    "slug": "grade2/numberChart",
-    "title": "Grade 2 • Number Chart Practice",
-    "tags": ["grade2", "number-chart", "numbers", "practice", "visual"],
-    "level": "Easy"
-  }
-  ,
-  {
-    "slug": "grade3/EqualGroups",
-    "title": "Grade 3 • Equal Groups: Multiply ↔ Divide",
-    "tags": ["grade3", "multiplication", "division", "equal-groups", "visual", "practice", "shaan", "aarushi", "srinika", "sanvika"],
-    "level": "Medium"
-  },{
-    "slug": "grade4/primeNumbers",
-    "title": "Satvik's Prime Adventure",
-    "tags": ["grade4", "prime-numbers", "interactive", "visual", "practice", "satvik"],
-    "level": "Medium"
-  }, {
-    "slug": "grade6/RectangularPrism",
-    "title": "📦 Grade 6 \u2022 Rectangular Prism",
-    "tags": ["grade6", "Jeffery", "satvik","geometry", "3d-shapes", "rectangular-prism", "interactive", "visual"],
-    "level": "Medium"
-  },{
-    "slug": "yuvan/Numbers/Calculation",
-    "title": "🎯 Grade 7 \u2022 Calculation",
-    "tags": ["grade7", "chapterone","numbers", "calculation", "interactive", "visual", "yuvan"],
-    "level": "Medium"
-  },{
-    "slug": "yuvan/Numbers/DivisionAndDivisibility",
-    "title": "🎯 Grade 7 \u2022 Division and Divisibility",
-    "tags": ["grade7", "chapterone","numbers", "division", "divisibility", "interactive", "visual", "yuvan"],
-    "level": "Medium"
-  },{
-    "slug": "yuvan/Numbers/negativeIntegersAndPowers",
-    "title": "🎯 Grade 7 \u2022 Negative Integers and Powers",
-    "tags": ["grade7", "chapterone","numbers", "negative-integers", "powers", "interactive", "visual", "yuvan"],
-    "level": "Medium"
-  },{
-    "slug": "python/basicPython",
-    "title": "🐍 Python First Class — Cartoon Practice",
-    "tags": ["python", "basic", "cartoon", "practice", "interactive"],
-    "level": "Easy"
-  },{
-    "slug": "python/variableInputPrint",
-    "title": "🐍 Python Variables, Input, and Print",
-    "tags": ["python", "variables", "input", "print", "interactive", "practice"],
-    "level": "Easy"
-  },{
-    "slug": "python/String",
-    "title": "🐍 Python Strings Adventure",
-    "tags": ["python", "strings", "interactive", "practice"],
-    "level": "Easy"
-  },{
-    "slug": "statistics/interpretScatterPlot",
-    "title": "📊 Statistics • Interpret Scatter Plot",
-    "tags": ["grade9","statistics", "scatter-plot", "interpretation", "interactive", "visual"],
-    "level": "Medium"
-  },{
-    "slug": "statistics/scatterplotInterpretOutlier",
-    "title": "📊 Statistics • Scatter Plot Interpretation with Outliers",
-    "tags": ["grade9","statistics", "scatter-plot", "interpretation", "outliers", "interactive", "visual"],
-    "level": "Medium"
-  },{
-    "slug":"grade7Basics/grade7PlaceValueBasics",
-    "title": "🎯 Grade 7 • Place Value Basics",
-    "tags": ["grade7", "place-value", "basics", "interactive", "visual", "Harsh", "harsh"],
-    "level": "Medium"
-  },{
-    "slug":"grade3/fractionAsAPartOfWhole",
-    "title": "Fraction as a part of whole",
-    "tags": ["grade3", "fraction", "visual", "interactive", "practice"],
-    "level": "Easy"
-  },{
-    "slug":"python/printVariableSimpleInput",
-    "title": "🐍 Python Print Variable with Simple Input",
-    "tags": ["python", "print", "variable", "input", "interactive", "practice"],
-    "level": "Easy"
-  },{
-    "slug": "python"
   }
 ]
