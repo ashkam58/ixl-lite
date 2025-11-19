@@ -470,6 +470,14 @@
       return f.num + "/" + f.den;
     }
 
+    function formatNumberAnswer(value) {
+      if (value.includes(".")) {
+        const decimals = value.split(".")[1].length;
+        return Number(value).toFixed(decimals);
+      }
+      return String(Number(value));
+    }
+
     // ------- Question generation -------
 
     let currentQuestion = null;
@@ -540,7 +548,7 @@
             const b = (x - Number(a)).toFixed(1);
             equation = `x - ${a} = ${b}`;
           }
-          answer = String(x);
+          answer = formatNumberAnswer(String(x));
           note = "One-step decimal equation. Undo the last operation.";
         } else if (diff === "medium") {
           // x / k = b   or   a·x = b
@@ -549,12 +557,12 @@
             const k = randInt(2, 9);
             const b = (x / k).toFixed(1);
             equation = `x ÷ ${k} = ${b}`;
-            answer = String(x);
+            answer = formatNumberAnswer(String(x));
           } else {
             const a = (randInt(2, 9) / 2).toFixed(1); // 1.0 to 4.5 step 0.5
             const b = (x * Number(a)).toFixed(1);
             equation = `${a}x = ${b}`;
-            answer = String(x);
+            answer = formatNumberAnswer(String(x));
           }
           note = "Remember: do the opposite operation to isolate x.";
         } else {
@@ -568,7 +576,7 @@
             const b = (Number(x) - Number(a)).toFixed(1);
             equation = `x - ${a} = ${b}`;
           }
-          answer = x;
+          answer = formatNumberAnswer(String(x));
           note = "Careful with decimal subtraction/addition.";
         }
       } else {
@@ -585,8 +593,8 @@
             c = a * x - b;
             equation = `${a}x - ${b} = ${c}`;
           }
-          answer = String(x);
-          note = "Two-step equation: undo +/− first, then divide.";
+          answer = formatNumberAnswer(String(x));
+          note = "Two-step equation: undo +/- first, then divide.";
         } else if (diff === "medium") {
           a = (randInt(2, 9) / 2).toFixed(1);
           x = randInt(1, 20);
@@ -599,7 +607,7 @@
             cNum = Number(a) * x - Number(b);
             equation = `${a}x - ${b} = ${cNum.toFixed(1)}`;
           }
-          answer = String(x);
+          answer = formatNumberAnswer(String(x));
           note = "Decimals + two steps. Be systematic.";
         } else {
           // hard: (x / k) + a = b
@@ -608,7 +616,7 @@
           const aDec = (randInt(1, 9) / 10).toFixed(1);
           const bDec = (x / k + Number(aDec)).toFixed(1);
           equation = `x ÷ ${k} + ${aDec} = ${bDec}`;
-          answer = String(x);
+          answer = formatNumberAnswer(String(x));
           note = "Clear division first, then move the decimal term.";
         }
       }
@@ -699,21 +707,31 @@
     // ------- Options builders -------
 
     function buildNumericOptions(answer, diff) {
+      const decimals = answer.includes(".") ? Math.max(1, answer.split(".")[1].length) : 0;
+      const step = decimals ? Math.pow(10, decimals) : 1;
+      const format = val => decimals ? Number(val).toFixed(decimals) : String(Math.round(val));
       const correct = Number(answer);
-      const set = new Set();
-      set.add(answer);
+      const set = new Set([format(correct)]);
 
       const spread = diff === "easy" ? 3 : diff === "medium" ? 5 : 8;
+      let attempts = 0;
 
+      while (set.size < 4 && attempts < 80) {
+        attempts++;
+        const offsetUnits = randInt(-spread * step, spread * step);
+        if (offsetUnits === 0) continue;
+        const opt = correct + offsetUnits / step;
+        set.add(format(opt));
+      }
+
+      let bump = 1;
       while (set.size < 4) {
-        const delta = randInt(-spread, spread);
-        let opt = correct + delta;
-        if (opt === correct) continue;
-        set.add(String(opt));
+        const opt = correct + bump / step;
+        set.add(format(opt));
+        bump++;
       }
 
       const arr = Array.from(set);
-      // shuffle
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -722,17 +740,28 @@
     }
 
     function buildFractionOptions(answerString, answerFrac, diff) {
-      const set = new Set();
-      set.add(answerString);
+      const set = new Set([answerString]);
+      const spread = diff === "easy" ? 1 : diff === "medium" ? 2 : 3;
+      let attempts = 0;
 
-      const spreadNum = diff === "easy" ? 1 : diff === "medium" ? 2 : 3;
+      while (set.size < 4 && attempts < 120) {
+        attempts++;
+        const num = answerFrac.num + randInt(-spread, spread);
+        const den = answerFrac.den + randInt(-spread, spread);
+        if (den === 0) continue;
+        if (num === answerFrac.num && den === answerFrac.den) continue;
+        const candidate = makeFraction(num, den);
+        if (candidate.num === 0) continue;
+        set.add(fracToString(candidate));
+      }
+
+      let bump = 1;
       while (set.size < 4) {
-        // tweak numerator a little
-        let newNum = answerFrac.num + randInt(-spreadNum, spreadNum);
-        if (newNum === answerFrac.num || newNum === 0) continue;
-        const newFrac = makeFraction(newNum, answerFrac.den);
-        const s = fracToString(newFrac);
-        if (!set.has(s)) set.add(s);
+        const fallback = makeFraction(answerFrac.num + bump, answerFrac.den + spread || 1);
+        if (fallback.num !== 0) {
+          set.add(fracToString(fallback));
+        }
+        bump++;
       }
 
       const arr = Array.from(set);
