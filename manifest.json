@@ -1,5 +1,12 @@
 ﻿[
   {
+    "slug": "abacus/beadsRecognition.html",
+    "title": "Abacus Beads Recognition",
+    "tags": ["abacus", "beads", "recognition", "interactive", "siddharth"],
+    "level":"Easy"
+
+},
+  {
     "slug": "grade4/equivalentFractionCircle",
     "title": "🍕 Grade 4 • Equivalent Fraction Circle Lab",
     "tags": ["grade4", "fractions", "equivalent", "interactive", "visual"],
