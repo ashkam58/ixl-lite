@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ashkam’s Abacus Practice Lab</title>
+<style>
+  body {
+    margin:0;
+    font-family: "Comic Sans MS", sans-serif;
+    background: linear-gradient(135deg,#ffecd2,#fcb69f);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px;
+  }
+
+  h1{
+    color:#ff0066;
+    text-shadow:2px 2px white;
+    text-align:center;
+  }
+
+  .abacus-container{
+    background:white;
+    width:95%;
+    max-width:700px;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 0 20px #ffa5c2;
+    margin-top:10px;
+  }
+
+  .rod{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:10px 0;
+  }
+
+  .label{
+    width:90px;
+    font-size:20px;
+    color:#444;
+    font-weight:bold;
+    text-align:right;
+    margin-right:15px;
+  }
+
+  .beads{
+    display:flex;
+    gap:10px;
+  }
+
+  .bead{
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    background:#ffcc00;
+    border:3px solid #ff8800;
+    cursor:pointer;
+    transition:transform 0.2s, box-shadow 0.2s;
+    box-shadow:0 0 5px rgba(0,0,0,0.2);
+  }
+  .bead.active{
+    background:#66ff66;
+    border-color:#22aa22;
+    transform:scale(1.2);
+    box-shadow:0 0 10px #66ff66;
+  }
+
+  .section{
+    margin-top:15px;
+    padding:15px;
+    background:#fff8dc;
+    border-radius:15px;
+    box-shadow:0 0 10px #ffe5a3;
+  }
+
+  #currentNumber{
+    font-size:26px;
+    font-weight:bold;
+    color:#006600;
+  }
+
+  .mode-switch{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  button{
+    padding:8px 16px;
+    background:#ff6699;
+    border:none;
+    color:white;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+    transition:0.2s;
+  }
+  button:hover{
+    background:#ff3366;
+    transform:scale(1.05);
+  }
+
+  .mode{
+    display:none;
+  }
+  .mode.active{
+    display:block;
+  }
+
+  .big-text{
+    font-size:22px;
+    margin:5px 0;
+  }
+
+  .feedback{
+    font-size:20px;
+    margin-top:8px;
+    min-height:26px;
+  }
+
+  .footer{
+    margin-top:20px;
+    font-size:18px;
+    color:#444;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎉 Ashkam’s Abacus Practice Lab 🎉</h1>
+
+<div class="abacus-container">
+
+  <!-- ABACUS RODS (Ones in the middle) -->
+  <!-- Hundreds -->
+  <div class="rod">
+    <div class="label">Hundreds</div>
+    <div class="beads" data-place="100">
+      <div class="bead"></div><div class="bead"></div><div class="bead"></div><div class="bead"></div><div class="bead"></div>
+    </div>
+  </div>
+
+  <!-- Ones in middle -->
+  <div class="rod">
+    <div class="label">Ones</div>
+    <div class="beads" data-place="1">
+      <div class="bead"></div><div class="bead"></div><div class="bead"></div><div class="bead"></div><div class="bead"></div>
+    </div>
+  </div>
+
+  <!-- Tens -->
+  <div class="rod">
+    <div class="label">Tens</div>
+    <div class="beads" data-place="10">
+      <div class="bead"></div><div class="bead"></div><div class="bead"></div><div class="bead"></div><div class="bead"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <div class="big-text">Abacus Shows:</div>
+  <div id="currentNumber">0</div>
+</div>
+
+<div class="mode-switch">
+  <button onclick="setMode('free')">🧸 Free Play</button>
+  <button onclick="setMode('make')">🎯 Make This Number</button>
+  <button onclick="setMode('add')">➕ No-Carry Addition</button>
+</div>
+
+<!-- FREE PLAY MODE -->
+<div class="section mode" id="mode-free">
+  <h2>🧸 Free Play – Counting & Making Numbers</h2>
+  <p>Tap beads to explore numbers. Ask the student:</p>
+  <ul>
+    <li>“Can you make 7?”</li>
+    <li>“Can you show 23?”</li>
+    <li>“What number is this?” (You set beads, student reads.)</li>
+  </ul>
+</div>
+
+<!-- MAKE THE NUMBER MODE -->
+<div class="section mode" id="mode-make">
+  <h2>🎯 Make This Number</h2>
+  <p class="big-text">Target Number: <span id="targetNumber">0</span></p>
+  <button onclick="newTarget()">New Number</button>
+  <button onclick="checkMakeNumber()">Check from Abacus</button>
+  <div id="makeFeedback" class="feedback"></div>
+</div>
+
+<!-- ADDITION MODE (NO CARRY, ONES ROD) -->
+<div class="section mode" id="mode-add">
+  <h2>➕ No-Carry Addition (Ones Place)</h2>
+  <p id="addQuestion" class="big-text"></p>
+  <p id="addInstruction">
+    Step 1: Abacus shows the first number.  
+    Step 2: Tap more beads on the <b>ONES</b> rod to add the second number.  
+    Step 3: Click “Check from Abacus”.
+  </p>
+  <button onclick="checkAdditionFromAbacus()">Check from Abacus</button>
+  <button onclick="newAddition()">New Question</button>
+  <div id="addFeedback" class="feedback"></div>
+</div>
+
+<div class="footer">
+  📞 Contact: <b>918002416363</b><br>
+  Designed for kids to fall in love with numbers 💚
+</div>
+
+<script>
+/* ========= Confetti ========= */
+function confettiBurst(){
+  for(let i=0;i<40;i++){
+    let c=document.createElement("div");
+    c.style.position="fixed";
+    c.style.left=Math.random()*100+"%";
+    c.style.top="-20px";
+    c.style.width="10px";
+    c.style.height="10px";
+    c.style.background=`hsl(${Math.random()*360},100%,50%)`;
+    c.style.borderRadius="50%";
+    c.style.pointerEvents="none";
+    c.style.zIndex="9999";
+    c.style.animation=`fall ${1+Math.random()*2}s linear`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),3000);
+  }
+}
+
+let style = document.createElement('style');
+style.innerHTML = `
+@keyframes fall{
+  to{ transform:translateY(120vh) rotate(720deg); }
+}`;
+document.head.appendChild(style);
+
+/* ========= ABACUS LOGIC ========= */
+function getAbacusValue(){
+  let total=0;
+  document.querySelectorAll(".beads").forEach(line=>{
+    let place = Number(line.dataset.place);
+    let count = line.querySelectorAll(".bead.active").length;
+    total+=count*place;
+  });
+  return total;
+}
+
+function updateNumber(){
+  let total = getAbacusValue();
+  document.getElementById("currentNumber").innerText = total;
+}
+
+function resetAbacus(){
+  document.querySelectorAll(".bead").forEach(b=>b.classList.remove("active"));
+  updateNumber();
+}
+
+document.querySelectorAll(".beads").forEach(beadLine=>{
+  beadLine.querySelectorAll(".bead").forEach(bead=>{
+    bead.addEventListener("click",()=>{
+      bead.classList.toggle("active");
+      updateNumber();
+    });
+  });
+});
+
+/* ========= MODES ========= */
+let currentMode = "free";
+
+function setMode(mode){
+  currentMode = mode;
+  document.querySelectorAll(".mode").forEach(m=>m.classList.remove("active"));
+  document.getElementById("mode-"+mode).classList.add("active");
+
+  // Clear feedback and reset
+  document.getElementById("makeFeedback").innerText="";
+  document.getElementById("addFeedback").innerText="";
+  resetAbacus();
+
+  if(mode==="make") newTarget();
+  if(mode==="add") newAddition();
+}
+
+/* ========= MAKE THIS NUMBER MODE ========= */
+let targetNumber = 0;
+
+function newTarget(){
+  // Max 555 because 5 beads on each rod
+  targetNumber = Math.floor(Math.random()*556); // 0–555
+  document.getElementById("targetNumber").innerText = targetNumber;
+  document.getElementById("makeFeedback").innerText = "Use the beads to match this number.";
+}
+
+function checkMakeNumber(){
+  let val = getAbacusValue();
+  if(val === targetNumber){
+    document.getElementById("makeFeedback").innerText = "Perfect! 🎉 Number matched.";
+    confettiBurst();
+    newTarget();
+  } else {
+    document.getElementById("makeFeedback").innerText = 
+      "Not yet. Abacus shows "+val+". Try again!";
+  }
+}
+
+/* ========= ADDITION MODE (NO CARRY ONES) ========= */
+let addA = 0, addB = 0;
+
+function newAddition(){
+  resetAbacus();
+  // Choose a,b between 0 and 5 such that a+b ≤ 5 (no carry on ones rod)
+  addA = Math.floor(Math.random()*6); // 0-5
+  let maxB = 5 - addA;
+  addB = Math.floor(Math.random()*(maxB+1)); // 0..maxB
+  if(addA===0 && addB===0){ return newAddition(); } // avoid 0+0
+
+  document.getElementById("addQuestion").innerText = addA + " + " + addB + " = ?";
+  document.getElementById("addFeedback").innerText = "";
+  
+  // Preload first number on ONES rod
+  const onesLine = document.querySelector('.beads[data-place="1"]');
+  onesLine.querySelectorAll('.bead').forEach((bead, idx)=>{
+    bead.classList.toggle('active', idx < addA);
+  });
+  updateNumber();
+
+  document.getElementById("addInstruction").innerHTML =
+    "Abacus shows the first number: <b>"+addA+"</b> on the ONES rod.<br>" +
+    "Tap more beads on ONES to add <b>"+addB+"</b>. Then click “Check from Abacus”.";
+}
+
+function checkAdditionFromAbacus(){
+  let val = getAbacusValue();
+  let correct = addA + addB;
+  if(val === correct){
+    document.getElementById("addFeedback").innerText = 
+      "Yes! "+addA+" + "+addB+" = "+correct+" ✅";
+    confettiBurst();
+    newAddition();
+  } else {
+    document.getElementById("addFeedback").innerText = 
+      "Not correct yet. Abacus shows "+val+". Count the beads on ONES again.";
+  }
+}
+
+/* ========= INIT ========= */
+setMode("free");
+</script>
+
+</body>
+</html>
