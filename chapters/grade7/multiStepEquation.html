@@ -1,0 +1,475 @@
+<!-- import React, { useState, useEffect } from 'react';
+import { Check, HelpCircle, ArrowRight, ArrowLeft, RefreshCw, Star, X } from 'lucide-react';
+
+const problems = [
+  {
+    id: 1,
+    question: "3t + 5t - 5 = 11",
+    variable: "t",
+    numericAnswer: 2,
+    steps: [
+      "Combine the t terms: 3t + 5t becomes 8t",
+      "New equation: 8t - 5 = 11",
+      "Add 5 to both sides: 8t = 16",
+      "Divide by 8: t = 2"
+    ]
+  },
+  {
+    id: 2,
+    question: "5a + 3(a + 2) = 22",
+    variable: "a",
+    numericAnswer: 2,
+    steps: [
+      "Distribute the 3: 3(a + 2) becomes 3a + 6",
+      "New equation: 5a + 3a + 6 = 22",
+      "Combine 'a' terms: 8a + 6 = 22",
+      "Subtract 6 from both sides: 8a = 16",
+      "Divide by 8: a = 2"
+    ]
+  },
+  {
+    id: 3,
+    question: "40 = 2(10 + 4k) + 2k",
+    variable: "k",
+    numericAnswer: 2,
+    steps: [
+      "Distribute the 2: 2(10 + 4k) becomes 20 + 8k",
+      "New equation: 40 = 20 + 8k + 2k",
+      "Combine k terms: 40 = 20 + 10k",
+      "Subtract 20 from both sides: 20 = 10k",
+      "Divide by 10: k = 2"
+    ]
+  },
+  {
+    id: 4,
+    question: "2x + 7(x - 3) = 6",
+    variable: "x",
+    numericAnswer: 3,
+    steps: [
+      "Distribute the 7: 7(x - 3) becomes 7x - 21",
+      "New equation: 2x + 7x - 21 = 6",
+      "Combine x terms: 9x - 21 = 6",
+      "Add 21 to both sides: 9x = 27",
+      "Divide by 9: x = 3"
+    ]
+  },
+  {
+    id: 5,
+    question: "3w + 4 + w = 36",
+    variable: "w",
+    numericAnswer: 8,
+    steps: [
+      "Combine w terms: 3w + w becomes 4w",
+      "New equation: 4w + 4 = 36",
+      "Subtract 4 from both sides: 4w = 32",
+      "Divide by 4: w = 8"
+    ]
+  },
+  {
+    id: 6,
+    question: "9d - 4d - 2 = 18",
+    variable: "d",
+    numericAnswer: 4,
+    steps: [
+      "Combine d terms: 9d - 4d becomes 5d",
+      "New equation: 5d - 2 = 18",
+      "Add 2 to both sides: 5d = 20",
+      "Divide by 5: d = 4"
+    ]
+  },
+  {
+    id: 7,
+    question: "2x + 3(2x - 4) = 4",
+    variable: "x",
+    numericAnswer: 2,
+    steps: [
+      "Distribute the 3: 3(2x - 4) becomes 6x - 12",
+      "New equation: 2x + 6x - 12 = 4",
+      "Combine x terms: 8x - 12 = 4",
+      "Add 12 to both sides: 8x = 16",
+      "Divide by 8: x = 2"
+    ]
+  },
+  {
+    id: 8,
+    question: "3x + 4(x - 3) = 2",
+    variable: "x",
+    numericAnswer: 2,
+    steps: [
+      "Distribute the 4: 4(x - 3) becomes 4x - 12",
+      "New equation: 3x + 4x - 12 = 2",
+      "Combine x terms: 7x - 12 = 2",
+      "Add 12 to both sides: 7x = 14",
+      "Divide by 7: x = 2"
+    ]
+  },
+  {
+    id: 9,
+    question: "-5x + 6(x - 2) = 15",
+    variable: "x",
+    numericAnswer: 27,
+    steps: [
+      "Distribute the 6: 6(x - 2) becomes 6x - 12",
+      "New equation: -5x + 6x - 12 = 15",
+      "Combine x terms: -5x + 6x becomes x",
+      "New equation: x - 12 = 15",
+      "Add 12 to both sides: x = 27"
+    ]
+  },
+  {
+    id: 10,
+    question: "5(6x - 4) - 12x + 8 = 24",
+    variable: "x",
+    numericAnswer: 2,
+    steps: [
+      "Distribute the 5: 5(6x - 4) becomes 30x - 20",
+      "New equation: 30x - 20 - 12x + 8 = 24",
+      "Combine x terms: 30x - 12x = 18x",
+      "Combine constants: -20 + 8 = -12",
+      "New equation: 18x - 12 = 24",
+      "Add 12 to both sides: 18x = 36",
+      "Divide by 18: x = 2"
+    ]
+  },
+  {
+    id: 11,
+    question: "-5(-8x + 6x) = 30",
+    variable: "x",
+    numericAnswer: 3,
+    steps: [
+      "Combine terms inside parentheses first: -8x + 6x = -2x",
+      "New equation: -5(-2x) = 30",
+      "Multiply: 10x = 30",
+      "Divide by 10: x = 3"
+    ]
+  },
+  {
+    id: 12,
+    question: "6(k - 4) - 3k = -15",
+    variable: "k",
+    numericAnswer: 3,
+    steps: [
+      "Distribute the 6: 6(k - 4) becomes 6k - 24",
+      "New equation: 6k - 24 - 3k = -15",
+      "Combine k terms: 6k - 3k = 3k",
+      "New equation: 3k - 24 = -15",
+      "Add 24 to both sides: 3k = 9",
+      "Divide by 3: k = 3"
+    ]
+  },
+  {
+    id: 13,
+    question: "-9h + 4(h - 3) = 3",
+    variable: "h",
+    numericAnswer: -3,
+    steps: [
+      "Distribute the 4: 4(h - 3) becomes 4h - 12",
+      "New equation: -9h + 4h - 12 = 3",
+      "Combine h terms: -5h - 12 = 3",
+      "Add 12 to both sides: -5h = 15",
+      "Divide by -5: h = -3"
+    ]
+  },
+  {
+    id: 14,
+    question: "-5(2v + 6) - 6v = 2",
+    variable: "v",
+    numericAnswer: -2,
+    steps: [
+      "Distribute the -5: -5(2v + 6) becomes -10v - 30",
+      "New equation: -10v - 30 - 6v = 2",
+      "Combine v terms: -10v - 6v = -16v",
+      "New equation: -16v - 30 = 2",
+      "Add 30 to both sides: -16v = 32",
+      "Divide by -16: v = -2"
+    ]
+  },
+  {
+    id: 15,
+    question: "-6(q - 2) + 5(2q + 4) = 10",
+    variable: "q",
+    numericAnswer: -5.5,
+    steps: [
+      "Distribute the -6: -6(q - 2) becomes -6q + 12",
+      "Distribute the 5: 5(2q + 4) becomes 10q + 20",
+      "New equation: -6q + 12 + 10q + 20 = 10",
+      "Combine q terms: -6q + 10q = 4q",
+      "Combine constants: 12 + 20 = 32",
+      "New equation: 4q + 32 = 10",
+      "Subtract 32 from both sides: 4q = -22",
+      "Divide by 4: q = -5.5 (or -11/2)"
+    ]
+  },
+  {
+    id: 16,
+    question: "15 = 2(n + 7) - 21",
+    variable: "n",
+    numericAnswer: 11,
+    steps: [
+      "Distribute the 2: 2(n + 7) becomes 2n + 14",
+      "New equation: 15 = 2n + 14 - 21",
+      "Combine constants: 14 - 21 = -7",
+      "New equation: 15 = 2n - 7",
+      "Add 7 to both sides: 22 = 2n",
+      "Divide by 2: n = 11"
+    ]
+  }
+]; -->
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Equation Quest — HTML/CSS/JS</title>
+    <style>
+        :root{--black:#000;--bg:#fff;--muted:#94a3b8;--green:#16a34a;--red:#ef4444;--blue:#0ea5e9;--yellow:#f59e0b}
+        *{box-sizing:border-box}
+        body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; background:#fef3c7; margin:0; padding:24px; display:flex; align-items:center; justify-content:center; min-height:100vh}
+        .wrap{max-width:880px; width:100%}
+        .header{background:#fff; border:6px solid var(--black); border-radius:18px; padding:28px; position:relative; text-align:center; margin-bottom:20px; box-shadow:8px 8px 0 rgba(0,0,0,1)}
+        .header .bar{position:absolute; left:0; top:0; width:100%; height:12px; background:#fb7185; border-bottom:4px solid var(--black)}
+        .header h1{margin:8px 0 6px; font-size:34px; letter-spacing:1px; font-weight:900}
+        .header p{margin:0; color:#475569; font-weight:700}
+        .streak{position:absolute; right:20px; top:18px; background:#fde68a; border:3px solid var(--black); padding:6px 10px; border-radius:999px; font-weight:800; display:flex; gap:8px; align-items:center; transform:rotate(3deg)}
+        .card{background:#fff; border:6px solid var(--black); border-radius:28px; padding:28px; box-shadow:12px 12px 0 rgba(0,0,0,1); position:relative; transition:all .25s}
+        .problemBox{background:#dbeafe; border:6px solid #7dd3fc; border-radius:12px; padding:22px; text-align:center}
+        .question{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; font-weight:900; font-size:34px; color:#075985}
+        .inputRow{display:flex; gap:12px; align-items:center; justify-content:center; margin:18px 0; flex-wrap:wrap}
+        .varLabel{font-size:22px; font-weight:800; color:#334155}
+        .answerInput{width:120px; padding:10px; font-size:22px; border-radius:8px; border:6px solid var(--black); background:#f1f5f9; text-align:center; outline:none; box-shadow:4px 4px 0 rgba(0,0,0,0.12)}
+        .btnCheck{padding:10px 18px; border-radius:12px; border:6px solid var(--black); font-weight:900; background: #34d399; cursor:pointer; box-shadow:4px 4px 0 rgba(0,0,0,1)}
+        .btnCheck[disabled]{opacity:.6; cursor:default; transform:none}
+        .feedback{position:absolute; right:18px; top:18px}
+        .fbBox{padding:8px 12px; border-radius:10px; border:3px solid var(--black); font-weight:800; display:flex; gap:8px; align-items:center}
+        .fbCorrect{background:#16a34a; color:#fff}
+        .fbWrong{background:#ef4444; color:#fff}
+        .actions{display:flex; justify-content:space-between; align-items:center; margin-top:14px; border-top:4px solid #f1f5f9; padding-top:16px; gap:12px; flex-wrap:wrap}
+        .linkBtn{background:transparent; border:none; cursor:pointer; font-weight:800; color:#475569; display:flex; gap:8px; align-items:center}
+        .navBtns{display:flex; gap:10px}
+        .navBtn{padding:10px; border-radius:10px; border:6px solid var(--black); background:#fff; cursor:pointer; box-shadow:4px 4px 0 rgba(0,0,0,1)}
+        .navBtn.disabled{opacity:.5; cursor:default; box-shadow:none}
+        .solution{margin-top:16px; background:#f8fafc; border:6px solid #e2e8f0; border-radius:12px; padding:16px}
+        .solution h3{font-weight:900; margin:0 0 12px; display:flex; align-items:center; gap:10px}
+        .steps{display:flex; flex-direction:column; gap:10px}
+        .final{margin-top:12px; font-weight:900; color:#059669}
+        .progressWrap{margin-top:18px}
+        .progressBar{height:36px; background:#fff; border:6px solid var(--black); border-radius:999px; overflow:hidden; box-shadow:4px 4px 0 rgba(0,0,0,1)}
+        .progressFill{height:100%; background:#86efac; border-right:6px solid var(--black); transition:width .4s}
+        .small{font-size:12px; color:#64748b; display:flex; justify-content:space-between; font-weight:800; margin-top:8px}
+        /* dynamic border color helper */
+        .border-green{border-color:#34d399 !important}
+        .border-red{border-color:#ef4444 !important}
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="header">
+            <div class="bar"></div>
+            <h1>Equation <span style="color:#3b82f6">Quest</span></h1>
+            <p id="levelText">Level 1</p>
+            <div class="streak">★ <span id="streak">0</span></div>
+        </div>
+
+        <div id="card" class="card">
+            <div class="problemBox">
+                <div class="question" id="question">3t + 5t - 5 = 11</div>
+            </div>
+
+            <div class="inputRow">
+                <div class="varLabel"><span id="variable">t</span> =</div>
+                <input id="answer" class="answerInput" placeholder="?" />
+                <button id="checkBtn" class="btnCheck">Check</button>
+            </div>
+
+            <div class="feedback" id="feedbackArea"></div>
+
+            <div class="actions">
+                <button id="toggleSolution" class="linkBtn">? Show Solution</button>
+
+                <div class="navBtns">
+                    <button id="prevBtn" class="navBtn">◀</button>
+                    <button id="nextBtn" class="navBtn" style="background:#fde68a;border-color:var(--black)">▶</button>
+                </div>
+            </div>
+
+            <div id="solutionArea" style="display:none" class="solution">
+                <h3>Step-by-Step</h3>
+                <div id="steps" class="steps"></div>
+                <div id="finalAnswer" class="final"></div>
+            </div>
+        </div>
+
+        <div class="progressWrap">
+            <div class="progressBar">
+                <div id="progressFill" class="progressFill" style="width:0%"></div>
+            </div>
+            <div class="small"><span>Start</span><span>Finish</span></div>
+        </div>
+    </div>
+
+    <script>
+        // problems array (copied from your original React code)
+        const problems = [
+            { id:1, question:"3t + 5t - 5 = 11", variable:"t", numericAnswer:2, steps:["Combine the t terms: 3t + 5t becomes 8t","New equation: 8t - 5 = 11","Add 5 to both sides: 8t = 16","Divide by 8: t = 2"] },
+            { id:2, question:"5a + 3(a + 2) = 22", variable:"a", numericAnswer:2, steps:["Distribute the 3: 3(a + 2) becomes 3a + 6","New equation: 5a + 3a + 6 = 22","Combine 'a' terms: 8a + 6 = 22","Subtract 6 from both sides: 8a = 16","Divide by 8: a = 2"] },
+            { id:3, question:"40 = 2(10 + 4k) + 2k", variable:"k", numericAnswer:2, steps:["Distribute the 2: 2(10 + 4k) becomes 20 + 8k","New equation: 40 = 20 + 8k + 2k","Combine k terms: 40 = 20 + 10k","Subtract 20 from both sides: 20 = 10k","Divide by 10: k = 2"] },
+            { id:4, question:"2x + 7(x - 3) = 6", variable:"x", numericAnswer:3, steps:["Distribute the 7: 7(x - 3) becomes 7x - 21","New equation: 2x + 7x - 21 = 6","Combine x terms: 9x - 21 = 6","Add 21 to both sides: 9x = 27","Divide by 9: x = 3"] },
+            { id:5, question:"3w + 4 + w = 36", variable:"w", numericAnswer:8, steps:["Combine w terms: 3w + w becomes 4w","New equation: 4w + 4 = 36","Subtract 4 from both sides: 4w = 32","Divide by 4: w = 8"] },
+            { id:6, question:"9d - 4d - 2 = 18", variable:"d", numericAnswer:4, steps:["Combine d terms: 9d - 4d becomes 5d","New equation: 5d - 2 = 18","Add 2 to both sides: 5d = 20","Divide by 5: d = 4"] },
+            { id:7, question:"2x + 3(2x - 4) = 4", variable:"x", numericAnswer:2, steps:["Distribute the 3: 3(2x - 4) becomes 6x - 12","New equation: 2x + 6x - 12 = 4","Combine x terms: 8x - 12 = 4","Add 12 to both sides: 8x = 16","Divide by 8: x = 2"] },
+            { id:8, question:"3x + 4(x - 3) = 2", variable:"x", numericAnswer:2, steps:["Distribute the 4: 4(x - 3) becomes 4x - 12","New equation: 3x + 4x - 12 = 2","Combine x terms: 7x - 12 = 2","Add 12 to both sides: 7x = 14","Divide by 7: x = 2"] },
+            { id:9, question:"-5x + 6(x - 2) = 15", variable:"x", numericAnswer:27, steps:["Distribute the 6: 6(x - 2) becomes 6x - 12","New equation: -5x + 6x - 12 = 15","Combine x terms: -5x + 6x becomes x","New equation: x - 12 = 15","Add 12 to both sides: x = 27"] },
+            { id:10, question:"5(6x - 4) - 12x + 8 = 24", variable:"x", numericAnswer:2, steps:["Distribute the 5: 5(6x - 4) becomes 30x - 20","New equation: 30x - 20 - 12x + 8 = 24","Combine x terms: 30x - 12x = 18x","Combine constants: -20 + 8 = -12","New equation: 18x - 12 = 24","Add 12 to both sides: 18x = 36","Divide by 18: x = 2"] },
+            { id:11, question:"-5(-8x + 6x) = 30", variable:"x", numericAnswer:3, steps:["Combine terms inside parentheses first: -8x + 6x = -2x","New equation: -5(-2x) = 30","Multiply: 10x = 30","Divide by 10: x = 3"] },
+            { id:12, question:"6(k - 4) - 3k = -15", variable:"k", numericAnswer:3, steps:["Distribute the 6: 6(k - 4) becomes 6k - 24","New equation: 6k - 24 - 3k = -15","Combine k terms: 6k - 3k = 3k","New equation: 3k - 24 = -15","Add 24 to both sides: 3k = 9","Divide by 3: k = 3"] },
+            { id:13, question:"-9h + 4(h - 3) = 3", variable:"h", numericAnswer:-3, steps:["Distribute the 4: 4(h - 3) becomes 4h - 12","New equation: -9h + 4h - 12 = 3","Combine h terms: -5h - 12 = 3","Add 12 to both sides: -5h = 15","Divide by -5: h = -3"] },
+            { id:14, question:"-5(2v + 6) - 6v = 2", variable:"v", numericAnswer:-2, steps:["Distribute the -5: -5(2v + 6) becomes -10v - 30","New equation: -10v - 30 - 6v = 2","Combine v terms: -10v - 6v = -16v","New equation: -16v - 30 = 2","Add 30 to both sides: -16v = 32","Divide by -16: v = -2"] },
+            { id:15, question:"-6(q - 2) + 5(2q + 4) = 10", variable:"q", numericAnswer:-5.5, steps:["Distribute the -6: -6(q - 2) becomes -6q + 12","Distribute the 5: 5(2q + 4) becomes 10q + 20","New equation: -6q + 12 + 10q + 20 = 10","Combine q terms: -6q + 10q = 4q","Combine constants: 12 + 20 = 32","New equation: 4q + 32 = 10","Subtract 32 from both sides: 4q = -22","Divide by 4: q = -5.5 (or -11/2)"] },
+            { id:16, question:"15 = 2(n + 7) - 21", variable:"n", numericAnswer:11, steps:["Distribute the 2: 2(n + 7) becomes 2n + 14","New equation: 15 = 2n + 14 - 21","Combine constants: 14 - 21 = -7","New equation: 15 = 2n - 7","Add 7 to both sides: 22 = 2n","Divide by 2: n = 11"] }
+        ];
+
+        // state
+        let currentIdx = 0;
+        let inputValue = '';
+        let feedback = null; // 'correct'|'incorrect'|null
+        let showSolution = false;
+        let streak = 0;
+
+        // elements
+        const questionEl = document.getElementById('question');
+        const variableEl = document.getElementById('variable');
+        const answerEl = document.getElementById('answer');
+        const checkBtn = document.getElementById('checkBtn');
+        const feedbackArea = document.getElementById('feedbackArea');
+        const toggleSolutionBtn = document.getElementById('toggleSolution');
+        const solutionArea = document.getElementById('solutionArea');
+        const stepsEl = document.getElementById('steps');
+        const finalAnswerEl = document.getElementById('finalAnswer');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressFill = document.getElementById('progressFill');
+        const levelText = document.getElementById('levelText');
+        const streakEl = document.getElementById('streak');
+        const cardEl = document.getElementById('card');
+
+        function render() {
+            const p = problems[currentIdx];
+            questionEl.textContent = p.question;
+            variableEl.textContent = p.variable;
+            answerEl.value = inputValue;
+            levelText.textContent = `Level ${currentIdx + 1} of ${problems.length}`;
+            streakEl.textContent = streak;
+
+            // feedback visuals
+            cardEl.classList.remove('border-green','border-red');
+            feedbackArea.innerHTML = '';
+            if (feedback === 'correct') {
+                cardEl.classList.add('border-green');
+                const box = document.createElement('div');
+                box.className = 'fbBox fbCorrect';
+                box.textContent = '✓ Correct!';
+                feedbackArea.appendChild(box);
+                checkBtn.disabled = true;
+            } else if (feedback === 'incorrect') {
+                cardEl.classList.add('border-red');
+                const box = document.createElement('div');
+                box.className = 'fbBox fbWrong';
+                box.textContent = '✕ Try Again';
+                feedbackArea.appendChild(box);
+                checkBtn.disabled = false;
+            } else {
+                checkBtn.disabled = false;
+            }
+
+            // solution area
+            if (showSolution) {
+                solutionArea.style.display = 'block';
+                stepsEl.innerHTML = '';
+                p.steps.forEach((s,i) => {
+                    const div = document.createElement('div');
+                    div.style.display = 'flex';
+                    div.style.gap = '10px';
+                    div.innerHTML = `<strong style="color:#94a3b8">${i+1}.</strong><div>${s}</div>`;
+                    stepsEl.appendChild(div);
+                });
+                finalAnswerEl.textContent = `Final Answer: ${p.variable} = ${p.numericAnswer}`;
+                toggleSolutionBtn.textContent = '? Hide Solution';
+            } else {
+                solutionArea.style.display = 'none';
+                toggleSolutionBtn.textContent = '? Show Solution';
+            }
+
+            // nav buttons
+            prevBtn.classList.toggle('disabled', currentIdx === 0);
+            nextBtn.classList.toggle('disabled', currentIdx === problems.length - 1);
+
+            // progress
+            progressFill.style.width = `${((currentIdx + 1)/problems.length)*100}%`;
+        }
+
+        function parseInput(raw) {
+            if (!raw && raw !== 0) return null;
+            const s = String(raw).trim().replace(/\s/g,'');
+            if (s.includes('/')) {
+                const parts = s.split('/');
+                if (parts.length === 2 && parts[0] !== '' && parts[1] !== '') {
+                    const num = parseFloat(parts[0]);
+                    const den = parseFloat(parts[1]);
+                    if (!isNaN(num) && !isNaN(den) && den !== 0) return num/den;
+                }
+            }
+            const val = parseFloat(s);
+            return isNaN(val) ? null : val;
+        }
+
+        function handleCheck() {
+            const user = parseInput(answerEl.value);
+            if (user === null) return;
+            const correct = problems[currentIdx].numericAnswer;
+            if (Math.abs(user - correct) < 0.01) {
+                feedback = 'correct';
+                streak += 1;
+            } else {
+                feedback = 'incorrect';
+                streak = 0;
+            }
+            inputValue = answerEl.value;
+            render();
+        }
+
+        function resetState() {
+            inputValue = '';
+            feedback = null;
+            showSolution = false;
+            answerEl.value = '';
+        }
+
+        function handleNext() {
+            if (currentIdx < problems.length - 1) {
+                currentIdx++;
+                resetState();
+                render();
+            }
+        }
+
+        function handlePrev() {
+            if (currentIdx > 0) {
+                currentIdx--;
+                resetState();
+                render();
+            }
+        }
+
+        // events
+        checkBtn.addEventListener('click', handleCheck);
+        nextBtn.addEventListener('click', handleNext);
+        prevBtn.addEventListener('click', handlePrev);
+        toggleSolutionBtn.addEventListener('click', () => { showSolution = !showSolution; render(); });
+        answerEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleCheck(); });
+
+        // initial render
+        render();
+    </script>
+</body>
+</html>

@@ -1,5 +1,11 @@
 ﻿[
   {
+    "slug":"grade7/multiStepEquation",
+    "title": "Grade 7 • Multi Step Equation",
+    "tags": ["grade7", "equations", "multi-step", "interactive"],
+    "level": "Medium"
+  },
+  {
     "slug": "abacus/abacusLab",
     "title": "Abacus Lab",
     "level": "Easy",
