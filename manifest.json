@@ -1,5 +1,11 @@
 ﻿[
   {
+    "slug": "grade7/angleLab",
+    "title": "🎯 Grade 7 • Angle Detective Lab",
+    "tags": ["grade7", "angles", "geometry", "interactive", "sajeev"],
+    "level": "Medium"
+  },
+  {
     "slug": "python/pythonDrillLeetcode",
     "title": "🐍 Python Coding Interview Drill Lab",
     "tags": ["python", "interview", "leetcode", "drills", "anish"],
