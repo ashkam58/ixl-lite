@@ -1,5 +1,11 @@
 ﻿[
   {
+    "slug": "abacus/abacusLab",
+    "title": "Abacus Lab",
+    "level": "Easy",
+    "tags": ["abacus", "interactive", "practice", "siddharth"]
+  },
+  {
     "slug": "abacus/beadsRecognition",
     "title": "Abacus Beads Recognition",
     "tags": ["abacus", "beads", "recognition", "interactive", "siddharth"],
