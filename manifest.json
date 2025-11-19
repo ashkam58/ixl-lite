@@ -1,4 +1,10 @@
 ﻿[
+  {
+    "slug": "python/pythonDrillLeetcode",
+    "title": "🐍 Python Coding Interview Drill Lab",
+    "tags": ["python", "interview", "leetcode", "drills", "anish"],
+    "level": "Hard"
+  },
 
   {
     "slug": "python/leetCodePlacement",

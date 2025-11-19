@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Python Coding Interview Drill Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #f97316;
+      --accent-soft: #fed7aa;
+      --accent-2: #22c55e;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top, #1d2538 0, #020617 55%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #22c55e33, #f9731633);
+      border-radius: 24px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      border: 1px solid #22c55e44;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "💻";
+      font-size: 90px;
+      position: absolute;
+      right: -10px;
+      bottom: -22px;
+      opacity: 0.15;
+      transform: rotate(-10deg);
+    }
+
+    .hero-main {
+      flex: 1;
+      z-index: 1;
+    }
+
+    .hero-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hero-title span.badge {
+      font-size: 0.8rem;
+      border-radius: 999px;
+      padding: 3px 10px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #0f172a;
+    }
+
+    .hero-sub {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .hero-tags {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag-pill {
+      font-size: 0.75rem;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(248, 250, 252, 0.06);
+    }
+
+    .hero-side {
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      text-align: right;
+    }
+
+    .hero-level {
+      font-size: 0.8rem;
+      color: var(--accent-soft);
+    }
+
+    .hero-emoji {
+      font-size: 2.1rem;
+    }
+
+    .controls {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .controls-left,
+    .controls-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    select {
+      background: #020617;
+      color: var(--text);
+      border-radius: 999px;
+      border: 1px solid #475569;
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .difficulty-toggle {
+      display: inline-flex;
+      background: #020617;
+      border-radius: 999px;
+      padding: 2px;
+      border: 1px solid #1f2937;
+    }
+
+    .diff-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.8rem;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .diff-btn.active {
+      background: linear-gradient(135deg, #f97316, #22c55e);
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    .diff-btn span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .stats-pill {
+      font-size: 0.75rem;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px dashed #4b5563;
+      color: var(--muted);
+    }
+
+    .stats-pill span {
+      color: var(--accent-2);
+      font-weight: 600;
+    }
+
+    .drill-list {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .drill-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      border: 1px solid #111827;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .drill-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, #f9731615, transparent 55%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .drill-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .drill-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .drill-chip {
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: var(--accent-soft);
+    }
+
+    .drill-body {
+      font-size: 0.82rem;
+      color: #cbd5f5;
+      margin-top: 4px;
+      line-height: 1.35;
+      white-space: pre-line;
+    }
+
+    .drill-footer {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      font-size: 0.75rem;
+      padding: 4px 9px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent-soft);
+      border: 1px solid #64748b;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #4ade80);
+      color: #022c22;
+      box-shadow: 0 6px 14px rgba(34, 197, 94, 0.3);
+      font-weight: 600;
+    }
+
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      border: 1px dashed #4b5563;
+    }
+
+    .pill-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .hidden-block {
+      margin-top: 6px;
+      background: #020617;
+      border-radius: 10px;
+      padding: 7px 8px;
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      border: 1px solid #1f2937;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .hidden-block strong {
+      color: var(--accent-soft);
+    }
+
+    .difficulty-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .difficulty-label span.dot-small {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .empty-state {
+      margin-top: 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .empty-state span {
+      font-size: 1.6rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* Confetti */
+    .confetti-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 9999;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      font-size: 18px;
+      animation: fall 1000ms linear forwards;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translate3d(0, -20px, 0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(0, 120vh, 0) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero-side {
+        align-items: flex-start;
+        text-align: left;
+      }
+      .drill-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="hero-main">
+        <div class="hero-title">
+          🐍 Python Drill Lab
+          <span class="badge">Interview Edition</span>
+        </div>
+        <p class="hero-sub">
+          Choose a topic and difficulty. Read the question, imagine the code,
+          peek at the output, then reveal the solution. Celebrate with
+          confetti like a true coding boss.
+        </p>
+        <div class="hero-tags">
+          <span class="tag-pill">Variables &amp; Types</span>
+          <span class="tag-pill">Lists &amp; Strings</span>
+          <span class="tag-pill">Dict / Set / Heap</span>
+          <span class="tag-pill">Nested functions</span>
+          <span class="tag-pill">Classes</span>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-emoji">🎯</div>
+        <div class="hero-level">Easy ➝ Medium ➝ Hard mode</div>
+        <div class="hero-level">One drill at a time. No panic.</div>
+      </div>
+    </header>
+
+    <section class="controls">
+      <div class="controls-left">
+        <div>
+          <label for="topicSelect">Topic</label><br />
+          <select id="topicSelect"></select>
+        </div>
+        <div>
+          <span class="difficulty-label">
+            <span class="dot-small"></span> Difficulty
+          </span>
+          <div class="difficulty-toggle" id="difficultyToggle">
+            <button class="diff-btn active" data-difficulty="Easy">
+              <span class="dot"></span> Easy
+            </button>
+            <button class="diff-btn" data-difficulty="Medium">
+              <span class="dot"></span> Medium
+            </button>
+            <button class="diff-btn" data-difficulty="Hard">
+              <span class="dot"></span> Hard
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="controls-right">
+        <div class="stats-pill" id="stats">
+          Drills loaded: <span>0</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="drillList" class="drill-list"></section>
+    <div id="emptyState" class="empty-state" style="display: none">
+      <span>🧠</span>
+      No drills for this combination (yet). Switch difficulty or pick another
+      topic.
+    </div>
+  </div>
+
+  <div id="confettiRoot" class="confetti-container" aria-hidden="true"></div>
+
+  <script>
+    // Data: drills (you can keep adding your own)
+    const drills = [
+      // 1. Variables & Types
+      {
+        topic: "Variables & Types",
+        difficulty: "Easy",
+        title: "Reassigning a Variable",
+        question:
+          "Start with n = 0.\nThen reassign n to the string 'abc'.\nPrint both values on separate lines.",
+        expectedOutput: "0\nabc",
+        solution: `n = 0\nprint(n)\n\nn = "abc"\nprint(n)`
+      },
+      {
+        topic: "Variables & Types",
+        difficulty: "Easy",
+        title: "Multiple Assignment",
+        question:
+          "Create two variables a and b in one line.\nSet a = 10 and b = 'hello'.\nPrint both.",
+        expectedOutput: "10\nhello",
+        solution: `a, b = 10, "hello"\nprint(a)\nprint(b)`
+      },
+      {
+        topic: "Variables & Types",
+        difficulty: "Medium",
+        title: "Swap Without Temp",
+        question:
+          "You have:\n\nx = 7\ny = 3\n\nSwap x and y without using a third variable.\nPrint x and y after swap.",
+        expectedOutput: "3 7",
+        solution: `x = 7\ny = 3\nx, y = y, x\nprint(x, y)`
+      },
+      {
+        topic: "Variables & Types",
+        difficulty: "Hard",
+        title: "Toggle Between None & Value",
+        question:
+          "Write a function toggle(x, backup) that:\n- If x is None, returns backup\n- Otherwise returns None\n\nTest it with:\nx = None, backup = 5\nx = toggle(x, backup)\nprint(x)\n\nThen again:\nx = toggle(x, backup)\nprint(x)",
+        expectedOutput: "5\nNone",
+        solution: `def toggle(x, backup):\n    if x is None:\n        return backup\n    return None\n\nx = None\nbackup = 5\nx = toggle(x, backup)\nprint(x)\n\nx = toggle(x, backup)\nprint(x)`
+      },
+
+      // 2. Conditionals
+      {
+        topic: "If / Else / Logic",
+        difficulty: "Easy",
+        title: "Minor or Adult",
+        question:
+          "Ask the user for age (as an int).\nIf age < 18: print 'minor'\nElse: print 'adult'\n\n(No parentheses in the if statement.)",
+        expectedOutput: "Example:\nInput: 16 → minor\nInput: 21 → adult",
+        solution: `age = int(input(\"Enter age: \"))\nif age < 18:\n    print(\"minor\")\nelse:\n    print(\"adult\")`
+      },
+      {
+        topic: "If / Else / Logic",
+        difficulty: "Medium",
+        title: "Number in Range",
+        question:
+          "Take integer n.\nIf n is between 10 and 20 (inclusive), or n is exactly 42, print 'special'.\nElse print 'normal'.\n\nUse 'and' / 'or' keywords.",
+        expectedOutput:
+          "Input: 15 → special\nInput: 42 → special\nInput: 5 → normal",
+        solution: `n = int(input(\"Enter n: \"))\nif (10 <= n <= 20) or (n == 42):\n    print(\"special\")\nelse:\n    print(\"normal\")`
+      },
+      {
+        topic: "If / Else / Logic",
+        difficulty: "Hard",
+        title: "Simple Spam Detector",
+        question:
+          "Given a string 'msg', check if it contains any of the words:\n['buy', 'offer', 'sale'] (case-insensitive).\nIf yes print 'spam', else print 'clean'.",
+        expectedOutput:
+          "Input: 'Big SALE today' → spam\nInput: 'Hello friend' → clean",
+        solution: `msg = input(\"Message: \").lower()\nkeywords = [\"buy\", \"offer\", \"sale\"]\n\nis_spam = False\nfor word in keywords:\n    if word in msg:\n        is_spam = True\n        break\n\nif is_spam:\n    print(\"spam\")\nelse:\n    print(\"clean\")`
+      },
+
+      // 3. Loops
+      {
+        topic: "Loops & Range",
+        difficulty: "Easy",
+        title: "Count 1 to 5",
+        question:
+          "Use a for loop and range(...) to print numbers 1, 2, 3, 4, 5 each on new line.",
+        expectedOutput: "1\n2\n3\n4\n5",
+        solution: `for i in range(1, 6):\n    print(i)`
+      },
+      {
+        topic: "Loops & Range",
+        difficulty: "Medium",
+        title: "Multiplication Table",
+        question:
+          "Ask the user for n.\nPrint the multiplication table for n from 1 to 10.\nFormat: 'n x i = result'",
+        expectedOutput:
+          "Input 3 →\n3 x 1 = 3\n3 x 2 = 6\n...\n3 x 10 = 30",
+        solution: `n = int(input(\"Enter n: \"))\nfor i in range(1, 11):\n    print(f\"{n} x {i} = {n * i}\")`
+      },
+      {
+        topic: "Loops & Range",
+        difficulty: "Hard",
+        title: "All Multiples of 7 up to 200",
+        question:
+          "Use a loop or list comprehension to build a list of all numbers from 1 to 200 that are divisible by 7.\nPrint the list.",
+        expectedOutput: "[7, 14, 21, ..., 196]",
+        solution: `multiples = [x for x in range(1, 201) if x % 7 == 0]\nprint(multiples)`
+      },
+
+      // 4. Lists
+      {
+        topic: "Lists (Arrays)",
+        difficulty: "Easy",
+        title: "Append and Pop",
+        question:
+          "Start with nums = [1, 2, 3].\nAppend 4, then 5.\nPrint list.\nPop once.\nPrint list again.",
+        expectedOutput: "[1, 2, 3, 4, 5]\n[1, 2, 3, 4]",
+        solution: `nums = [1, 2, 3]\nnums.append(4)\nnums.append(5)\nprint(nums)\nnums.pop()\nprint(nums)`
+      },
+      {
+        topic: "Lists (Arrays)",
+        difficulty: "Medium",
+        title: "Insert in the Middle",
+        question:
+          "nums = [1, 2, 4, 5]\nInsert 3 at the correct position so list becomes [1,2,3,4,5].",
+        expectedOutput: "[1, 2, 3, 4, 5]",
+        solution: `nums = [1, 2, 4, 5]\nnums.insert(2, 3)\nprint(nums)`
+      },
+      {
+        topic: "Lists (Arrays)",
+        difficulty: "Hard",
+        title: "All Sliding Windows of Size k",
+        question:
+          "Write function windows(nums, k) that returns a list of all contiguous sublists of length k.\nExample: nums=[1,2,3,4], k=2 → [[1,2],[2,3],[3,4]]",
+        expectedOutput: "[[1, 2], [2, 3], [3, 4]]",
+        solution: `def windows(nums, k):\n    res = []\n    for i in range(len(nums) - k + 1):\n        res.append(nums[i:i + k])\n    return res\n\nprint(windows([1, 2, 3, 4], 2))`
+      },
+
+      // 5. Strings
+      {
+        topic: "Strings",
+        difficulty: "Easy",
+        title: "First Three Characters",
+        question:
+          "Given s = 'pythoninterview', print the first 3 characters using slicing.",
+        expectedOutput: "pyt",
+        solution: `s = \"pythoninterview\"\nprint(s[:3])`
+      },
+      {
+        topic: "Strings",
+        difficulty: "Medium",
+        title: "Count Vowels",
+        question:
+          "Ask user for a string.\nCount how many vowels (a,e,i,o,u) are in it.\nPrint the count.",
+        expectedOutput:
+          "Input: 'hello' → 2\nInput: 'PYTHON' → 1 (only o)",
+        solution: `s = input(\"Enter string: \").lower()\nvowels = set(\"aeiou\")\ncount = 0\nfor ch in s:\n    if ch in vowels:\n        count += 1\nprint(count)`
+      },
+      {
+        topic: "Strings",
+        difficulty: "Hard",
+        title: "Check Anagram (No Sorting)",
+        question:
+          "Write function is_anagram(a, b) that returns True if a and b are anagrams.\nIgnore spaces and case.\nUse frequency counting (dict), not sorting.",
+        expectedOutput:
+          "is_anagram('listen', 'silent') → True\nis_anagram('hello', 'bello') → False",
+        solution: `from collections import Counter\n\ndef is_anagram(a, b):\n    a = a.replace(\" \", \"\").lower()\n    b = b.replace(\" \", \"\").lower()\n    return Counter(a) == Counter(b)\n\nprint(is_anagram(\"listen\", \"silent\"))\nprint(is_anagram(\"hello\", \"bello\"))`
+      },
+
+      // 6. Dictionaries
+      {
+        topic: "Dictionaries (Hashmaps)",
+        difficulty: "Easy",
+        title: "Simple Score Map",
+        question:
+          "Create dict scores = {'alice': 90, 'bob': 80}.\nPrint Alice's score.",
+        expectedOutput: "90",
+        solution: `scores = {\"alice\": 90, \"bob\": 80}\nprint(scores[\"alice\"])`
+      },
+      {
+        topic: "Dictionaries (Hashmaps)",
+        difficulty: "Medium",
+        title: "Character Frequency",
+        question:
+          "Ask the user for a string.\nBuild a dictionary where keys = characters and values = counts.\nPrint the dictionary.",
+        expectedOutput: "Input: 'aba' → {'a': 2, 'b': 1}",
+        solution: `s = input(\"Enter string: \")\nfreq = {}\nfor ch in s:\n    freq[ch] = freq.get(ch, 0) + 1\nprint(freq)`
+      },
+      {
+        topic: "Dictionaries (Hashmaps)",
+        difficulty: "Hard",
+        title: "Invert a Dictionary",
+        question:
+          "Given dict d = {'alice': 90, 'bob': 80, 'carol': 80},\ncreate a new dict where keys are scores and values are lists of names with that score.\nResult: {90:['alice'], 80:['bob','carol']}.",
+        expectedOutput: "{90: ['alice'], 80: ['bob', 'carol']}",
+        solution: `d = {\"alice\": 90, \"bob\": 80, \"carol\": 80}\ninv = {}\nfor name, score in d.items():\n    if score not in inv:\n        inv[score] = []\n    inv[score].append(name)\nprint(inv)`
+      },
+
+      // 7. Sets
+      {
+        topic: "Sets",
+        difficulty: "Easy",
+        title: "Unique Numbers",
+        question:
+          "Make a set from list [1,2,2,3,3,3].\nPrint the set and its length.",
+        expectedOutput: "{1, 2, 3}\n3",
+        solution: `nums = [1, 2, 2, 3, 3, 3]\nunique = set(nums)\nprint(unique)\nprint(len(unique))`
+      },
+      {
+        topic: "Sets",
+        difficulty: "Medium",
+        title: "Intersection of Sets",
+        question:
+          "Given:\nA = {1,2,3,4}\nB = {3,4,5}\nPrint the set of elements common to both.",
+        expectedOutput: "{3, 4}",
+        solution: `A = {1, 2, 3, 4}\nB = {3, 4, 5}\nprint(A & B)`
+      },
+      {
+        topic: "Sets",
+        difficulty: "Hard",
+        title: "Detect Duplicates with Set",
+        question:
+          "Write function has_duplicate(nums) that returns True if any value appears at least twice in the list.\nUse a set.",
+        expectedOutput:
+          "has_duplicate([1,2,3]) → False\nhas_duplicate([1,2,2]) → True",
+        solution: `def has_duplicate(nums):\n    seen = set()\n    for x in nums:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n\nprint(has_duplicate([1, 2, 3]))\nprint(has_duplicate([1, 2, 2]))`
+      },
+
+      // 8. List Comprehension
+      {
+        topic: "List Comprehension",
+        difficulty: "Easy",
+        title: "Squares 0–4",
+        question:
+          "Use a list comprehension to create [0,1,4,9,16].\nPrint the list.",
+        expectedOutput: "[0, 1, 4, 9, 16]",
+        solution: `squares = [i * i for i in range(5)]\nprint(squares)`
+      },
+      {
+        topic: "List Comprehension",
+        difficulty: "Medium",
+        title: "Even Numbers 1–50",
+        question:
+          "Using list comprehension, build list of all even numbers from 1 to 50.\nPrint the list.",
+        expectedOutput: "[2, 4, 6, ..., 50]",
+        solution: `evens = [x for x in range(1, 51) if x % 2 == 0]\nprint(evens)`
+      },
+      {
+        topic: "List Comprehension",
+        difficulty: "Hard",
+        title: "2D Matrix with i+j",
+        question:
+          "Build a 3x3 matrix (list of lists) using list comprehension.\nEach cell should contain i + j (0-indexed).\nPrint the matrix.",
+        expectedOutput: "[[0,1,2],[1,2,3],[2,3,4]]",
+        solution: `matrix = [[i + j for j in range(3)] for i in range(3)]\nprint(matrix)`
+      }
+      // You can keep adding more drills here for tuples, heaps, nested functions, classes, etc.
+    ];
+
+    // --- State ---
+    let currentTopic = null;
+    let currentDifficulty = "Easy";
+
+    const topicSelect = document.getElementById("topicSelect");
+    const drillList = document.getElementById("drillList");
+    const emptyState = document.getElementById("emptyState");
+    const statsEl = document.getElementById("stats").querySelector("span");
+    const diffToggle = document.getElementById("difficultyToggle");
+    const confettiRoot = document.getElementById("confettiRoot");
+
+    // Initialize topics dropdown
+    function initTopics() {
+      const topics = Array.from(new Set(drills.map((d) => d.topic))).sort();
+      topicSelect.innerHTML = "";
+      topics.forEach((t) => {
+        const opt = document.createElement("option");
+        opt.value = t;
+        opt.textContent = t;
+        topicSelect.appendChild(opt);
+      });
+      currentTopic = topics[0] || null;
+    }
+
+    // Render drills
+    function renderDrills() {
+      if (!currentTopic) return;
+      const filtered = drills.filter(
+        (d) => d.topic === currentTopic && d.difficulty === currentDifficulty
+      );
+
+      statsEl.textContent = filtered.length;
+
+      drillList.innerHTML = "";
+      if (filtered.length === 0) {
+        emptyState.style.display = "block";
+        return;
+      }
+      emptyState.style.display = "none";
+
+      filtered.forEach((d, index) => {
+        const card = document.createElement("article");
+        card.className = "drill-card";
+
+        const header = document.createElement("div");
+        header.className = "drill-header";
+
+        const title = document.createElement("div");
+        title.className = "drill-title";
+        title.innerHTML = `📌 ${d.title}`;
+
+        const chip = document.createElement("span");
+        chip.className = "drill-chip";
+        chip.textContent = d.difficulty;
+
+        header.appendChild(title);
+        header.appendChild(chip);
+
+        const body = document.createElement("div");
+        body.className = "drill-body";
+        body.textContent = d.question;
+
+        const footer = document.createElement("div");
+        footer.className = "drill-footer";
+
+        const btnOutput = document.createElement("button");
+        btnOutput.className = "btn btn-outline";
+        btnOutput.textContent = "Show Output 🧠";
+
+        const btnSolution = document.createElement("button");
+        btnSolution.className = "btn btn-ghost";
+        btnSolution.textContent = "Show Solution 💡";
+
+        const btnDone = document.createElement("button");
+        btnDone.className = "btn btn-primary";
+        btnDone.textContent = "Mark as Done 🎉";
+
+        const outputBlock = document.createElement("pre");
+        outputBlock.className = "hidden-block";
+        outputBlock.style.display = "none";
+        outputBlock.innerHTML = `<strong>Expected Output:</strong>\n${d.expectedOutput}`;
+
+        const solutionBlock = document.createElement("pre");
+        solutionBlock.className = "hidden-block";
+        solutionBlock.style.display = "none";
+        solutionBlock.innerHTML = `<strong>One Possible Solution:</strong>\n${d.solution}`;
+
+        btnOutput.addEventListener("click", () => {
+          const visible = outputBlock.style.display === "block";
+          outputBlock.style.display = visible ? "none" : "block";
+          btnOutput.textContent = visible ? "Show Output 🧠" : "Hide Output 🙈";
+        });
+
+        btnSolution.addEventListener("click", () => {
+          const visible = solutionBlock.style.display === "block";
+          solutionBlock.style.display = visible ? "none" : "block";
+          btnSolution.textContent = visible
+            ? "Show Solution 💡"
+            : "Hide Solution 🙈";
+        });
+
+        btnDone.addEventListener("click", () => {
+          fireConfetti();
+          btnDone.textContent = "Nice! ✅";
+          btnDone.disabled = true;
+        });
+
+        footer.appendChild(btnOutput);
+        footer.appendChild(btnSolution);
+        footer.appendChild(btnDone);
+
+        card.appendChild(header);
+        card.appendChild(body);
+        card.appendChild(footer);
+        card.appendChild(outputBlock);
+        card.appendChild(solutionBlock);
+
+        drillList.appendChild(card);
+      });
+    }
+
+    // Confetti effect using emoji 🎉
+    function fireConfetti() {
+      const pieces = 30;
+      const emojis = ["🎉", "✨", "🎊", "🐍", "⭐"];
+
+      for (let i = 0; i < pieces; i++) {
+        const span = document.createElement("span");
+        span.className = "confetti-piece";
+        span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        const startLeft = Math.random() * 100;
+        span.style.left = startLeft + "vw";
+        span.style.animationDelay = Math.random() * 0.2 + "s";
+        confettiRoot.appendChild(span);
+
+        setTimeout(() => {
+          span.remove();
+        }, 1100);
+      }
+    }
+
+    // Event listeners
+    topicSelect.addEventListener("change", (e) => {
+      currentTopic = e.target.value;
+      renderDrills();
+    });
+
+    diffToggle.addEventListener("click", (e) => {
+      const btn = e.target.closest(".diff-btn");
+      if (!btn) return;
+      const diff = btn.getAttribute("data-difficulty");
+      if (!diff) return;
+
+      currentDifficulty = diff;
+      document
+        .querySelectorAll(".diff-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderDrills();
+    });
+
+    // Init
+    initTopics();
+    renderDrills();
+  </script>
+</body>
+</html>
