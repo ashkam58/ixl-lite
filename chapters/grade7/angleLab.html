@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Angle Detective Lab – Complements & Supplements</title>
+  <style>
+    :root {
+      --bg: #f3f7ff;
+      --card: #ffffff;
+      --primary: #4c6fff;
+      --accent: #ffb347;
+      --accent2: #ff6fb5;
+      --text: #222;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #ffe6f5, #f3f7ff 40%, #e6f5ff);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      width: 95%;
+      max-width: 1100px;
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .title-bar {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .title-bar h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.8rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e4ecff;
+      color: #2b3e8f;
+    }
+
+    .pill {
+      background: #fffbec;
+      color: #7b5b00;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Left: problem list & explanation */
+    .card {
+      background: #f8f9ff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      border: 1px solid #dde4ff;
+      overflow: auto;
+      max-height: 420px;
+    }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .problem-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .problem-btn {
+      border: none;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: #ffffff;
+      cursor: pointer;
+      font-size: 0.86rem;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      transition: transform 0.1s ease, box-shadow 0.1s ease,
+        background 0.15s ease;
+    }
+
+    .problem-btn span.num {
+      background: #e4ecff;
+      color: #2b3e8f;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
+
+    .problem-btn.active {
+      background: linear-gradient(135deg, #4c6fff, #9e7bff);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(76, 111, 255, 0.5);
+    }
+
+    .problem-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .problem-text {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      border: 1px dashed #c7d2ff;
+    }
+
+    .steps {
+      font-size: 0.85rem;
+      padding-left: 16px;
+      margin: 0;
+    }
+
+    .steps li {
+      margin-bottom: 4px;
+    }
+
+    /* Right: visual + slider + equation */
+    .visual-card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      border: 1px solid #ffd6f0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .visual-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .type-tag {
+      font-size: 0.78rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #ffeaf2;
+      color: #8c1e54;
+    }
+
+    .angle-bar-wrapper {
+      margin: 8px 0;
+      padding: 8px;
+      border-radius: 14px;
+      background: #fdf2ff;
+      border: 1px solid #f0d0ff;
+    }
+
+    .total-label {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .angle-bar {
+      display: flex;
+      height: 40px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #e0e7ff;
+    }
+
+    .angle-part {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      transition: flex-grow 0.25s ease;
+      white-space: nowrap;
+    }
+
+    .main-angle {
+      background: linear-gradient(135deg, #4c6fff, #7f9fff);
+    }
+
+    .other-angle {
+      background: linear-gradient(135deg, #ffb347, #ff8d6b);
+    }
+
+    .slider-section {
+      margin: 10px 0 6px;
+    }
+
+    .slider-section label {
+      font-size: 0.85rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 6px 0;
+    }
+
+    .guess-info {
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .equation-card {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: #f0f4ff;
+      border: 1px solid #d5e0ff;
+      font-size: 0.9rem;
+    }
+
+    .equation-line {
+      font-family: "JetBrains Mono", "Consolas", monospace;
+      font-size: 0.9rem;
+    }
+
+    .check-result {
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .check-result.ok {
+      color: #1b8f3b;
+    }
+
+    .check-result.nope {
+      color: #c02040;
+    }
+
+    .tip {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: #555;
+    }
+
+    /* Confetti */
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 12px;
+      border-radius: 2px;
+      opacity: 0.9;
+      animation: fall 1.2s linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(320px) rotateZ(260deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+      .card, .visual-card {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="title-bar">
+    <h1>🎯 Angle Detective Lab <span class="badge">Grade 7</span></h1>
+    <span class="pill">complement = 90°, supplement = 180°</span>
+  </div>
+
+  <!-- LEFT: problems & thinking steps -->
+  <div class="card">
+    <h2>🧩 Choose a word problem</h2>
+    <div class="problem-list" id="problemList"></div>
+    <div class="problem-text" id="problemText"></div>
+    <h2>🧠 How to think</h2>
+    <ol class="steps" id="stepsList"></ol>
+  </div>
+
+  <!-- RIGHT: visualisation & interaction -->
+  <div class="visual-card">
+    <div class="visual-header">
+      <h2>👀 Visual model</h2>
+      <span class="type-tag" id="typeTag"></span>
+    </div>
+
+    <div class="angle-bar-wrapper">
+      <div class="total-label">
+        <span id="totalTypeLabel">Complementary pair (90°)</span>
+        <span id="totalSumLabel">x° + ?° = 90°</span>
+      </div>
+      <div class="angle-bar">
+        <div class="angle-part main-angle" id="mainAnglePart">x°</div>
+        <div class="angle-part other-angle" id="otherAnglePart">?°</div>
+      </div>
+    </div>
+
+    <div class="slider-section">
+      <label for="angleSlider">Move the slider to guess the unknown angle (x):</label>
+      <input type="range" id="angleSlider" min="0" max="180" value="40" />
+      <div class="guess-info">
+        <span id="guessLabel">Your guess: 40°</span>
+        <span id="otherLabel">Other angle: 50°</span>
+      </div>
+    </div>
+
+    <div class="equation-card">
+      <div>Translate the words into an equation:</div>
+      <div class="equation-line" id="equationTemplate">x = (90 − x) + 74</div>
+      <div class="equation-line" id="equationNumeric">For your guess: ? = ?</div>
+      <div class="check-result" id="checkResult"></div>
+      <div class="tip" id="tipText">
+        Try to make the left side and right side equal. When they match, you’ve
+        solved the equation!
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Data for the six problems
+  const problems = [
+    {
+      id: 7,
+      short: "Angle is 74° more than its complement",
+      text: "An angle is 74° more than its complement. Find both angles.",
+      type: "complement",
+      equationTemplate: "x = (90 − x) + 74",
+      steps: [
+        "Step 1: Let x° be the unknown angle.",
+        "Step 2: Its complement is 90 − x degrees.",
+        "Step 3: “74° more than its complement” → x = (90 − x) + 74.",
+        "Step 4: Solve the equation to find x.",
+        "Step 5: Plug x back to get the complement 90 − x."
+      ],
+      solution: 82
+    },
+    {
+      id: 8,
+      short: "Angle is 120° less than its supplement",
+      text:
+        "Find the number of degrees in an angle which is 120° less than its supplement. Find both angles.",
+      type: "supplement",
+      equationTemplate: "x = (180 − x) − 120",
+      steps: [
+        "Let x° be the unknown angle.",
+        "Its supplement is 180 − x degrees.",
+        "“120° less than its supplement” → x = (180 − x) − 120.",
+        "Solve this equation to find x.",
+        "Use 180 − x to find the supplement."
+      ],
+      solution: 30
+    },
+    {
+      id: 9,
+      short: "Complement is 14° less than 3 times the angle",
+      text:
+        "The complement of an angle is 14° less than three times the angle. Find both angles.",
+      type: "complement",
+      equationTemplate: "90 − x = 3x − 14",
+      steps: [
+        "Let x° be the unknown angle.",
+        "Its complement is 90 − x degrees.",
+        "“14° less than three times the angle” → 3x − 14.",
+        "So 90 − x = 3x − 14.",
+        "Solve for x and then 90 − x."
+      ],
+      solution: 26
+    },
+    {
+      id: 10,
+      short: "Supplement is 12° more than twice the angle",
+      text:
+        "The supplement of an angle is 12° more than twice the angle. Find both angles.",
+      type: "supplement",
+      equationTemplate: "180 − x = 2x + 12",
+      steps: [
+        "Let x° be the unknown angle.",
+        "Its supplement is 180 − x degrees.",
+        "Twice the angle is 2x; “12° more” → 2x + 12.",
+        "So 180 − x = 2x + 12.",
+        "Solve for x and then its supplement."
+      ],
+      solution: 56
+    },
+    {
+      id: 11,
+      short: "Angle is 14 times its complement",
+      text: "An angle is 14 times its complement. Find both angles.",
+      type: "complement",
+      equationTemplate: "x = 14(90 − x)",
+      steps: [
+        "Let x° be the unknown angle.",
+        "Its complement is 90 − x degrees.",
+        "“14 times its complement” → 14(90 − x).",
+        "So x = 14(90 − x).",
+        "Solve the equation and find the complement."
+      ],
+      solution: 84
+    },
+    {
+      id: 12,
+      short: "Supplement is 6° less than twice the angle",
+      text:
+        "The supplement of an angle is 6° less than twice the angle. Find both angles.",
+      type: "supplement",
+      equationTemplate: "180 − x = 2x − 6",
+      steps: [
+        "Let x° be the unknown angle.",
+        "Its supplement is 180 − x degrees.",
+        "Twice the angle is 2x; “6° less” → 2x − 6.",
+        "So 180 − x = 2x − 6.",
+        "Solve for x and then its supplement."
+      ],
+      solution: 62
+    }
+  ];
+
+  const app = document.getElementById("app");
+  const problemListEl = document.getElementById("problemList");
+  const problemTextEl = document.getElementById("problemText");
+  const stepsListEl = document.getElementById("stepsList");
+  const typeTagEl = document.getElementById("typeTag");
+  const totalTypeLabelEl = document.getElementById("totalTypeLabel");
+  const totalSumLabelEl = document.getElementById("totalSumLabel");
+  const mainAnglePartEl = document.getElementById("mainAnglePart");
+  const otherAnglePartEl = document.getElementById("otherAnglePart");
+  const sliderEl = document.getElementById("angleSlider");
+  const guessLabelEl = document.getElementById("guessLabel");
+  const otherLabelEl = document.getElementById("otherLabel");
+  const equationTemplateEl = document.getElementById("equationTemplate");
+  const equationNumericEl = document.getElementById("equationNumeric");
+  const checkResultEl = document.getElementById("checkResult");
+  const tipTextEl = document.getElementById("tipText");
+
+  let currentProblem = problems[0];
+
+  function renderProblemButtons() {
+    problemListEl.innerHTML = "";
+    problems.forEach((p, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "problem-btn" + (idx === 0 ? " active" : "");
+      btn.dataset.index = idx;
+      btn.innerHTML =
+        `<span class="num">${idx + 1}</span><span>${p.short}</span>`;
+      btn.addEventListener("click", () => selectProblem(idx));
+      problemListEl.appendChild(btn);
+    });
+  }
+
+  function selectProblem(index) {
+    currentProblem = problems[index];
+    document
+      .querySelectorAll(".problem-btn")
+      .forEach((b, i) => b.classList.toggle("active", i === index));
+
+    // Text
+    problemTextEl.textContent = currentProblem.text;
+    equationTemplateEl.textContent = currentProblem.equationTemplate;
+
+    // Steps
+    stepsListEl.innerHTML = "";
+    currentProblem.steps.forEach((s) => {
+      const li = document.createElement("li");
+      li.textContent = s;
+      stepsListEl.appendChild(li);
+    });
+
+    // Type tag & total
+    const isComp = currentProblem.type === "complement";
+    typeTagEl.textContent = isComp ? "Complementary pair (sum = 90°)" : "Supplementary pair (sum = 180°)";
+    totalTypeLabelEl.textContent = isComp
+      ? "These two angles must add up to 90°"
+      : "These two angles must add up to 180°";
+
+    // Reset slider near the actual solution
+    sliderEl.value = currentProblem.solution;
+    updateForAngle(parseInt(sliderEl.value, 10), true);
+  }
+
+  function getOtherAngle(x) {
+    return currentProblem.type === "complement" ? 90 - x : 180 - x;
+  }
+
+  // Computes equation numeric values for a given guess x
+  function getEquationValues(x) {
+    const other = getOtherAngle(x);
+    let L, R, leftExpr, rightExpr;
+
+    switch (currentProblem.id) {
+      case 7:
+        L = x;
+        R = other + 74;
+        leftExpr = "x";
+        rightExpr = "(90 − x) + 74";
+        break;
+      case 8:
+        L = x;
+        R = other - 120; // (180 - x) - 120
+        leftExpr = "x";
+        rightExpr = "(180 − x) − 120";
+        break;
+      case 9:
+        L = 90 - x;
+        R = 3 * x - 14;
+        leftExpr = "90 − x";
+        rightExpr = "3x − 14";
+        break;
+      case 10:
+        L = 180 - x;
+        R = 2 * x + 12;
+        leftExpr = "180 − x";
+        rightExpr = "2x + 12";
+        break;
+      case 11:
+        L = x;
+        R = 14 * (90 - x);
+        leftExpr = "x";
+        rightExpr = "14(90 − x)";
+        break;
+      case 12:
+        L = 180 - x;
+        R = 2 * x - 6;
+        leftExpr = "180 − x";
+        rightExpr = "2x − 6";
+        break;
+    }
+
+    return { L, R, leftExpr, rightExpr };
+  }
+
+  function updateForAngle(x, firstLoad = false) {
+    const other = getOtherAngle(x);
+
+    // Update labels
+    guessLabelEl.textContent = `Your guess: ${x}°`;
+    otherLabelEl.textContent =
+      other >= 0 ? `Other angle: ${other}°` : "Other angle: (negative – too big!)";
+
+    // Update bar widths (keep them non-negative)
+    const safeMain = Math.max(0, x);
+    const safeOther = Math.max(0, other);
+    mainAnglePartEl.style.flexGrow = safeMain + 1;
+    otherAnglePartEl.style.flexGrow = safeOther + 1;
+    mainAnglePartEl.textContent = `x = ${x}°`;
+    otherAnglePartEl.textContent =
+      currentProblem.type === "complement"
+        ? `complement = ${other}°`
+        : `supplement = ${other}°`;
+
+    // Total sum display
+    const total = safeMain + safeOther;
+    totalSumLabelEl.textContent =
+      currentProblem.type === "complement"
+        ? `${x}° + ${Math.max(0, other)}° = ${total}° (should be 90°)`
+        : `${x}° + ${Math.max(0, other)}° = ${total}° (should be 180°)`;
+
+    // Equation numeric check
+    const { L, R, leftExpr, rightExpr } = getEquationValues(x);
+    equationNumericEl.textContent = `Plugging in x = ${x}:  ${leftExpr} = ${rightExpr}  ⇒  ${L} = ${R}`;
+
+    if (L === R && other >= 0) {
+      checkResultEl.textContent = `✅ Perfect! x = ${x}° is the solution.`;
+      checkResultEl.className = "check-result ok";
+      tipTextEl.textContent =
+        "Now say the other angle out loud and explain why they form a complement/supplement.";
+      if (!firstLoad) launchConfetti();
+    } else {
+      checkResultEl.textContent =
+        "❌ Not balanced yet. Adjust x so that both sides become equal.";
+      checkResultEl.className = "check-result nope";
+      tipTextEl.textContent =
+        "Think like this: left side is one way to describe the situation, right side is another. The correct x makes both descriptions match.";
+    }
+  }
+
+  sliderEl.addEventListener("input", (e) => {
+    const x = parseInt(e.target.value, 10);
+    updateForAngle(x);
+  });
+
+  // Simple confetti burst
+  function launchConfetti() {
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      const colors = ["#ffb347", "#ff6fb5", "#4c6fff", "#6fffb8", "#ffe66d"];
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.left = Math.random() * 100 + "%";
+      piece.style.top = "-20px";
+      piece.style.transform = `translateY(0) rotateZ(${Math.random() * 60}deg)`;
+      piece.style.animationDelay = Math.random() * 0.3 + "s";
+      app.appendChild(piece);
+      setTimeout(() => piece.remove(), 1500);
+    }
+  }
+
+  // Initial render
+  renderProblemButtons();
+  selectProblem(0);
+</script>
+</body>
+</html>

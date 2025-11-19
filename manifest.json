@@ -1,5 +1,11 @@
 ﻿[
   {
+    "slug": "grade4/equivalentFractionCircle",
+    "title": "🍕 Grade 4 • Equivalent Fraction Circle Lab",
+    "tags": ["grade4", "fractions", "equivalent", "interactive", "visual"],
+    "level": "Medium"
+  },
+  {
     "slug": "grade7/angleLab",
     "title": "🎯 Grade 7 • Angle Detective Lab",
     "tags": ["grade7", "angles", "geometry", "interactive", "sajeev"],
