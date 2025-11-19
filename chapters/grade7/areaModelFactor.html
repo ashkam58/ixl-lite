@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Area Model Factor – Cartoon Lab</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: "Comic Sans MS", system-ui, sans-serif;
+      background: linear-gradient(135deg, #ffe0f7, #d1f3ff);
+    }
+    .app {
+      width: 100%;
+      max-width: 900px;
+      background: #fffdf7;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      position: relative;
+      overflow: hidden;
+    }
+    .app::before {
+      content: "🧠";
+      font-size: 70px;
+      position: absolute;
+      right: -10px;
+      top: -20px;
+      opacity: 0.15;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.9rem;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .subtitle {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #ffe4fa;
+      color: #b10b7e;
+      font-size: 0.8rem;
+    }
+    .score {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e3f2fd;
+      color: #0b5394;
+      font-size: 0.8rem;
+    }
+    .question-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 16px;
+    }
+    @media (max-width: 700px) {
+      .question-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Area model */
+    .area-card {
+      background: #fff7da;
+      border-radius: 18px;
+      padding: 12px;
+      border: 2px dashed #ffb347;
+    }
+    .area-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    .mode-tag {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #fff3cd;
+      color: #795548;
+    }
+    .big-expression {
+      background: #fff;
+      padding: 4px 8px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 4px;
+      font-weight: bold;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .height-strip {
+      background: #ffcc80;
+      border-radius: 16px;
+      padding: 10px 4px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 0.8rem;
+      text-align: center;
+      color: #5d4037;
+    }
+    .height-value {
+      margin-top: 4px;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    .rect-block {
+      background: #ffe082;
+      border-radius: 15px;
+      padding: 8px;
+    }
+
+    .top-factors {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      justify-content: space-around;
+    }
+    .top-cell {
+      flex: 1;
+      text-align: center;
+    }
+    .top-cell input {
+      width: 100%;
+      max-width: 90px;
+      padding: 4px 6px;
+      border-radius: 10px;
+      border: 1px solid #bbb;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    .top-cell span {
+      display: inline-block;
+      background: #fff;
+      padding: 3px 6px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      min-width: 40px;
+    }
+
+    .areas-row {
+      display: flex;
+      gap: 8px;
+      justify-content: space-around;
+    }
+    .area-cell {
+      flex: 1;
+      background: #fff3e0;
+      border-radius: 12px;
+      padding: 10px 4px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6d4c41;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* Right panel */
+    .right-card {
+      background: #e8f5e9;
+      border-radius: 18px;
+      padding: 12px;
+      border: 2px solid #a5d6a7;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .task-text {
+      font-size: 0.95rem;
+    }
+    .hint {
+      font-size: 0.85rem;
+      color: #2e7d32;
+    }
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+    input[type="number"], input[type="text"] {
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid #bdbdbd;
+      font-size: 0.9rem;
+    }
+    .factored-input {
+      width: 100%;
+      max-width: 260px;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+    }
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    .btn-check {
+      background: linear-gradient(90deg, #81c784, #4caf50);
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(76,175,80,0.4);
+    }
+    .btn-next {
+      background: #fff;
+      color: #1e88e5;
+      border: 1px solid #90caf9;
+    }
+    .status {
+      min-height: 20px;
+      font-size: 0.9rem;
+    }
+    .status.correct { color: #2e7d32; }
+    .status.wrong { color: #c62828; }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #777;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* Confetti */
+    .confetti-piece {
+      position: fixed;
+      width: 8px;
+      height: 14px;
+      background: #ffeb3b;
+      border-radius: 2px;
+      pointer-events: none;
+      animation: fall 1.2s linear forwards;
+      z-index: 9999;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-10vh) rotateZ(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotateZ(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>📐 Area Model Factoring Lab</h1>
+  <div class="subtitle">
+    Grade 7 • USA curriculum • Sometimes height is missing, sometimes the other factor is missing 😼
+  </div>
+
+  <div class="top-row">
+    <div class="badge">Cartoon theme ON 🎨</div>
+    <div class="score" id="scoreBox">Score: 0 / 0</div>
+  </div>
+
+  <div class="question-layout">
+    <!-- LEFT: Area model -->
+    <div class="area-card">
+      <div class="area-header">
+        <span>Use the area model to factor:</span>
+        <span class="mode-tag" id="modeTag"></span>
+      </div>
+      <div class="big-expression" id="expressionText">12d − 72e</div>
+
+      <div class="model-grid">
+        <div class="height-strip">
+          height
+          <div class="height-value" id="heightLabel">?</div>
+        </div>
+        <div class="rect-block">
+          <div class="top-factors" id="topFactorsRow">
+            <!-- top inputs/spans here -->
+          </div>
+          <div class="areas-row" id="areasRow">
+            <!-- area cells here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Tasks -->
+    <div class="right-card">
+      <div class="task-text" id="taskText">
+        <!-- dynamic text -->
+      </div>
+      <div class="hint" id="hintText">
+        <!-- dynamic hint -->
+      </div>
+
+      <div class="input-row" id="heightRow">
+        <span>Height (common factor):</span>
+        <input type="number" id="heightInput">
+      </div>
+
+      <div class="input-row">
+        <span>Factored form:</span>
+        <input type="text" id="factoredInput" class="factored-input" placeholder="e.g. 12(d - 6e)">
+      </div>
+
+      <div class="status" id="statusMsg"></div>
+
+      <div class="input-row">
+        <button class="btn-check" id="checkBtn">✅ Check</button>
+        <button class="btn-next" id="nextBtn">➡️ New Question</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <span>Rule: height × width = area of each rectangle.</span>
+    <span>Made for Ashkam’s IAS-ready math lab 🧮</span>
+  </div>
+</div>
+
+<script>
+  // Question types:
+  // mode "height"  -> student finds HEIGHT + factored form
+  // mode "widths"  -> student finds EACH WIDTH TERM + factored form
+  // Data is explicit so checking is easy for kids.
+
+  const QUESTIONS = [
+    // HEIGHT MODE (GCF missing)
+    {
+      mode: "height",
+      expression: "80r + 90s",
+      areas: ["80r", "90s"],
+      height: 10,
+      widths: ["8r", "9s"],
+      factored: "10(8r + 9s)"
+    },
+    {
+      mode: "height",
+      expression: "45m + 30",
+      areas: ["45m", "30"],
+      height: 15,
+      widths: ["3m", "2"],
+      factored: "15(3m + 2)"
+    },
+    {
+      mode: "height",
+      expression: "21x + 28y + 35z",
+      areas: ["21x", "28y", "35z"],
+      height: 7,
+      widths: ["3x", "4y", "5z"],
+      factored: "7(3x + 4y + 5z)"
+    },
+
+    // WIDTHS MODE (like your screenshot: height given, find missing factor terms)
+    {
+      mode: "widths",
+      expression: "12d - 72e",
+      areas: ["12d", "-72e"],
+      height: 12,
+      widths: ["d", "-6e"],
+      factored: "12(d - 6e)"
+    },
+    {
+      mode: "widths",
+      expression: "18p + 30q",
+      areas: ["18p", "30q"],
+      height: 6,
+      widths: ["3p", "5q"],
+      factored: "6(3p + 5q)"
+    },
+    {
+      mode: "widths",
+      expression: "24m + 36n + 12",
+      areas: ["24m", "36n", "12"],
+      height: 12,
+      widths: ["2m", "3n", "1"],
+      factored: "12(2m + 3n + 1)"
+    }
+  ];
+
+  const expressionText = document.getElementById("expressionText");
+  const modeTag = document.getElementById("modeTag");
+  const taskText = document.getElementById("taskText");
+  const hintText = document.getElementById("hintText");
+  const heightLabel = document.getElementById("heightLabel");
+  const topFactorsRow = document.getElementById("topFactorsRow");
+  const areasRow = document.getElementById("areasRow");
+  const heightRow = document.getElementById("heightRow");
+  const heightInput = document.getElementById("heightInput");
+  const factoredInput = document.getElementById("factoredInput");
+  const statusMsg = document.getElementById("statusMsg");
+  const scoreBox = document.getElementById("scoreBox");
+  const checkBtn = document.getElementById("checkBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  let currentQuestion = null;
+  let topInputs = []; // for "widths" mode
+  let correct = 0;
+  let total = 0;
+
+  function normalize(str) {
+    return str.replace(/\s+/g, "").toLowerCase();
+  }
+
+  function fireConfetti() {
+    const colors = ["#ffeb3b", "#ff9800", "#e91e63", "#03a9f4", "#8bc34a", "#9c27b0"];
+    for (let i = 0; i < 120; i++) {
+      const c = document.createElement("div");
+      c.className = "confetti-piece";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDuration = (0.8 + Math.random() * 0.6) + "s";
+      c.style.transform = `rotate(${Math.random() * 360}deg)`;
+      document.body.appendChild(c);
+      c.addEventListener("animationend", () => c.remove());
+    }
+  }
+
+  function pickQuestion() {
+    const idx = Math.floor(Math.random() * QUESTIONS.length);
+    return QUESTIONS[idx];
+  }
+
+  function renderQuestion() {
+    currentQuestion = pickQuestion();
+    topInputs = [];
+    statusMsg.textContent = "";
+    statusMsg.className = "status";
+    heightInput.value = "";
+    factoredInput.value = "";
+
+    const q = currentQuestion;
+
+    expressionText.textContent = q.expression.replace("-", "−");
+    areasRow.innerHTML = "";
+    topFactorsRow.innerHTML = "";
+
+    // mode tag & instructions
+    if (q.mode === "height") {
+      modeTag.textContent = "Find the HEIGHT";
+      taskText.innerHTML =
+        `Use the area model to factor <b>${q.expression}</b>.<br>` +
+        `First, find the <b>height (greatest common factor)</b>. Then write the expression in factored form.`;
+      hintText.textContent =
+        "Think: the height must divide every coefficient. Height × width term = each area.";
+      heightRow.style.display = "flex";
+      heightLabel.textContent = "?";
+    } else {
+      modeTag.textContent = "Find the MISSING FACTOR";
+      taskText.innerHTML =
+        `Use the area model to factor <b>${q.expression}</b>.<br>` +
+        `The height is given. Find the <b>terms of the missing factor</b> (top boxes), then write factored form.`;
+      hintText.textContent =
+        "Divide each area by the height to get the term above it. Those terms go together inside the parentheses.";
+      heightRow.style.display = "none"; // height is already known
+      heightLabel.textContent = q.height;
+    }
+
+    // height label
+    if (q.mode === "height") {
+      heightLabel.textContent = "?";
+    } else {
+      heightLabel.textContent = q.height;
+    }
+
+    // build top row & area row
+    q.areas.forEach((area, index) => {
+      // top cells
+      const topCell = document.createElement("div");
+      topCell.className = "top-cell";
+      if (q.mode === "widths") {
+        const inp = document.createElement("input");
+        inp.type = "text";
+        inp.placeholder = "?";
+        inp.dataset.index = index;
+        topInputs.push(inp);
+        topCell.appendChild(inp);
+      } else {
+        const span = document.createElement("span");
+        span.textContent = q.widths[index];
+        topCell.appendChild(span);
+      }
+      topFactorsRow.appendChild(topCell);
+
+      // area cells
+      const areaCell = document.createElement("div");
+      areaCell.className = "area-cell";
+      areaCell.textContent = area;
+      areasRow.appendChild(areaCell);
+    });
+
+    // For 3-term widths mode, we already have 3 inputs; for 2-term also works.
+
+    heightInput.focus();
+    if (q.mode === "widths" && topInputs[0]) {
+      topInputs[0].focus();
+    }
+  }
+
+  function checkAnswer() {
+    if (!currentQuestion) return;
+    const q = currentQuestion;
+    let allOK = true;
+    let messages = [];
+
+    // Check height if needed
+    if (q.mode === "height") {
+      const hVal = Number(heightInput.value);
+      if (!heightInput.value) {
+        allOK = false;
+        messages.push("Enter a height (GCF).");
+      } else if (hVal !== q.height) {
+        allOK = false;
+        messages.push(`Height isn’t correct yet. Remember: it must divide all coefficients.`);
+      }
+    }
+
+    // Check width terms if needed
+    if (q.mode === "widths") {
+      q.widths.forEach((target, i) => {
+        const inp = topInputs[i];
+        const user = normalize(inp.value || "");
+        if (!user) {
+          allOK = false;
+          messages.push("Fill all top boxes for the missing factor.");
+        } else if (normalize(target) !== user) {
+          allOK = false;
+          messages.push("One or more factor terms on top are not correct yet.");
+        }
+      });
+    }
+
+    // Check factored form (always)
+    const factUser = normalize(factoredInput.value || "");
+    const factTarget = normalize(q.factored);
+    if (!factUser) {
+      allOK = false;
+      messages.push("Write the expression in factored form.");
+    } else if (factUser !== factTarget) {
+      allOK = false;
+      messages.push(`Check your factored form. Use parentheses correctly.`);
+    }
+
+    total++;
+    if (allOK) {
+      correct++;
+      statusMsg.textContent = "Excellent! Your factors match the area model 🎉";
+      statusMsg.className = "status correct";
+      fireConfetti();
+    } else {
+      statusMsg.textContent = messages[0];
+      statusMsg.className = "status wrong";
+    }
+
+    scoreBox.textContent = `Score: ${correct} / ${total}`;
+  }
+
+  checkBtn.addEventListener("click", checkAnswer);
+  nextBtn.addEventListener("click", () => {
+    renderQuestion();
+  });
+
+  factoredInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") checkAnswer();
+  });
+
+  // start
+  renderQuestion();
+</script>
+</body>
+</html>

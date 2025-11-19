@@ -1,5 +1,11 @@
 ﻿[
   {
+    "slug":"grade7/areaModelFactor",
+    "title": "Grade 7 • Area Model Factor",
+    "tags": ["grade7", "area", "model", "factor", "interactive", "sajeev"],
+    "level": "Medium"
+  },
+  {
     "slug":"grade7/multiStepEquation",
     "title": "Grade 7 • Multi Step Equation",
     "tags": ["grade7", "equations", "multi-step", "interactive"],
