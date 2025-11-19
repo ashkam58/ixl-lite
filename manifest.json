@@ -1,6 +1,12 @@
 ﻿[
 
   {
+    "slug": "python/leetCodePlacement",
+    "title": "🐍 Python Interview Drills Lab",
+    "tags": ["python", "interview", "leetcode", "placement", "drills", "anish"],
+    "level": "Hard"
+  },
+  {
     "slug": "grade7/oneStepSolution",
     "title": "➗ Grade 7 • One Step Solution",
     "tags": ["grade7", "sajeev", "equations", "one-step", "interactive"],

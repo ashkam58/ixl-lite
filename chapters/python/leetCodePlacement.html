@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Python Interview Drills Lab 🐍</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #fef3c7, #e0f2fe);
+      min-height: 100vh;
+      color: #1f2933;
+    }
+
+    .app-shell {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .logo-bubble {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, #60a5fa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.25);
+    }
+
+    .title-block h1 {
+      font-size: 1.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .title-tagline {
+      font-size: 0.95rem;
+      color: #4b5563;
+      margin-top: 0.15rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(59, 130, 246, 0.1);
+      color: #1d4ed8;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      margin-left: 0.5rem;
+    }
+
+    .top-panel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin: 1rem 0 1.25rem;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .stat-chip {
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      color: #047857;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .filter-btn {
+      border: none;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: rgba(148, 163, 184, 0.15);
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+    }
+
+    .filter-btn span.bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #94a3b8;
+    }
+
+    .filter-btn.active {
+      background: #0ea5e9;
+      color: #f9fafb;
+      box-shadow: 0 4px 8px rgba(56, 189, 248, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .filter-btn.active span.bullet {
+      background: #facc15;
+    }
+
+    .drills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1rem;
+    }
+
+    .drill-card {
+      background: #fefefe;
+      border-radius: 1rem;
+      padding: 0.9rem 0.9rem 0.95rem;
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+      border: 2px solid rgba(148, 163, 184, 0.2);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .drill-card.completed {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.5);
+    }
+
+    .drill-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .drill-topic {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.13);
+      color: #1d4ed8;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .difficulty {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.35rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #6b7280;
+      background: rgba(148, 163, 184, 0.15);
+    }
+
+    .drill-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .drill-question {
+      font-size: 0.8rem;
+      color: #374151;
+      line-height: 1.4;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #9ca3af;
+      letter-spacing: 0.04em;
+      margin-top: 0.1rem;
+    }
+
+    pre.output, pre.solution {
+      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+      font-size: 0.75rem;
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 0.45rem 0.55rem;
+      border-radius: 0.6rem;
+      overflow-x: auto;
+      white-space: pre;
+      position: relative;
+    }
+
+    pre.output {
+      background: #020617;
+    }
+
+    pre.solution {
+      margin-top: 0.2rem;
+    }
+
+    .hint-line {
+      font-size: 0.7rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .hint-line span.icon {
+      font-size: 0.85rem;
+    }
+
+    .drill-actions {
+      margin-top: 0.35rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.7rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #fb923c, #f97316);
+      color: #fff7ed;
+      box-shadow: 0 5px 12px rgba(249, 115, 22, 0.6);
+    }
+
+    .btn-secondary {
+      background: rgba(59, 130, 246, 0.08);
+      color: #1d4ed8;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px) scale(1.01);
+      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.25);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .solution-wrapper {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      margin-top: 0.1rem;
+    }
+
+    .solution-wrapper.open {
+      max-height: 200px;
+    }
+
+    .badge-completed {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 0.65rem;
+      background: #22c55e;
+      color: #f0fdf4;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .badge-completed span {
+      font-size: 0.9rem;
+    }
+
+    /* Tiny floating emojis for cartoon feel */
+    .floating-emoji {
+      position: fixed;
+      pointer-events: none;
+      opacity: 0.2;
+      font-size: 1.7rem;
+      animation: floaty 10s linear infinite;
+      z-index: 0;
+    }
+
+    .floating-emoji:nth-child(1) { top: 10%; left: 5%; }
+    .floating-emoji:nth-child(2) { top: 70%; left: 10%; animation-duration: 12s; }
+    .floating-emoji:nth-child(3) { top: 30%; right: 10%; animation-duration: 9s; }
+    .floating-emoji:nth-child(4) { bottom: 10%; right: 5%; animation-duration: 11s; }
+
+    @keyframes floaty {
+      0%   { transform: translateY(0) rotate(0deg); }
+      50%  { transform: translateY(-20px) rotate(5deg); }
+      100% { transform: translateY(0) rotate(-5deg); }
+    }
+
+    /* Confetti */
+    .confetti-piece {
+      position: fixed;
+      width: 8px;
+      height: 16px;
+      border-radius: 4px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: confetti-fall 1.1s linear forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-20vh) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(120vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: row;
+      }
+      .title-block h1 {
+        font-size: 1.3rem;
+      }
+      .top-panel {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating emojis for cartoon ambience -->
+  <div class="floating-emoji">🐍</div>
+  <div class="floating-emoji">🎈</div>
+  <div class="floating-emoji">🧠</div>
+  <div class="floating-emoji">💻</div>
+
+  <div class="app-shell">
+    <header>
+      <div class="logo-bubble">🐍</div>
+      <div class="title-block">
+        <h1>
+          Python Interview Drill Lab
+          <span class="pill">Live Practice <span>⚔️</span></span>
+        </h1>
+        <div class="title-tagline">
+          Read the question ➜ look at the output ➜ imagine the code ➜ then reveal & compare.
+        </div>
+      </div>
+    </header>
+
+    <section class="top-panel">
+      <div class="stats">
+        <div class="stat-chip" id="stat-total">📚 Total drills: 0</div>
+        <div class="stat-chip" id="stat-completed">✅ Completed: 0</div>
+      </div>
+      <div class="filters" id="filters"></div>
+    </section>
+
+    <section class="drills-grid" id="drillsGrid">
+      <!-- Cards injected by JS -->
+    </section>
+  </div>
+
+  <script>
+    const drills = [
+      {
+        id: 1,
+        topic: "Variables & Basics",
+        difficulty: "Easy",
+        title: "Dynamic Typing Intro",
+        question: "Create a variable n, first store 0 in it and print it, then change n to the string 'hello' and print it again.",
+        output: `n: 0
+n after change: hello`,
+        solution: `n = 0
+print("n:", n)
+
+n = "hello"
+print("n after change:", n)`
+      },
+      {
+        id: 2,
+        topic: "Variables & Basics",
+        difficulty: "Easy",
+        title: "Size Classifier",
+        question: "Given a number n, print 'big' if n > 100, 'medium' if 50 <= n <= 100, otherwise 'small'. Use if / elif / else.",
+        output: `n = 120  ->  big
+n = 75   ->  medium
+n = 30   ->  small`,
+        solution: `n = 75  # try different values
+
+if n > 100:
+    print("big")
+elif 50 <= n <= 100:
+    print("medium")
+else:
+    print("small")`
+      },
+      {
+        id: 3,
+        topic: "Loops & Range",
+        difficulty: "Easy",
+        title: "Countdown with Range",
+        question: "Use a for loop with range to print numbers from 10 down to 1 (inclusive), one per line.",
+        output: `10
+9
+8
+...
+2
+1`,
+        solution: `for i in range(10, 0, -1):
+    print(i)`
+      },
+      {
+        id: 4,
+        topic: "Math & Division",
+        difficulty: "Medium",
+        title: "Division Behaviours",
+        question: "Print 7 / 3, 7 // 3, -7 // 3, and int(-7 / 3) to compare float vs floor vs toward-zero division.",
+        output: `7 / 3 = 2.3333333333333335
+7 // 3 = 2
+-7 // 3 = -3
+int(-7 / 3) = -2`,
+        solution: `print("7 / 3 =", 7 / 3)
+print("7 // 3 =", 7 // 3)
+print("-7 // 3 =", -7 // 3)
+print("int(-7 / 3) =", int(-7 / 3))`
+      },
+      {
+        id: 5,
+        topic: "Lists & Slicing",
+        difficulty: "Easy",
+        title: "Squares with List Comprehension",
+        question: "Create a list squares containing the squares of numbers from 1 to 10 using a list comprehension and print it.",
+        output: `[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]`,
+        solution: `squares = [i * i for i in range(1, 11)]
+print(squares)`
+      },
+      {
+        id: 6,
+        topic: "Lists & Slicing",
+        difficulty: "Medium",
+        title: "Squares of Evens Only",
+        question: "From numbers 1..10, build a list squares_of_evens that contains the squares of even numbers only.",
+        output: `[4, 16, 36, 64, 100]`,
+        solution: `squares_of_evens = [i * i for i in range(1, 11) if i % 2 == 0]
+print(squares_of_evens)`
+      },
+      {
+        id: 7,
+        topic: "2D Lists",
+        difficulty: "Medium",
+        title: "Safe 2D Grid",
+        question: "Create a 2x3 grid filled with -1 using the 'safe' 2D pattern, then change only the middle cell (row 0, col 1) to 0 and print the grid.",
+        output: `[[-1, 0, -1], [-1, -1, -1]]`,
+        solution: `rows, cols = 2, 3
+grid = [[-1] * cols for _ in range(rows)]
+
+grid[0][1] = 0
+
+print(grid)`
+      },
+      {
+        id: 8,
+        topic: "Strings",
+        difficulty: "Easy",
+        title: "Slice the Word",
+        question: "Given s = 'interview', print the first 4 characters and then the last 3 characters.",
+        output: `inte
+iew`,
+        solution: `s = "interview"
+
+print(s[:4])    # first 4
+print(s[-3:])   # last 3`
+      },
+      {
+        id: 9,
+        topic: "Strings",
+        difficulty: "Easy",
+        title: "Number String Dance",
+        question: "Convert the string '999' to an integer, add 1, convert back to string, then print it.",
+        output: `1000`,
+        solution: `s = "999"
+n = int(s)
+n += 1
+result = str(n)
+print(result)`
+      },
+      {
+        id: 10,
+        topic: "Deque & Queue",
+        difficulty: "Medium",
+        title: "Simple Queue with deque",
+        question: "Use collections.deque as a queue: enqueue 1, 2, 3; then dequeue two elements and print them.",
+        output: `1
+2`,
+        solution: `from collections import deque
+
+q = deque()
+q.append(1)
+q.append(2)
+q.append(3)
+
+print(q.popleft())
+print(q.popleft())`
+      },
+      {
+        id: 11,
+        topic: "Sets",
+        difficulty: "Medium",
+        title: "Multiples of 3",
+        question: "Create a set of all multiples of 3 between 1 and 20 (inclusive) using set comprehension, then print it.",
+        output: `{3, 6, 9, 12, 15, 18}`,
+        solution: `multiples_of_3 = {i for i in range(1, 21) if i % 3 == 0}
+print(multiples_of_3)`
+      },
+      {
+        id: 12,
+        topic: "Dicts & Frequency",
+        difficulty: "Medium",
+        title: "Number Frequency Map",
+        question: "Given nums = [1, 2, 2, 3, 3, 3], build a dict freq that maps each number to its count and print it.",
+        output: `{1: 1, 2: 2, 3: 3}`,
+        solution: `nums = [1, 2, 2, 3, 3, 3]
+freq = {}
+
+for x in nums:
+    if x in freq:
+        freq[x] += 1
+    else:
+        freq[x] = 1
+
+print(freq)`
+      },
+      {
+        id: 13,
+        topic: "Dicts & Tuples",
+        difficulty: "Medium",
+        title: "Coordinate Map",
+        question: "Create a dict where each key is a tuple (row, col) for row in 0..1 and col in 0..2, and the value is row + col. Print the dict.",
+        output: `{(0, 0): 0, (0, 1): 1, (0, 2): 2, (1, 0): 1, (1, 1): 2, (1, 2): 3}`,
+        solution: `coord_map = {}
+
+for row in range(2):
+    for col in range(3):
+        coord_map[(row, col)] = row + col
+
+print(coord_map)`
+      },
+      {
+        id: 14,
+        topic: "Heaps",
+        difficulty: "Medium",
+        title: "Three Smallest Using Min-Heap",
+        question: "Given nums = [5, 1, 9, 3, 7, 2], push them into a min-heap and print the three smallest values.",
+        output: `1
+2
+3`,
+        solution: `import heapq
+
+nums = [5, 1, 9, 3, 7, 2]
+min_heap = []
+
+for x in nums:
+    heapq.heappush(min_heap, x)
+
+for _ in range(3):
+    print(heapq.heappop(min_heap))`
+      },
+      {
+        id: 15,
+        topic: "Heaps",
+        difficulty: "Medium",
+        title: "Three Largest Using Max-Heap Trick",
+        question: "Using the same nums = [5, 1, 9, 3, 7, 2], use a max-heap trick (push negatives) to print the three largest values.",
+        output: `9
+7
+5`,
+        solution: `import heapq
+
+nums = [5, 1, 9, 3, 7, 2]
+max_heap = []
+
+for x in nums:
+    heapq.heappush(max_heap, -x)
+
+for _ in range(3):
+    print(-heapq.heappop(max_heap))`
+      },
+      {
+        id: 16,
+        topic: "Functions",
+        difficulty: "Easy",
+        title: "Sum of List",
+        question: "Write a function sum_list(nums) that returns the sum of all numbers in the list nums. Test it with [1, 2, 3, 4].",
+        output: `10`,
+        solution: `def sum_list(nums):
+    total = 0
+    for x in nums:
+        total += x
+    return total
+
+print(sum_list([1, 2, 3, 4]))`
+      },
+      {
+        id: 17,
+        topic: "Functions & nonlocal",
+        difficulty: "Medium",
+        title: "Counter with nonlocal",
+        question: "Write a function outer() that has count = 0 inside it, defines inner() using nonlocal to increment count, calls inner() three times, and returns count. Print the result.",
+        output: `3`,
+        solution: `def outer():
+    count = 0
+
+    def inner():
+        nonlocal count
+        count += 1
+
+    inner()
+    inner()
+    inner()
+    return count
+
+print(outer())`
+      },
+      {
+        id: 18,
+        topic: "Classes",
+        difficulty: "Medium",
+        title: "MinMaxTracker Class",
+        question: "Create a class MinMaxTracker that takes a list of numbers and has methods get_min() and get_max(). Test it with [3, 1, 9, 2].",
+        output: `1
+9`,
+        solution: `class MinMaxTracker:
+    def __init__(self, nums):
+        self.nums = nums
+
+    def get_min(self):
+        return min(self.nums)
+
+    def get_max(self):
+        return max(self.nums)
+
+
+tracker = MinMaxTracker([3, 1, 9, 2])
+print(tracker.get_min())
+print(tracker.get_max())`
+      }
+    ];
+
+    const drillsGrid = document.getElementById("drillsGrid");
+    const filtersContainer = document.getElementById("filters");
+    const statTotal = document.getElementById("stat-total");
+    const statCompleted = document.getElementById("stat-completed");
+
+    let activeTopic = "All";
+    const completedSet = new Set();
+
+    function getTopics() {
+      const topics = new Set();
+      drills.forEach(d => topics.add(d.topic));
+      return ["All", ...topics];
+    }
+
+    function renderFilters() {
+      const topics = getTopics();
+      filtersContainer.innerHTML = "";
+      topics.forEach(topic => {
+        const btn = document.createElement("button");
+        btn.className = "filter-btn" + (topic === activeTopic ? " active" : "");
+        btn.dataset.topic = topic;
+        btn.innerHTML = `<span class="bullet"></span>${topic}`;
+        btn.addEventListener("click", () => {
+          activeTopic = topic;
+          renderFilters();
+          renderDrills();
+        });
+        filtersContainer.appendChild(btn);
+      });
+    }
+
+    function updateStats() {
+      statTotal.textContent = `📚 Total drills: ${drills.length}`;
+      statCompleted.textContent = `✅ Completed: ${completedSet.size}`;
+    }
+
+    function createConfettiBurst(x, y) {
+      const colors = ["#f97316", "#22c55e", "#3b82f6", "#e11d48", "#8b5cf6", "#facc15"];
+      const pieces = 35;
+
+      for (let i = 0; i < pieces; i++) {
+        const div = document.createElement("div");
+        div.className = "confetti-piece";
+        const size = 6 + Math.random() * 6;
+        div.style.width = size + "px";
+        div.style.height = (size * 1.6) + "px";
+        div.style.left = (x + (Math.random() * 80 - 40)) + "px";
+        div.style.top = (y + (Math.random() * 40 - 20)) + "px";
+        div.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        div.style.transform = `rotate(${Math.random() * 360}deg)`;
+        div.style.animationDuration = (0.8 + Math.random() * 0.6) + "s";
+        document.body.appendChild(div);
+
+        setTimeout(() => {
+          div.remove();
+        }, 1300);
+      }
+    }
+
+    function renderDrills() {
+      drillsGrid.innerHTML = "";
+      const filtered = activeTopic === "All"
+        ? drills
+        : drills.filter(d => d.topic === activeTopic);
+
+      filtered.forEach(drill => {
+        const card = document.createElement("article");
+        card.className = "drill-card";
+        if (completedSet.has(drill.id)) {
+          card.classList.add("completed");
+        }
+
+        const headerHTML = `
+          <div class="drill-header">
+            <div class="drill-topic">
+              <span>📌</span>
+              <span>${drill.topic}</span>
+            </div>
+            <span class="difficulty">${drill.difficulty}</span>
+          </div>
+          <div class="drill-title">${drill.title}</div>
+        `;
+
+        const questionHTML = `
+          <div class="drill-question">${drill.question}</div>
+          <div class="section-label">Expected Output</div>
+          <pre class="output">${drill.output}</pre>
+          <div class="hint-line">
+            <span class="icon">💡</span>
+            <span>Imagine the code that produces this output before peeking.</span>
+          </div>
+        `;
+
+        const solutionWrapper = document.createElement("div");
+        solutionWrapper.className = "solution-wrapper";
+        solutionWrapper.innerHTML = `
+          <div class="section-label">Solution (Python)</div>
+          <pre class="solution">${drill.solution}</pre>
+        `;
+
+        const actions = document.createElement("div");
+        actions.className = "drill-actions";
+
+        const revealBtn = document.createElement("button");
+        revealBtn.className = "btn btn-primary";
+        revealBtn.textContent = "Reveal Solution 🎉";
+
+        const doneBtn = document.createElement("button");
+        doneBtn.className = "btn btn-secondary";
+        doneBtn.textContent = completedSet.has(drill.id) ? "Mark as Not Done" : "Mark as Done";
+
+        revealBtn.addEventListener("click", (e) => {
+          const isOpen = solutionWrapper.classList.contains("open");
+          solutionWrapper.classList.toggle("open");
+          revealBtn.textContent = isOpen ? "Reveal Solution 🎉" : "Hide Solution 🙈";
+
+          // Confetti at button position
+          const rect = e.target.getBoundingClientRect();
+          createConfettiBurst(rect.left + rect.width / 2, rect.top);
+        });
+
+        doneBtn.addEventListener("click", () => {
+          if (completedSet.has(drill.id)) {
+            completedSet.delete(drill.id);
+            card.classList.remove("completed");
+            doneBtn.textContent = "Mark as Done";
+          } else {
+            completedSet.add(drill.id);
+            card.classList.add("completed");
+            doneBtn.textContent = "Mark as Not Done";
+          }
+          updateStats();
+        });
+
+        actions.appendChild(revealBtn);
+        actions.appendChild(doneBtn);
+
+        card.innerHTML = headerHTML + questionHTML;
+        card.appendChild(solutionWrapper);
+        card.appendChild(actions);
+
+        if (completedSet.has(drill.id)) {
+          const badge = document.createElement("div");
+          badge.className = "badge-completed";
+          badge.innerHTML = `<span>⭐</span>Done`;
+          card.appendChild(badge);
+        }
+
+        drillsGrid.appendChild(card);
+      });
+
+      updateStats();
+    }
+
+    // Initialize
+    renderFilters();
+    renderDrills();
+  </script>
+</body>
+</html>
