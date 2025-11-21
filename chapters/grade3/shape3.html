@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shape Hero - Triangles & Quadrilaterals (Grade 3)</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Comic Sans MS", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #ffe6f0, #e0f7ff);
+    }
+
+    #gameCanvas {
+      display: block;
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #ffffff 0, #f5f5ff 40%, #e0f0ff 100%);
+    }
+
+    .no-canvas {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-size: 1.2rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<noscript>
+  <div class="no-canvas">
+    This game needs JavaScript to run. Please enable JavaScript.
+  </div>
+</noscript>
+
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  let score = 0;
+  let total = 0;
+  let streak = 0;
+  let message = "Tap the correct answer to become a Shape Hero!";
+  let messageTimer = 0;
+  let currentQuestion = null;
+  let confettiPieces = [];
+  let buttons = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    if (currentQuestion) {
+      const variant = currentQuestion.variant;
+      const shapeType = currentQuestion.shapeType;
+      currentQuestion.geom = shapeType === "triangle"
+        ? shapeBuilders.triangle(variant)
+        : shapeBuilders.quad(variant);
+      layoutButtons();
+    }
+  }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  function rand(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  const shapeBuilders = {
+    triangle: (variant) => {
+      const size = Math.min(canvas.width, canvas.height) * 0.18;
+      const cx = canvas.width * 0.5;
+      const cy = canvas.height * 0.38; // keep shapes higher so options never overlap
+
+      const base = () => {
+        const pts = [];
+        const angleOffset = -Math.PI / 2;
+        for (let i = 0; i < 3; i++) {
+          const angle = angleOffset + i * (2 * Math.PI / 3);
+          pts.push({
+            x: cx + size * Math.cos(angle),
+            y: cy + size * Math.sin(angle)
+          });
+        }
+        return pts;
+      };
+
+      if (variant === "right") {
+        return [
+          { x: cx - size * 0.85, y: cy + size * 0.75 },
+          { x: cx + size * 0.85, y: cy + size * 0.75 },
+          { x: cx - size * 0.1, y: cy - size * 0.75 }
+        ];
+      }
+      if (variant === "obtuse") {
+        return [
+          { x: cx - size, y: cy + size * 0.4 },
+          { x: cx + size * 0.95, y: cy + size * 0.7 },
+          { x: cx + size * 0.05, y: cy - size * 0.6 }
+        ];
+      }
+      if (variant === "acute") {
+        return [
+          { x: cx, y: cy - size },
+          { x: cx - size * 0.9, y: cy + size * 0.35 },
+          { x: cx + size * 0.9, y: cy + size * 0.35 }
+        ];
+      }
+      if (variant === "isosceles") {
+        return [
+          { x: cx, y: cy - size },
+          { x: cx - size * 0.8, y: cy + size * 0.75 },
+          { x: cx + size * 0.8, y: cy + size * 0.75 }
+        ];
+      }
+      if (variant === "equilateral") return base();
+      return [
+        { x: cx - size * 0.95, y: cy + size * 0.85 },
+        { x: cx + size * 0.7, y: cy + size * 0.65 },
+        { x: cx + size * 0.25, y: cy - size * 0.85 }
+      ];
+    },
+    quad: (variant) => {
+      const size = Math.min(canvas.width, canvas.height) * 0.2;
+      const cx = canvas.width * 0.5;
+      const cy = canvas.height * 0.38; // keep shapes higher so options never overlap
+
+      const rect = (wScale, hScale, tilt = 0) => {
+        const w = size * wScale;
+        const h = size * hScale;
+        const rotate = (pt) => {
+          const s = Math.sin(tilt);
+          const c = Math.cos(tilt);
+          const x = pt.x - cx;
+          const y = pt.y - cy;
+          return { x: cx + x * c - y * s, y: cy + x * s + y * c };
+        };
+        return [
+          rotate({ x: cx - w, y: cy - h }),
+          rotate({ x: cx + w, y: cy - h }),
+          rotate({ x: cx + w, y: cy + h }),
+          rotate({ x: cx - w, y: cy + h })
+        ];
+      };
+
+      if (variant === "square") return rect(0.9, 0.9);
+      if (variant === "rectangle") return rect(1.2, 0.7);
+      if (variant === "parallelogram") {
+        return [
+          { x: cx - size * 1.1, y: cy - size * 0.7 },
+          { x: cx + size * 0.8, y: cy - size * 0.7 },
+          { x: cx + size * 1.1, y: cy + size * 0.7 },
+          { x: cx - size * 0.8, y: cy + size * 0.7 }
+        ];
+      }
+      if (variant === "rhombus") {
+        return [
+          { x: cx, y: cy - size },
+          { x: cx + size, y: cy },
+          { x: cx, y: cy + size },
+          { x: cx - size, y: cy }
+        ];
+      }
+      if (variant === "trapezoid") {
+        return [
+          { x: cx - size * 1.1, y: cy + size * 0.8 },
+          { x: cx + size * 1.1, y: cy + size * 0.8 },
+          { x: cx + size * 0.6, y: cy - size * 0.6 },
+          { x: cx - size * 0.4, y: cy - size * 0.6 }
+        ];
+      }
+      return [
+        { x: cx - size, y: cy - size * 0.2 },
+        { x: cx + size * 0.9, y: cy - size * 0.8 },
+        { x: cx + size * 1.1, y: cy + size * 0.9 },
+        { x: cx - size * 0.7, y: cy + size }
+      ];
+    }
+  };
+
+  const QUESTION_BANK = [
+    { mode: "triangle-angles", label: "Triangles", prompt: "What type of triangle by its angles?", variant: "acute", answer: "Acute triangle", options: ["Acute triangle", "Right triangle", "Obtuse triangle"] },
+    { mode: "triangle-angles", label: "Triangles", prompt: "What type of triangle by its angles?", variant: "right", answer: "Right triangle", options: ["Right triangle", "Acute triangle", "Obtuse triangle"] },
+    { mode: "triangle-angles", label: "Triangles", prompt: "What type of triangle by its angles?", variant: "obtuse", answer: "Obtuse triangle", options: ["Obtuse triangle", "Right triangle", "Acute triangle"] },
+    { mode: "triangle-sides", label: "Triangles", prompt: "Classify this triangle by its sides.", variant: "equilateral", answer: "Equilateral", options: ["Equilateral", "Isosceles", "Scalene"] },
+    { mode: "triangle-sides", label: "Triangles", prompt: "Classify this triangle by its sides.", variant: "isosceles", answer: "Isosceles", options: ["Isosceles", "Scalene", "Equilateral"] },
+    { mode: "triangle-sides", label: "Triangles", prompt: "Classify this triangle by its sides.", variant: "scalene", answer: "Scalene", options: ["Scalene", "Isosceles", "Equilateral"] },
+    { mode: "triangle-classify", label: "Triangles", prompt: "Pick the best full name for this triangle.", variant: "right", answer: "Right isosceles", options: ["Right isosceles", "Obtuse scalene", "Acute equilateral"] },
+    { mode: "triangle-classify", label: "Triangles", prompt: "Pick the best full name for this triangle.", variant: "acute", answer: "Acute equilateral", options: ["Acute equilateral", "Right scalene", "Obtuse isosceles"] },
+    { mode: "triangle-classify", label: "Triangles", prompt: "Pick the best full name for this triangle.", variant: "obtuse", answer: "Obtuse scalene", options: ["Obtuse scalene", "Right isosceles", "Acute equilateral"] },
+
+    { mode: "quads-parallel", label: "Quadrilaterals", prompt: "How many pairs of parallel sides?", variant: "trapezoid", answer: "1 pair", options: ["1 pair", "0 pairs", "2 pairs"] },
+    { mode: "quads-parallel", label: "Quadrilaterals", prompt: "How many pairs of parallel sides?", variant: "parallelogram", answer: "2 pairs", options: ["2 pairs", "1 pair", "0 pairs"] },
+
+    { mode: "quads-angles", label: "Quadrilaterals", prompt: "What do you know about opposite angles?", variant: "rectangle", answer: "Opposite angles are equal", options: ["Opposite angles are equal", "No equal angles", "Only one right angle"] },
+
+    { mode: "quads-identify", label: "Quadrilaterals", prompt: "Name this quadrilateral.", variant: "parallelogram", answer: "Parallelogram", options: ["Parallelogram", "Trapezoid", "Kite"] },
+    { mode: "quads-identify", label: "Quadrilaterals", prompt: "Name this quadrilateral.", variant: "trapezoid", answer: "Trapezoid", options: ["Trapezoid", "Rectangle", "Square"] },
+    { mode: "quads-identify", label: "Quadrilaterals", prompt: "Name this quadrilateral.", variant: "rectangle", answer: "Rectangle", options: ["Rectangle", "Rhombus", "Square"] },
+    { mode: "quads-identify", label: "Quadrilaterals", prompt: "Name this quadrilateral.", variant: "rhombus", answer: "Rhombus", options: ["Rhombus", "Trapezoid", "Rectangle"] },
+    { mode: "quads-identify", label: "Quadrilaterals", prompt: "Name this quadrilateral.", variant: "square", answer: "Square", options: ["Square", "Parallelogram", "Rhombus"] },
+
+    { mode: "quads-classify", label: "Quadrilaterals", prompt: "Pick all names that fit best.", variant: "square", answer: "Square, rectangle, rhombus", options: ["Square, rectangle, rhombus", "Only square", "Only rectangle"] },
+    { mode: "quads-classify", label: "Quadrilaterals", prompt: "Pick all names that fit best.", variant: "rectangle", answer: "Rectangle and parallelogram", options: ["Rectangle and parallelogram", "Only rectangle", "Only square"] },
+
+    { mode: "quads-many-names", label: "Quadrilaterals", prompt: "Name this quadrilateral more than one way.", variant: "parallelogram", answer: "Parallelogram (also quadrilateral)", options: ["Parallelogram (also quadrilateral)", "Only trapezoid", "Only kite"] },
+
+    { mode: "quads-draw", label: "Quadrilaterals", prompt: "What was drawn here?", variant: "rhombus", answer: "A rhombus (slanted diamond)", options: ["A rhombus (slanted diamond)", "A kite", "A square"] },
+    { mode: "quads-draw", label: "Quadrilaterals", prompt: "What was drawn here?", variant: "parallelogram", answer: "A parallelogram", options: ["A parallelogram", "A rectangle", "A trapezoid"] }
+  ];
+
+  function drawRoundedRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function updateConfetti(dt) {
+    for (let p of confettiPieces) {
+      p.y += p.vy * dt;
+      p.x += p.vx * dt;
+      p.rotation += p.vr * dt;
+    }
+    confettiPieces = confettiPieces.filter(p => p.y < canvas.height + 20);
+  }
+
+  function drawConfetti() {
+    for (let p of confettiPieces) {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      ctx.restore();
+    }
+  }
+
+  function spawnConfetti() {
+    const colors = ["#ff6b6b", "#ffd93b", "#6bcbff", "#9b5de5", "#4ecdc4"];
+    for (let i = 0; i < 80; i++) {
+      confettiPieces.push({
+        x: rand(canvas.width * 0.2, canvas.width * 0.8),
+        y: rand(-50, 0),
+        vx: rand(-50, 50),
+        vy: rand(80, 200),
+        vr: rand(-5, 5),
+        size: rand(6, 12),
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: rand(0, Math.PI * 2)
+      });
+    }
+  }
+
+  function drawShape() {
+    if (!currentQuestion) return;
+    const geom = currentQuestion.geom;
+    ctx.save();
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#333";
+    ctx.shadowColor = "rgba(0,0,0,0.2)";
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 3;
+    ctx.shadowOffsetY = 3;
+
+    ctx.beginPath();
+    ctx.moveTo(geom[0].x, geom[0].y);
+    for (let i = 1; i < geom.length; i++) {
+      ctx.lineTo(geom[i].x, geom[i].y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = currentQuestion.shapeType === "triangle" ? "#ffb6c1" : "#b3e6ff";
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function pickQuestion() {
+    const q = QUESTION_BANK[Math.floor(Math.random() * QUESTION_BANK.length)];
+    const shapeType = q.mode.startsWith("triangle") ? "triangle" : "quad";
+    const geom = shapeType === "triangle"
+      ? shapeBuilders.triangle(q.variant)
+      : shapeBuilders.quad(q.variant);
+    return { ...q, shapeType, geom };
+  }
+
+  function layoutButtons() {
+    if (!currentQuestion) return;
+    const opts = currentQuestion.options;
+    const buttonWidth = Math.min(320, canvas.width * 0.35);
+    const buttonHeight = Math.min(76, canvas.height * 0.09);
+    const spacing = Math.min(30, canvas.height * 0.03);
+    const totalHeight = opts.length * buttonHeight + (opts.length - 1) * spacing;
+    const startY = canvas.height * 0.72 - totalHeight / 2;
+
+    buttons = opts.map((label, i) => {
+      const x = canvas.width / 2 - buttonWidth / 2;
+      const y = startY + i * (buttonHeight + spacing);
+      return { x, y, w: buttonWidth, h: buttonHeight, label };
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      const radius = Math.min(canvas.width, canvas.height) * 0.25;
+      const x = canvas.width * (0.2 + 0.3 * i);
+      const y = canvas.height * 0.2;
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = "#333";
+    ctx.textAlign = "center";
+
+    ctx.font = "bold " + Math.max(28, canvas.width * 0.03) + "px 'Comic Sans MS', sans-serif";
+    ctx.fillText("Shape Hero: Triangles & Quadrilaterals", canvas.width / 2, canvas.height * 0.08);
+
+    ctx.font = "bold " + Math.max(18, canvas.width * 0.017) + "px 'Comic Sans MS', sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Score: " + score, canvas.width * 0.04, canvas.height * 0.06);
+    ctx.fillText("Questions: " + total, canvas.width * 0.04, canvas.height * 0.10);
+    ctx.fillText("Streak: " + streak, canvas.width * 0.04, canvas.height * 0.14);
+
+    ctx.textAlign = "center";
+    ctx.font = "bold " + Math.max(22, canvas.width * 0.022) + "px 'Comic Sans MS', sans-serif";
+    const topic = currentQuestion ? currentQuestion.label : "";
+    ctx.fillText((topic ? topic + " - " : "") + (currentQuestion ? currentQuestion.prompt : ""), canvas.width / 2, canvas.height * 0.20);
+
+    drawShape();
+
+    ctx.font = "bold " + Math.max(20, canvas.width * 0.02) + "px 'Comic Sans MS', sans-serif";
+    buttons.forEach((btn, idx) => {
+      const palette = ["#ffcc80", "#c5e1a5", "#80deea", "#ffe082"];
+      drawButton(btn, palette[idx % palette.length]);
+    });
+
+    ctx.font = "bold " + Math.max(18, canvas.width * 0.018) + "px 'Comic Sans MS', sans-serif";
+    ctx.fillStyle = "#444";
+    ctx.fillText(message, canvas.width / 2, canvas.height * 0.92);
+
+    drawConfetti();
+  }
+
+  function drawButton(btn, color) {
+    ctx.save();
+    drawRoundedRect(btn.x, btn.y, btn.w, btn.h, 20);
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 3;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#333";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2);
+    ctx.restore();
+  }
+
+  canvas.addEventListener("click", handleClick);
+
+  function handleClick(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const hit = buttons.find(btn => x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h);
+    if (hit) {
+      checkAnswer(hit.label);
+    }
+  }
+
+  function checkAnswer(chosen) {
+    total++;
+    if (chosen === currentQuestion.answer) {
+      score++;
+      streak++;
+      message = "Correct! You're a Shape Hero!";
+      messageTimer = 1.5;
+      spawnConfetti();
+    } else {
+      streak = 0;
+      message = "Not quite. The correct answer was: " + currentQuestion.answer + ". Try the next one!";
+      messageTimer = 2.5;
+    }
+
+    setTimeout(() => {
+      currentQuestion = pickQuestion();
+      layoutButtons();
+    }, 800);
+  }
+
+  let lastTime = performance.now();
+  function loop(timestamp) {
+    const dt = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
+
+    if (messageTimer > 0) {
+      messageTimer -= dt;
+      if (messageTimer < 0) messageTimer = 0;
+    }
+    updateConfetti(dt);
+
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  currentQuestion = pickQuestion();
+  layoutButtons();
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>

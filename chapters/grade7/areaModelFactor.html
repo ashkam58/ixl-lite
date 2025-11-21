@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Area Model Factor – Cartoon Lab</title>
+  <title>Area Model Factor Lab</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -24,14 +24,6 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.18);
       position: relative;
       overflow: hidden;
-    }
-    .app::before {
-      content: "🧠";
-      font-size: 70px;
-      position: absolute;
-      right: -10px;
-      top: -20px;
-      opacity: 0.15;
     }
     h1 {
       margin: 0 0 6px;
@@ -76,7 +68,6 @@
       .question-layout { grid-template-columns: 1fr; }
     }
 
-    /* Area model */
     .area-card {
       background: #fff7da;
       border-radius: 18px;
@@ -105,7 +96,6 @@
       margin-top: 4px;
       font-weight: bold;
     }
-
     .model-grid {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -132,7 +122,6 @@
       border-radius: 15px;
       padding: 8px;
     }
-
     .top-factors {
       display: flex;
       gap: 8px;
@@ -160,7 +149,6 @@
       font-size: 0.85rem;
       min-width: 40px;
     }
-
     .areas-row {
       display: flex;
       gap: 8px;
@@ -177,7 +165,6 @@
       border: 1px solid rgba(0,0,0,0.05);
     }
 
-    /* Right panel */
     .right-card {
       background: #e8f5e9;
       border-radius: 18px;
@@ -187,13 +174,8 @@
       flex-direction: column;
       gap: 8px;
     }
-    .task-text {
-      font-size: 0.95rem;
-    }
-    .hint {
-      font-size: 0.85rem;
-      color: #2e7d32;
-    }
+    .task-text { font-size: 0.95rem; }
+    .hint { font-size: 0.85rem; color: #2e7d32; }
     .input-row {
       display: flex;
       flex-wrap: wrap;
@@ -207,10 +189,7 @@
       border: 1px solid #bdbdbd;
       font-size: 0.9rem;
     }
-    .factored-input {
-      width: 100%;
-      max-width: 260px;
-    }
+    .factored-input { width: 100%; max-width: 260px; }
     button {
       border: none;
       border-radius: 999px;
@@ -223,10 +202,7 @@
       gap: 6px;
       transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
     }
-    button:active {
-      transform: translateY(1px);
-      box-shadow: none;
-    }
+    button:active { transform: translateY(1px); box-shadow: none; }
     .btn-check {
       background: linear-gradient(90deg, #81c784, #4caf50);
       color: #fff;
@@ -237,10 +213,7 @@
       color: #1e88e5;
       border: 1px solid #90caf9;
     }
-    .status {
-      min-height: 20px;
-      font-size: 0.9rem;
-    }
+    .status { min-height: 20px; font-size: 0.9rem; }
     .status.correct { color: #2e7d32; }
     .status.wrong { color: #c62828; }
 
@@ -254,7 +227,6 @@
       gap: 6px;
     }
 
-    /* Confetti */
     .confetti-piece {
       position: fixed;
       width: 8px;
@@ -273,24 +245,23 @@
 </head>
 <body>
 <div class="app">
-  <h1>📐 Area Model Factoring Lab</h1>
+  <h1>Area Model Factoring Lab</h1>
   <div class="subtitle">
-    Grade 7 • USA curriculum • Sometimes height is missing, sometimes the other factor is missing 😼
+    Grade 7 - Find the missing greatest common factor or the missing factor terms.
   </div>
 
   <div class="top-row">
-    <div class="badge">Cartoon theme ON 🎨</div>
+    <div class="badge">Cartoon theme</div>
     <div class="score" id="scoreBox">Score: 0 / 0</div>
   </div>
 
   <div class="question-layout">
-    <!-- LEFT: Area model -->
     <div class="area-card">
       <div class="area-header">
         <span>Use the area model to factor:</span>
         <span class="mode-tag" id="modeTag"></span>
       </div>
-      <div class="big-expression" id="expressionText">12d − 72e</div>
+      <div class="big-expression" id="expressionText">12d - 72e</div>
 
       <div class="model-grid">
         <div class="height-strip">
@@ -298,24 +269,15 @@
           <div class="height-value" id="heightLabel">?</div>
         </div>
         <div class="rect-block">
-          <div class="top-factors" id="topFactorsRow">
-            <!-- top inputs/spans here -->
-          </div>
-          <div class="areas-row" id="areasRow">
-            <!-- area cells here -->
-          </div>
+          <div class="top-factors" id="topFactorsRow"></div>
+          <div class="areas-row" id="areasRow"></div>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT: Tasks -->
     <div class="right-card">
-      <div class="task-text" id="taskText">
-        <!-- dynamic text -->
-      </div>
-      <div class="hint" id="hintText">
-        <!-- dynamic hint -->
-      </div>
+      <div class="task-text" id="taskText"></div>
+      <div class="hint" id="hintText"></div>
 
       <div class="input-row" id="heightRow">
         <span>Height (common factor):</span>
@@ -330,268 +292,29 @@
       <div class="status" id="statusMsg"></div>
 
       <div class="input-row">
-        <button class="btn-check" id="checkBtn">✅ Check</button>
-        <button class="btn-next" id="nextBtn">➡️ New Question</button>
+        <button class="btn-check" id="checkBtn">Check</button>
+        <button class="btn-next" id="nextBtn">New question</button>
       </div>
     </div>
   </div>
 
   <div class="footer-note">
-    <span>Rule: height × width = area of each rectangle.</span>
-    <span>Made for Ashkam’s IAS-ready math lab 🧮</span>
+    <span>Rule: height x width = area of each rectangle.</span>
+    <span>Built for the IXL-lite practice lab.</span>
   </div>
 </div>
 
 <script>
-  // Question types:
-  // mode "height"  -> student finds HEIGHT + factored form
-  // mode "widths"  -> student finds EACH WIDTH TERM + factored form
-  // Data is explicit so checking is easy for kids.
-
   const QUESTIONS = [
-    // HEIGHT MODE (GCF missing)
-    {
-      mode: "height",
-      expression: "80r + 90s",
-      areas: ["80r", "90s"],
-      height: 10,
-      widths: ["8r", "9s"],
-      factored: "10(8r + 9s)"
-    },
-    {
-      mode: "height",
-      expression: "45m + 30",
-      areas: ["45m", "30"],
-      height: 15,
-      widths: ["3m", "2"],
-      factored: "15(3m + 2)"
-    },
-    {
-      mode: "height",
-      expression: "21x + 28y + 35z",
-      areas: ["21x", "28y", "35z"],
-      height: 7,
-      widths: ["3x", "4y", "5z"],
-      factored: "7(3x + 4y + 5z)"
-    },
+    { mode: "height", expression: "80r + 90s", areas: ["80r", "90s"], height: 10, widths: ["8r", "9s"], factored: "10(8r + 9s)" },
+    { mode: "height", expression: "45m + 30", areas: ["45m", "30"], height: 15, widths: ["3m", "2"], factored: "15(3m + 2)" },
+    { mode: "height", expression: "21x + 28y + 35z", areas: ["21x", "28y", "35z"], height: 7, widths: ["3x", "4y", "5z"], factored: "7(3x + 4y + 5z)" },
+    { mode: "height", expression: "63a + 42b", areas: ["63a", "42b"], height: 21, widths: ["3a", "2b"], factored: "21(3a + 2b)" },
 
-    // WIDTHS MODE (like your screenshot: height given, find missing factor terms)
-    {
-      mode: "widths",
-      expression: "12d - 72e",
-      areas: ["12d", "-72e"],
-      height: 12,
-      widths: ["d", "-6e"],
-      factored: "12(d - 6e)"
-    },
-    {
-      mode: "widths",
-      expression: "18p + 30q",
-      areas: ["18p", "30q"],
-      height: 6,
-      widths: ["3p", "5q"],
-      factored: "6(3p + 5q)"
-    },
-    {
-      mode: "widths",
-      expression: "24m + 36n + 12",
-      areas: ["24m", "36n", "12"],
-      height: 12,
-      widths: ["2m", "3n", "1"],
-      factored: "12(2m + 3n + 1)"
-    },
-    [
-  {
-    "terms": [
-      { "coeff": 80, "variable": "r" },
-      { "coeff": 90, "variable": "s" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 45, "variable": "m" },
-      { "coeff": 30, "variable": "" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 16, "variable": "a" },
-      { "coeff": 24, "variable": "b" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 27, "variable": "x" },
-      { "coeff": 18, "variable": "y" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 14, "variable": "p" },
-      { "coeff": 21, "variable": "q" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 32, "variable": "k" },
-      { "coeff": 48, "variable": "l" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 21, "variable": "x" },
-      { "coeff": 28, "variable": "y" },
-      { "coeff": 35, "variable": "z" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 18, "variable": "p" },
-      { "coeff": 27, "variable": "q" },
-      { "coeff": 9,  "variable": "r" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 24, "variable": "m" },
-      { "coeff": 36, "variable": "n" },
-      { "coeff": 12, "variable": "" }
-    ]
-  },
-
-  <!-- more 2-term expressions -->
-  {
-    "terms": [
-      { "coeff": 12, "variable": "x" },
-      { "coeff": 18, "variable": "y" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 35, "variable": "a" },
-      { "coeff": 49, "variable": "b" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 22, "variable": "m" },
-      { "coeff": 33, "variable": "n" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 63, "variable": "p" },
-      { "coeff": 42, "variable": "q" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 50, "variable": "u" },
-      { "coeff": 75, "variable": "v" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 28, "variable": "r" },
-      { "coeff": 32, "variable": "s" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 54, "variable": "x" },
-      { "coeff": 36, "variable": "" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 40, "variable": "k" },
-      { "coeff": 60, "variable": "k" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 18, "variable": "c" },
-      { "coeff": 30, "variable": "d" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 42, "variable": "y" },
-      { "coeff": 56, "variable": "z" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 12, "variable": "a" },
-      { "coeff": 18, "variable": "b" },
-      { "coeff": 24, "variable": "c" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 16, "variable": "m" },
-      { "coeff": 40, "variable": "n" },
-      { "coeff": 24, "variable": "" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 30, "variable": "x" },
-      { "coeff": 45, "variable": "y" },
-      { "coeff": 60, "variable": "z" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 14, "variable": "p" },
-      { "coeff": 21, "variable": "q" },
-      { "coeff": 28, "variable": "r" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 27, "variable": "u" },
-      { "coeff": 36, "variable": "v" },
-      { "coeff": 45, "variable": "w" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 18, "variable": "k" },
-      { "coeff": 30, "variable": "k" },
-      { "coeff": 42, "variable": "k" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 32, "variable": "a" },
-      { "coeff": 48, "variable": "b" },
-      { "coeff": 64, "variable": "c" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 20, "variable": "m" },
-      { "coeff": 35, "variable": "n" },
-      { "coeff": 25, "variable": "" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 24, "variable": "x" },
-      { "coeff": 32, "variable": "y" },
-      { "coeff": 40, "variable": "z" }
-    ]
-  },
-  {
-    "terms": [
-      { "coeff": 15, "variable": "p" },
-      { "coeff": 20, "variable": "" },
-      { "coeff": 25, "variable": "q" }
-    ]
-  }
-]
-
+    { mode: "widths", expression: "12d - 72e", areas: ["12d", "-72e"], height: 12, widths: ["d", "-6e"], factored: "12(d - 6e)" },
+    { mode: "widths", expression: "18p + 30q", areas: ["18p", "30q"], height: 6, widths: ["3p", "5q"], factored: "6(3p + 5q)" },
+    { mode: "widths", expression: "24m + 36n + 12", areas: ["24m", "36n", "12"], height: 12, widths: ["2m", "3n", "1"], factored: "12(2m + 3n + 1)" },
+    { mode: "widths", expression: "28x + 49y", areas: ["28x", "49y"], height: 7, widths: ["4x", "7y"], factored: "7(4x + 7y)" }
   ];
 
   const expressionText = document.getElementById("expressionText");
@@ -610,7 +333,7 @@
   const nextBtn = document.getElementById("nextBtn");
 
   let currentQuestion = null;
-  let topInputs = []; // for "widths" mode
+  let topInputs = [];
   let correct = 0;
   let total = 0;
 
@@ -647,41 +370,29 @@
 
     const q = currentQuestion;
 
-    expressionText.textContent = q.expression.replace("-", "−");
+    expressionText.textContent = q.expression;
     areasRow.innerHTML = "";
     topFactorsRow.innerHTML = "";
 
-    // mode tag & instructions
     if (q.mode === "height") {
-      modeTag.textContent = "Find the HEIGHT";
+      modeTag.textContent = "Find the height";
       taskText.innerHTML =
         `Use the area model to factor <b>${q.expression}</b>.<br>` +
         `First, find the <b>height (greatest common factor)</b>. Then write the expression in factored form.`;
-      hintText.textContent =
-        "Think: the height must divide every coefficient. Height × width term = each area.";
+      hintText.textContent = "The height must divide every coefficient. Height x width term = each area.";
       heightRow.style.display = "flex";
       heightLabel.textContent = "?";
     } else {
-      modeTag.textContent = "Find the MISSING FACTOR";
+      modeTag.textContent = "Find missing factor";
       taskText.innerHTML =
         `Use the area model to factor <b>${q.expression}</b>.<br>` +
-        `The height is given. Find the <b>terms of the missing factor</b> (top boxes), then write factored form.`;
-      hintText.textContent =
-        "Divide each area by the height to get the term above it. Those terms go together inside the parentheses.";
-      heightRow.style.display = "none"; // height is already known
+        `The height is given. Divide each area by the height to fill the missing factor terms, then write the factored form.`;
+      hintText.textContent = "Divide each area by the height to get the top terms. Group them inside parentheses.";
+      heightRow.style.display = "none";
       heightLabel.textContent = q.height;
     }
 
-    // height label
-    if (q.mode === "height") {
-      heightLabel.textContent = "?";
-    } else {
-      heightLabel.textContent = q.height;
-    }
-
-    // build top row & area row
     q.areas.forEach((area, index) => {
-      // top cells
       const topCell = document.createElement("div");
       topCell.className = "top-cell";
       if (q.mode === "widths") {
@@ -698,14 +409,11 @@
       }
       topFactorsRow.appendChild(topCell);
 
-      // area cells
       const areaCell = document.createElement("div");
       areaCell.className = "area-cell";
       areaCell.textContent = area;
       areasRow.appendChild(areaCell);
     });
-
-    // For 3-term widths mode, we already have 3 inputs; for 2-term also works.
 
     heightInput.focus();
     if (q.mode === "widths" && topInputs[0]) {
@@ -719,7 +427,6 @@
     let allOK = true;
     let messages = [];
 
-    // Check height if needed
     if (q.mode === "height") {
       const hVal = Number(heightInput.value);
       if (!heightInput.value) {
@@ -727,11 +434,10 @@
         messages.push("Enter a height (GCF).");
       } else if (hVal !== q.height) {
         allOK = false;
-        messages.push(`Height isn’t correct yet. Remember: it must divide all coefficients.`);
+        messages.push("Height is not correct yet. It must divide all coefficients.");
       }
     }
 
-    // Check width terms if needed
     if (q.mode === "widths") {
       q.widths.forEach((target, i) => {
         const inp = topInputs[i];
@@ -746,7 +452,6 @@
       });
     }
 
-    // Check factored form (always)
     const factUser = normalize(factoredInput.value || "");
     const factTarget = normalize(q.factored);
     if (!factUser) {
@@ -754,13 +459,13 @@
       messages.push("Write the expression in factored form.");
     } else if (factUser !== factTarget) {
       allOK = false;
-      messages.push(`Check your factored form. Use parentheses correctly.`);
+      messages.push("Check your factored form. Use parentheses correctly.");
     }
 
     total++;
     if (allOK) {
       correct++;
-      statusMsg.textContent = "Excellent! Your factors match the area model 🎉";
+      statusMsg.textContent = "Excellent! Your factors match the area model.";
       statusMsg.className = "status correct";
       fireConfetti();
     } else {
@@ -772,15 +477,11 @@
   }
 
   checkBtn.addEventListener("click", checkAnswer);
-  nextBtn.addEventListener("click", () => {
-    renderQuestion();
-  });
-
+  nextBtn.addEventListener("click", () => renderQuestion());
   factoredInput.addEventListener("keydown", e => {
     if (e.key === "Enter") checkAnswer();
   });
 
-  // start
   renderQuestion();
 </script>
 </body>
